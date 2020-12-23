@@ -246,7 +246,7 @@
             el:"#main",
             data:{
                 type:"test",
-                selectGroupId:"group1",
+                selectGroupId:"system",
                 selectMenuId:"menu1",
                 menus:menus,
                 groups:groups,
@@ -291,7 +291,7 @@
         setVue();
 
         fn_transaction("group","/service/webAdmin/user/selectList.do/selectMenuGroup",fn_callback);
-        //fn_transaction("menu","/service/webAdmin/user/selectList.do/selectMenu",fn_callback);
+        fn_transaction("menu","/service/webAdmin/user/selectList.do/selectMenu",fn_callback);
 
 
 
@@ -326,6 +326,9 @@
         }else{
             if(func == "group"){
                 app.groups = data.resultList;
+            }
+            if(func == "menu"){
+                app.menus = data.resultList;
             }
         }
     }
@@ -405,9 +408,6 @@
                     <li class="nav-item" role="presentation">
                         <a href="#home" data-toggle="tab" role="tab" class="nav-link active">Main</a>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <a href="#home2" data-toggle="tab" role="tab" class="nav-link">MaiN2</a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -441,10 +441,7 @@
     <main>
         <div class="tab-content  w-100" id="tabContentList">
             <div role="tabpanel" class="tab-pane active show" id="home">
-                <iframe src="./vuetest.html" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="home2">
-                <iframe src="./vuetest2.html" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>
+                <iframe src="./sample/vuetest.html" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>
             </div>
         </div>
     </main>

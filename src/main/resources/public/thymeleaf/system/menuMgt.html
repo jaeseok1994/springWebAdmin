@@ -196,7 +196,7 @@
         <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
     </div>
     <div class ="box_Atype">
-        <button v-for="list in MenuList" :value="list.id" class="btn_typeB" onclick="search(value)" >
+        <button v-for="list in MenuList" :value="list.id" class="btn_typeB" :class="list.id==keys.group?'btn_typeB_active':''" onclick="search(value)" >
             {{list.name}}
         </button>
     </div>
