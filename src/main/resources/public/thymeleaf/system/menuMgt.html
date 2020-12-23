@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>메뉴관리</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+        <link href="/realgrid/realgrid.2.1.0/realgrid-style.css" rel="stylesheet" />
+    <!--    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>-->
+        <script src="/js/jquery/jquery-3.5.1.js"></script>
+        <script src="/js/jquery/jquery-ui.js"></script>
+        <script src="/js/jquery/select2.min.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/realgrid-lic.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/realgrid.2.1.0.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+        <link href="/css/common_ui.css" rel="stylesheet" />
+        <script src="/js/common/common_ui.js"></script>
+        <script src="/js/common/common_transaction.js"></script>
+        <script src="/js/vue/vue.js"></script>
+    </div>
+</head>
+<script type="text/javascript">
+
+</script>
+<script>
+    var fields = [
+      {fieldName: "id",dataType: "text"},
+      {fieldName: "pid",dataType: "text"},
+      {fieldName: "name",dataType: "text"},
+      {fieldName: "sort",dataType: "text"},
+      {fieldName: "url",dataType: "text"},
+    ];
+
+    var columns = [
+      {name: "id", fieldName: "id", type: "data", width: "90", header: { text: "메뉴아이디" } },
+      {name: "pid", fieldName: "pid", type: "data", width: "90", header: { text: "상위메뉴" } },
+      {name: "name", fieldName: "name", type: "data", width: "150", header: { text: "메뉴명" },styleName:"left-column" },
+      {name: "sort", fieldName: "sort", type: "data", width: "80", header: { text: "순서" } },
+      {name: "url", fieldName: "url", type: "data", width: "300", header: { text: "Url" },styleName:"left-column" },
+    ];
+
+    var grid,grid2;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                MenuList:['1'],
+                keys:{
+                    search:'',
+                    group:'',
+                    pid:'',
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+            search();
+        });
+        $("#goSave").click(function(){
+            maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+        }
+        grid2 = {
+            id:"realgrid2",
+            fields:fields,
+            columns:columns,
+        }
+        //createGrid("realgrid");
+        createRGrid(grid);
+        createRGrid(grid2);
+        grid.gridView.onCellClicked = function(g, cell) {
+            cell.itemIndex
+            //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
+            var id = grid.gridView.getValue(cell.itemIndex,"id");
+            searchDetail(id);
+        };
+        searchGroup();
+        search();
+
+        setResizeHeightObjs("realgrid","realgrid2");
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
+    });
+
+    var pid ;
+    function searchGroup(page){
+        fn_transaction("selectGroup","/service/system/menuMgt/selectList.do/selectGroupList",fn_callback);
+    }
+    function search(group){
+        pid = "";
+        grid2.gridView.commit(false);
+        grid.dataProvider.clearRows();
+        grid2.dataProvider.clearRows();
+
+        app.keys.group = group;
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/system/menuMgt/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function searchDetail(_pid){
+        pid = _pid;
+        grid2.gridView.commit(false);
+        grid2.dataProvider.clearRows();
+
+        app.keys.pid = pid;
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select2","/service/system/menuMgt/selectList.do/selectList2",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid2.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+        var list = getCheckedRows(grid2);
+        if(list.length<1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+        var listData = {
+              list: list
+        };
+
+        fn_transaction(func,"/service/system/menuMgt/maintList.do/"+func+"List",listData,fn_callback);
+
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+            if(func == "selectGroup"){
+                app.MenuList = data.resultList;
+            }else if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+            }else if(func == "select2"){
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+                if(data.resultList.length == 0){
+                    grid2.dataProvider.addRow({pid:pid});
+                }
+            }else{
+                fn_alert(data.message);
+            }
+        }
+    }
+    $(window).resize(function(){
+        gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">메뉴관리</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>메뉴관리</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">메뉴명</td>
+                <td>
+                    <input id="itemnm" type="text" class="input_A w90p"  v-model="keys.search">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class ="box_Atype">
+        <button v-for="list in MenuList" :value="list.id" class="btn_typeB" onclick="search(value)" >
+            {{list.name}}
+        </button>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 40%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div class="paging" id="gridPageBarDiv" style="height:20px; "></div>
+        </div>
+        <div style=" width: 59%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            <div class="paging" id="gridPageBarDiv2" style="height:20px; "></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- <properties resource="config/jdbc.properties" /> -->
+    <settings>
+        <setting name="callSettersOnNulls" value="true" />
+        <setting name="cacheEnabled" value="true" />
+        <setting name="jdbcTypeForNull" value="NULL"/>
+<!--        <setting name="useGeneratedKeys" value="true" />-->
+<!--        <setting name="defaultExecutorType" value="REUSE" />-->
+<!--        <setting name="defaultStatementTimeout" value="3000" />-->
+    </settings>
+    <typeAliases>
+        <package name="com.webAdmin.dao" />
+    </typeAliases>
+<!--    <mappers>-->
+<!--        <mapper resource="core/sql/a.xml" />-->
+<!--        <mapper resource="core/sql/b.xml" />-->
+<!--        <mapper resource="core/sql/c.xml" />-->
+<!--        <mapper resource="plugin/member/sql/d.xml" />-->
+<!--        <mapper resource="plugin/member/sql/e.xml" />-->
+<!--        <mapper resource="plugin/member/sql/f.xml" />-->
+<!--    </mappers>-->
+
+</configuration>

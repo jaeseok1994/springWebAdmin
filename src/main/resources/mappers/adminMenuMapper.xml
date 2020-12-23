@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="bootAdmin.admin.menu">
+    <select id="selectName"  parameterType="map" resultType="string">
+        SELECT id
+        FROM menu
+        LIMIT 1
+    </select>
+    <select id="selectList"  parameterType="map" resultType="map">
+        SELECT *
+        FROM menu
+        where `label` like concat('%',#{label},'%')
+        order by 1
+    </select>
+    <insert id="maint"  parameterType="map" >
+        <if test ="func=='insert'">
+            <include refid="insert" />
+        </if>
+        <if test ="func=='save'">
+            <include refid="save" />
+        </if>
+        <if test ="func=='delete'">
+            <include refid="delete" />
+        </if>
+    </insert>
+    <insert id="insert"  parameterType="map" >
+        insert into menu
+        (id,label,level,`order`,path,url)
+        values
+        (#{id},#{label},#{level},#{order},#{path},#{url})
+    </insert>
+    <insert id="save"  parameterType="map" >
+        update menu
+        set label = #{label}
+        ,`level` = #{level}
+        ,`order` = #{order}
+        ,`path` = #{path}
+        ,`url` = #{url}
+        where id = #{id}
+    </insert>
+    <insert id="delete"  parameterType="map" >
+        delete from menu
+        where id = #{id}
+    </insert>
+    <sql id="save">
+        update menu
+        set label = #{label}
+            ,`level` = #{level}
+            ,`order` = #{order}
+            ,`path` = #{path}
+            ,`url` = #{url}
+        where id = #{id}
+    </sql>
+    <sql id="delete">
+        delete from menu
+        where id = #{id}
+    </sql>
+    <sql id="insert">
+        insert into menu
+        (id,label,level,`order`,path,url)
+        values
+        (#{id},#{label},#{level},#{order},#{path},#{url})
+    </sql>
+</mapper>

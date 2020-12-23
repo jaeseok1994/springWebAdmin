@@ -1,0 +1,33 @@
+#spring:
+#  security:
+#    user:
+#      name: test
+#      password: 1111
+logging:
+  level:
+    root: debug
+    com.webAdmin: debug
+    org:
+       apache:
+         ibatis: debug
+    bootAdmin: debug
+    org.springframework.jdbc.core.JdbcTemplate: debug
+
+mybatis:
+  type-aliases-package: com.webAdmin.dao
+#  config-location: classpasth:config/mybatis-config.xml
+
+server:
+  port: 8000
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+      url: jdbc:oracle:thin:@localhost:1521:orcl
+      driver-class-name: oracle.jdbc.OracleDriver
+      username: demoadmin
+      password: demoadmin
+  thymeleaf:
+    prefix: classpath:/public/thymeleaf/

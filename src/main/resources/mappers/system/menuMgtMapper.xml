@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.menuMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        SELECT *
+          FROM SYS_MENU
+         where name like '%'||#{map.search}||'%'
+        <if test ="map.group != null and map.group != ''">
+            and pid = #{map.group}
+        </if>
+        <if test ="map.group == null or map.group == ''">
+            and pid = '0'
+        </if>
+        order by sort
+    </select>
+    <select id="selectList2" parameterType="map" resultType="cMap">
+        SELECT *
+         FROM SYS_MENU
+        where 1=1
+        <if test ="map.pid != null and map.pid != ''">
+            and pid = #{map.pid}
+        </if>
+        order by sort
+    </select>
+    <select id="selectGroupList" parameterType="map" resultType="cMap">
+        select a.*  from SYS_MENU a
+         where pid = '0' and id > '0'
+         order by sort
+    </select>
+    <insert id="insertList" parameterType="map" >
+        insert into SYS_MENU(id,name,pid)
+        values(#{id},#{name},#{pid})
+    </insert>
+    <insert id="maintList" parameterType="map" >
+        MERGE INTO SYS_MENU S
+        USING DUAL
+           ON (S.ID = #{id} and S.PID = #{pid})
+        WHEN MATCHED THEN
+        UPDATE SET
+                S.name = #{name}
+             ,  S.SORT = #{sort}
+             ,  S.URL = nvl(#{url},' ')
+        WHEN NOT MATCHED THEN
+            INSERT (S.id, S.PID, S.NAME, S.SORT, S.URL)
+            VALUES (#{id},#{pid},#{name},#{sort},nvl(#{url},''))
+    </insert>
+    <insert id="deleteList" parameterType="map" >
+        delete from SYS_MENU
+         where id = #{id}
+    </insert>
+</mapper>

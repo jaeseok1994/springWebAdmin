@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.webAdmin.security">
+    <select id="selectAuthList" parameterType="map" resultType="map">
+        SELECT *
+        FROM authority
+        order by 1
+    </select>
+    <select id="selectUserList" parameterType="map" resultType="map">
+        SELECT *
+        FROM users
+        where id=#{id}
+    </select>
+    <select id="selectUserRoleList" parameterType="map" resultType="map">
+        select
+             r.*,ur.*, 1 aa_a1
+          from role  r join user_roles ur
+          on r.name=ur.roles where ur.username=#{id}
+    </select>
+</mapper>

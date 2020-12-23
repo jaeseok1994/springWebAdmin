@@ -1,0 +1,83 @@
+<meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<!-- Tell the browser to be responsive to screen width -->
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+<meta id="csrf_token" th:content="${_csrf}?${_csrf.token}"/>
+
+
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" th:href="@{/css/common_ui.css}"/>
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<link rel="stylesheet" th:href="@{/realgrid/realgrid.2.1.0/realgrid-style.css}"/>
+<link rel="stylesheet" th:href="@{/css/realgrid.css}"/><!--realgrid-style.css 보다 나중-->
+
+<script th:src="@{/js/jquery/jquery-3.5.1.js}"></script>
+<script th:src="@{/js/jquery/jquery-ui.js}"></script>
+<script th:src="@{/js/jquery/select2.min.js}"></script>
+
+<script th:src="@{/realgrid/realgrid.2.1.0/realgrid-lic.js}"></script>
+<script th:src="@{/realgrid/realgrid.2.1.0/realgrid.2.1.0.js}"></script>
+<script th:src="@{/realgrid/realgrid.2.1.0/libs/jszip.min.js}"></script>
+
+<script th:src="@{/js/common/common_ui.js}"></script>
+<script th:src="@{/js/common/common_transaction.js}"></script>
+<script th:src="@{/js/vue/vue.js}"></script>
+
+<script src="/js/jquery/jquery-3.5.1.js"></script>
+<script src="/js/jquery/jquery-ui.js"></script>
+<script src="/js/jquery/select2.min.js"></script>
+<script src="/realgrid/realgrid.2.1.0/realgrid-lic.js"></script>
+<script src="/realgrid/realgrid.2.1.0/realgrid.2.1.0.js"></script>
+<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+
+<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+
+
+<script>
+
+function createRGrid(grid) {
+    grid.dataProvider = new RealGrid.LocalDataProvider();
+    grid.gridView = new RealGrid.GridView(grid.id);
+    grid.gridView.setDataSource(grid.dataProvider);
+
+    grid.dataProvider.setFields(grid.fields);
+    grid.gridView.setColumns(grid.columns);
+
+    grid.gridView.displayOptions.emptyMessage = "표시할 데이타가 없습니다.";
+    grid.gridView.header.height = 40;
+    grid.gridView.displayOptions.rowHeight = 26;
+    grid.gridView.footer.height = 28;
+    grid.gridView.stateBar.width = 16;
+    grid.gridView.editOptions.insertable = true;
+    grid.gridView.editOptions.appendable = true;
+}
+function getCheckedRows(g){
+    var rows = g.gridView.getCheckedRows(true);
+    var list = [];
+    for(var i = 0;i<rows.length;i++){
+        list.push(g.dataProvider.getJsonRows(rows[i])[0]);
+    }
+    //alert(JSON.stringify(list));
+    return list;
+}
+</script>
+<!-- Bootstrap 3.3.6 -->
+<!--<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>-->
+<!--&lt;!&ndash; Font Awesome &ndash;&gt;-->
+<!--<link rel="stylesheet" th:href="@{/dist/third/font-awesome.min.css}"/>-->
+<!--&lt;!&ndash; Ionicons &ndash;&gt;-->
+<!--<link rel="stylesheet" th:href="@{/dist/third/ionicons.min.css}"/>-->
+
+<!--&lt;!&ndash; Theme style &ndash;&gt;-->
+<!--<link rel="stylesheet" th:href="@{/dist/css/AdminLTE.min.css}"/>-->
+<!--&lt;!&ndash; AdminLTE Skins. Choose a skin from the css/skins-->
+<!--     folder instead of downloading all of them to reduce the load. &ndash;&gt;-->
+<!--<link rel="stylesheet" th:href="@{/dist/css/skins/_all-skins.min.css}"/>-->
+
+<!--&lt;!&ndash; iCheck &ndash;&gt;-->
+<!--<link rel="stylesheet" th:href="@{/plugins/iCheck/square/blue.css}"/>-->
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<![endif]-->

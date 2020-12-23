@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.admin.user">
+    <select id="selectName"  parameterType="map" resultType="string">
+        SELECT id
+        FROM users
+        LIMIT 1
+    </select>
+    <select id="selectList"  parameterType="map" resultType="map">
+        SELECT
+             id,username,password,email,salt,disabled
+            ,date_format(createTime, '%Y-%m-%d')  createTime
+            ,date_format(lastTime, '%Y-%m-%d')  lastTime
+        FROM users
+        where `email` like concat('%',#{email},'%')
+          and `id` like concat('%',#{id},'%')
+        order by 1
+    </select>
+    <insert id="insert"  parameterType="map" >
+        insert into users
+        (id,username,password,email,salt,disabled,createTime,lastTime)
+        values
+        (#{id},#{username},#{password},#{email},#{salt},#{disabled},NOW(),NOW())
+    </insert>
+    <insert id="update"  parameterType="map" >
+        update users
+        set password = #{password}
+        ,`email` = #{email}
+        ,`salt` = #{salt}
+        ,`disabled` = #{disabled}
+        ,`lastTime` = NOW()
+        where id = #{id}
+    </insert>
+    <insert id="delete"  parameterType="map" >
+        delete from users
+        where id = #{id}
+    </insert>
+</mapper>
