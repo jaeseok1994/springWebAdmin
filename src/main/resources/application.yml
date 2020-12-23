@@ -25,9 +25,9 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-      url: jdbc:oracle:thin:@localhost:1521:orcl
+      url: jdbc:oracle:thin:@upcns.iptime.org:21521:orcl
       driver-class-name: oracle.jdbc.OracleDriver
-      username: demoadmin
-      password: demoadmin
+      username: DEMOADMIN
+      password: DEMOADMIN
   thymeleaf:
     prefix: classpath:/public/thymeleaf/
