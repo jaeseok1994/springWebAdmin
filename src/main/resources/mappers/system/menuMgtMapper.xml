@@ -47,6 +47,6 @@
     </insert>
     <insert id="deleteList" parameterType="map" >
         delete from SYS_MENU
-         where id = #{id}
+         where id = #{id} and pid = #{pid}
     </insert>
 </mapper>

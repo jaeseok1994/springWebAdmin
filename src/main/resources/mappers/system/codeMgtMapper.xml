@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.codeMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        SELECT *
+          FROM sys_code
+         where cd_name like '%'||#{map.search}||'%'
+        <if test ="map.group != null and map.group != ''">
+            and cd_g_code = #{map.group}
+        </if>
+        <if test ="map.group == null or map.group == ''">
+            and cd_g_code = '*'
+        </if>
+        order by cd_ordr
+    </select>
+    <select id="selectList2" parameterType="map" resultType="cMap">
+        SELECT *
+         FROM sys_code
+        where 1=1
+        <if test ="map.cd_g_code != null and map.cd_g_code != ''">
+            and cd_g_code = #{map.cd_g_code}
+        </if>
+        order by cd_ordr
+    </select>
+    <select id="selectGroupList" parameterType="map" resultType="cMap">
+        select a.*  from sys_code a
+         where cd_g_code = '*' and cd_code > '*'
+         order by cd_ordr
+    </select>
+    <insert id="insertList" parameterType="map" >
+        insert into sys_code(cd_code, cd_name, cd_g_code, cd_ordr, cd_ref1, cd_ref2, cd_ref3, inst_date, inst_user, updt_date, updt_user)
+        values(#{id},#{name},#{pid})
+    </insert>
+    <insert id="maintList" parameterType="map" >
+        MERGE INTO sys_code S
+        USING DUAL
+           ON (S.cd_g_code = #{cd_g_code} and S.cd_code = #{cd_code})
+        WHEN MATCHED THEN
+        UPDATE SET
+                S.cd_name = #{cd_name}
+             ,  S.cd_ordr = #{cd_ordr}
+        WHEN NOT MATCHED THEN
+            INSERT (S.cd_code, S.cd_name, S.cd_g_code, S.cd_ordr, S.cd_ref1, S.cd_ref2, S.cd_ref3)
+            VALUES (#{cd_code},#{cd_name},#{cd_g_code},#{cd_ordr},#{cd_ref1},#{cd_ref2},#{cd_ref3} )
+    </insert>
+    <insert id="deleteList" parameterType="map" >
+        delete from sys_code
+         where cd_code = #{cd_code} and cd_code = #{cd_code}
+    </insert>
+</mapper>
