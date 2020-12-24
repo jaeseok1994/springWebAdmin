@@ -35,21 +35,26 @@
 
 <script>
 
-function createRGrid(grid) {
-    grid.dataProvider = new RealGrid.LocalDataProvider();
-    grid.gridView = new RealGrid.GridView(grid.id);
-    grid.gridView.setDataSource(grid.dataProvider);
+function createRGrid(_grid) {
+    _grid.dataProvider = new RealGrid.LocalDataProvider();
+    _grid.gridView = new RealGrid.GridView(_grid.id);
+    _grid.gridView.setDataSource(_grid.dataProvider);
 
-    grid.dataProvider.setFields(grid.fields);
-    grid.gridView.setColumns(grid.columns);
+    _grid.dataProvider.setFields(_grid.fields);
+    _grid.gridView.setColumns(_grid.columns);
 
-    grid.gridView.displayOptions.emptyMessage = "표시할 데이타가 없습니다.";
-    grid.gridView.header.height = 40;
-    grid.gridView.displayOptions.rowHeight = 26;
-    grid.gridView.footer.height = 28;
-    grid.gridView.stateBar.width = 16;
-    grid.gridView.editOptions.insertable = true;
-    grid.gridView.editOptions.appendable = true;
+    _grid.gridView.displayOptions.emptyMessage = "표시할 데이타가 없습니다.";
+    _grid.gridView.header.height = 40;
+    _grid.gridView.displayOptions.rowHeight = 26;
+    _grid.gridView.footer.height = 28;
+    _grid.gridView.stateBar.width = 16;
+    _grid.gridView.editOptions.insertable = true;
+    _grid.gridView.editOptions.appendable = true;
+
+    _grid.gridView.onCellEdited = function (g, itemIndex, row, field) {
+        console.log('Edit done! at ' + itemIndex + ', ' + field);
+        _grid.gridView.checkItem(itemIndex, true);
+    }
 }
 function getCheckedRows(g){
     var rows = g.gridView.getCheckedRows(true);

@@ -15,8 +15,11 @@
         order by cd_ordr
     </select>
     <select id="selectList2" parameterType="map" resultType="cMap">
-        SELECT *
-         FROM sys_code
+        SELECT cd_code, cd_name, cd_g_code, cd_ordr, cd_ref1, cd_ref2, cd_ref3
+              ,to_char(inst_date,'yyyy-mm-dd') inst_date, inst_user
+              ,to_char(updt_date,'yyyy-mm-dd') updt_date, updt_user
+              ,cd_use_yn
+         FROM sys_code a
         where 1=1
         <if test ="map.cd_g_code != null and map.cd_g_code != ''">
             and cd_g_code = #{map.cd_g_code}
@@ -40,9 +43,14 @@
         UPDATE SET
                 S.cd_name = #{cd_name}
              ,  S.cd_ordr = #{cd_ordr}
+             ,  S.cd_ref1 = #{cd_ref1}
+             ,  S.cd_ref2 = #{cd_ref2}
+             ,  S.cd_ref3 = #{cd_ref3}
+             ,  S.cd_use_yn = #{cd_use_yn}
+             ,  S.updt_date = sysdate
         WHEN NOT MATCHED THEN
-            INSERT (S.cd_code, S.cd_name, S.cd_g_code, S.cd_ordr, S.cd_ref1, S.cd_ref2, S.cd_ref3)
-            VALUES (#{cd_code},#{cd_name},#{cd_g_code},#{cd_ordr},#{cd_ref1},#{cd_ref2},#{cd_ref3} )
+            INSERT (S.cd_code, S.cd_name, S.cd_g_code, S.cd_ordr, S.cd_ref1, S.cd_ref2, S.cd_ref3,cd_use_yn)
+            VALUES (#{cd_code},#{cd_name},#{cd_g_code},#{cd_ordr},#{cd_ref1},#{cd_ref2},#{cd_ref3},#{cd_use_yn} )
     </insert>
     <insert id="deleteList" parameterType="map" >
         delete from sys_code

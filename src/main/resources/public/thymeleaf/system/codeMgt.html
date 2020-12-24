@@ -27,10 +27,13 @@
       {fieldName: "cd_g_code",dataType: "text"},
       {fieldName: "cd_code",dataType: "text"},
       {fieldName: "cd_name",dataType: "text"},
-      {fieldName: "cd_ordr",dataType: "text"},
+      {fieldName: "cd_ordr",dataType: "number"},
       {fieldName: "cd_ref1",dataType: "text"},
       {fieldName: "cd_ref2",dataType: "text"},
       {fieldName: "cd_ref3",dataType: "text"},
+      {fieldName: "cd_use_yn",dataType: "text"},
+      {fieldName: "inst_date",dataType: "text"},
+      {fieldName: "updt_date",dataType: "text"},
     ];
 
     var columns = [
@@ -40,13 +43,26 @@
       {name: "cd_ordr", fieldName: "cd_ordr", type: "data", width: "80", header: { text: "순서" } },
     ];
     var columns2 = [
-      {name: "cd_g_code", fieldName: "cd_g_code", type: "data", width: "90", header: { text: "그룹코드" } },
+      {name: "cd_g_code", fieldName: "cd_g_code", type: "data", width: "90", header: { text: "그룹코드" },editable: false },
       {name: "cd_code", fieldName: "cd_code", type: "data", width: "90", header: { text: "코드" } },
       {name: "cd_name", fieldName: "cd_name", type: "data", width: "150", header: { text: "코드명" },styleName:"left-column" },
-      {name: "cd_ordr", fieldName: "cd_ordr", type: "data", width: "80", header: { text: "순서" } },
-      {name: "cd_ref1", fieldName: "cd_ref1", type: "data", width: "100", header: { text: "참조1" } },
-      {name: "cd_ref2", fieldName: "cd_ref2", type: "data", width: "100", header: { text: "참조2" } },
-      {name: "cd_ref3", fieldName: "cd_ref3", type: "data", width: "100", header: { text: "참조3" } },
+      {name: "cd_ordr", fieldName: "cd_ordr", type: "data", width: "50", header: { text: "순서" } },
+      {name: "cd_ref1", fieldName: "cd_ref1", type: "data", width: "80", header: { text: "참조1" } },
+      {name: "cd_ref2", fieldName: "cd_ref2", type: "data", width: "80", header: { text: "참조2" } },
+      {name: "cd_ref3", fieldName: "cd_ref3", type: "data", width: "80", header: { text: "참조3" } },
+      //{name: "cd_use_yn", fieldName: "cd_use_yn", type: "data", width: "100", header: { text: "사용유무" } ,renderer:{type: "check",trueValues: 'Y',falseValues: 'N'}},
+      {name: "cd_use_yn", fieldName: "cd_use_yn", type: "data", width: "100", header: { text: "사용유무2" } ,
+        lookupDisplay: true,
+        editor: {
+            type: "dropDown",
+            dropDownCount: 2,
+            domainOnly: true,
+            values: ["Y","N"],
+            labels: ["사용","미사용"]
+        },
+      },
+      {name: "inst_date", fieldName: "inst_date", type: "data", width: "100", header: { text: "입력일자" },editable: false },
+      {name: "updt_date", fieldName: "updt_date", type: "data", width: "100", header: { text: "수정일자" },editable: false },
     ];
 
     var grid,grid2;
@@ -89,6 +105,12 @@
         }
         //createGrid("realgrid");
         createRGrid(grid);
+        grid.gridView.setStateBar({
+          visible: false
+        });
+        grid.gridView.setCheckBar({
+          visible: false
+        });
         createRGrid(grid2);
         grid.gridView.onCellClicked = function(g, cell) {
             cell.itemIndex
@@ -96,7 +118,7 @@
             var cd_code = grid.gridView.getValue(cell.itemIndex,"cd_code");
             searchDetail(cd_code);
         };
-        searchGroup();
+//        searchGroup();
         search();
 
         setResizeHeightObjs("realgrid","realgrid2");
