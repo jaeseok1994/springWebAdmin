@@ -40,7 +40,7 @@
       {name: "cd_g_code", fieldName: "cd_g_code", type: "data", width: "90", header: { text: "그룹코드" } },
       {name: "cd_code", fieldName: "cd_code", type: "data", width: "90", header: { text: "코드" } },
       {name: "cd_name", fieldName: "cd_name", type: "data", width: "150", header: { text: "코드명" },styleName:"left-column" },
-      {name: "cd_ordr", fieldName: "cd_ordr", type: "data", width: "80", header: { text: "순서" } },
+      {name: "cd_ordr", fieldName: "cd_ordr", type: "data", width: "80", header: { text: "순서" },"numberFormat": "#,##0" },
     ];
     var columns2 = [
       {name: "cd_g_code", fieldName: "cd_g_code", type: "data", width: "90", header: { text: "그룹코드" },editable: false },
@@ -72,10 +72,10 @@
         app = new Vue({
             el:'#form',
             data:{
-                groupList:['1'],
+                groupList:[],
                 keys:{
                     search:'',
-                    group:'',
+                    group:'*',
                     pid:'',
                 },
                 methods:{
@@ -118,8 +118,9 @@
             var cd_code = grid.gridView.getValue(cell.itemIndex,"cd_code");
             searchDetail(cd_code);
         };
-//        searchGroup();
         search();
+
+        searchGroup();
 
         setResizeHeightObjs("realgrid","realgrid2");
         grid.gridView.refresh();
@@ -130,13 +131,12 @@
     function searchGroup(page){
         fn_transaction("selectGroup","/service/system/codeMgt/selectList.do/selectGroupList",fn_callback);
     }
-    function search(group){
+    function search(){
         pid = "";
         grid2.gridView.commit(false);
         grid.dataProvider.clearRows();
         grid2.dataProvider.clearRows();
 
-        app.keys.group = group;
         var jsonData = {
                 map: app.keys,
         };
@@ -205,10 +205,19 @@
             <colgroup>
                 <col style="width:150px;"/>
                 <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
                 <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
+                <td class="ar">그룹</td>
+                <td>
+                    <select name="group" id="group" class="ui_sel w100p" v-model="keys.group">
+                        <option value="*">전체</option>
+                        <option v-for="list in groupList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
                 <td class="ar">코드명</td>
                 <td>
                     <input id="itemnm" type="text" class="input_A w90p"  v-model="keys.search">
@@ -225,11 +234,6 @@
         <div id="goSave" class="btn_typeA btn_save">저장</div>
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
         <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
-    </div>
-    <div class ="box_Atype">
-        <button v-for="list in groupList" :value="list.id" class="btn_typeB" :class="list.id==keys.group?'btn_typeB_active':''" onclick="search(value)" >
-            {{list.name}}
-        </button>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">

@@ -27,7 +27,7 @@
         order by cd_ordr
     </select>
     <select id="selectGroupList" parameterType="map" resultType="cMap">
-        select a.*  from sys_code a
+        select cd_code  value, cd_name text from sys_code a
          where cd_g_code = '*' and cd_code > '*'
          order by cd_ordr
     </select>
