@@ -69,3 +69,9 @@
 .orange-column{
   background: #ff8b00;
 }
+.rg-header-focus{
+    background: #ccdbe8;
+}
+.rg-table tr td.rg-rowindicator-focus{
+    background-color:#ccdbe8;
+}

@@ -133,7 +133,7 @@ THEME : Realgrid light(Default)
   background: #f9d2b9; }
 
 .rg-header-select {
-  background-color: #fdf0e8; }
+  background-color: #c6d9f0; }
 
 .rg-header-sort-ascending {
   background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTYgMTYiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE2IDE2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9LnN0MXtmaWxsOiM2NzY3Njc7fS5zdDJ7ZmlsbDojNjlCNjMxO30uc3Qze2ZpbGw6I0ZGQ0MwMjt9LnN0NHtmaWxsOiM5RTcyMTU7fS5zdDV7ZmlsbDojRTU2NjE1O30uc3Q2e2ZpbGw6IzJDM0U1MDt9LnN0N3tmaWxsOiNCM0IzQjM7fS5zdDh7ZmlsbDojMzQ2QkE5O30uc3Q5e2ZpbGw6I0IyM0EzQTt9LnN0MTB7ZmlsbDojMTcxNzE3O30uc3QxMXtmaWxsOiNGRkZGQjQ7fS5zdDEye2ZpbGw6IzY3QTQ1Qzt9PC9zdHlsZT48cG9seWdvbiBjbGFzcz0ic3QxIiBwb2ludHM9IjEzLDguOCA4LDQuNSAzLDguOCA2LjYsOC44IDYuNiwxMS41IDkuNCwxMS41IDkuNCw4LjggIi8+PC9zdmc+) no-repeat center 70%;
@@ -275,9 +275,9 @@ THEME : Realgrid light(Default)
         background: white url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTYgMTYiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE2IDE2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9LnN0MXtmaWxsOiM2NzY3Njc7fS5zdDJ7ZmlsbDojNjlCNjMxO30uc3Qze2ZpbGw6I0ZGQ0MwMjt9LnN0NHtmaWxsOiM5RTcyMTU7fS5zdDV7ZmlsbDojRTU2NjE1O30uc3Q2e2ZpbGw6IzJDM0U1MDt9LnN0N3tmaWxsOiNCM0IzQjM7fS5zdDh7ZmlsbDojMzQ2QkE5O30uc3Q5e2ZpbGw6I0IyM0EzQTt9LnN0MTB7ZmlsbDojMTcxNzE3O30uc3QxMXtmaWxsOiNGRkZGQjQ7fS5zdDEye2ZpbGw6IzY3QTQ1Qzt9PC9zdHlsZT48cG9seWdvbiBjbGFzcz0ic3Q3IiBwb2ludHM9IjE0LDUgMTQsMTIgMiwxMiAyLDE0IDE0LDE0IDE2LDE0IDE2LDEyIDE2LDUgIi8+PHBhdGggY2xhc3M9InN0MSIgZD0iTTE0LDEuNUgxSDB2MXY5djFoMWgxM2gxdi0xdi05di0xSDE0eiBNMSwxMS41di05aDEzdjlIMXoiLz48cG9seWdvbiBjbGFzcz0ic3QxIiBwb2ludHM9IjUuNSw3IDMsNCAzLDYgMSw2IDEsOCAzLDggMywxMCAiLz48cG9seWdvbiBjbGFzcz0ic3QxIiBwb2ludHM9IjEzLDYuMiAxMC44LDYuMiAxMC44LDQgOS4yLDQgOS4yLDYuMiA3LDYuMiA3LDcuOCA5LjIsNy44IDkuMiwxMCAxMC44LDEwIDEwLjgsNy44IDEzLDcuOCAiLz48L3N2Zz4=) no-repeat center;
         vertical-align: middle; }
     .rg-rowbarcontainer .rg-table tr td.rg-rowindicator-focus {
-      background-color: #f9d2b9; }
+      background-color: #ccdbe8; }
     .rg-rowbarcontainer .rg-table tr td.rg-rowindicator-select {
-      background-color: #fdf0e8; }
+      background-color: #ccdbe8; }
     .rg-rowbarcontainer .rg-table tr td.rg-statebar-created {
       background: rgba(0, 128, 255, 0.2) url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgMTYgMTYiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE2IDE2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9LnN0MXtmaWxsOiM2NzY3Njc7fS5zdDJ7ZmlsbDojNjlCNjMxO30uc3Qze2ZpbGw6I0ZGQ0MwMjt9LnN0NHtmaWxsOiM5RTcyMTU7fS5zdDV7ZmlsbDojRTU2NjE1O30uc3Q2e2ZpbGw6IzJDM0U1MDt9LnN0N3tmaWxsOiNCM0IzQjM7fS5zdDh7ZmlsbDojMzQ2QkE5O30uc3Q5e2ZpbGw6I0IyM0EzQTt9LnN0MTB7ZmlsbDojMTcxNzE3O30uc3QxMXtmaWxsOiNGRkZGQjQ7fS5zdDEye2ZpbGw6IzY3QTQ1Qzt9PC9zdHlsZT48Zz48cmVjdCB4PSIyIiB5PSIxMiIgY2xhc3M9InN0MSIgd2lkdGg9IjMiIGhlaWdodD0iMiIvPjxyZWN0IHg9IjYuNSIgeT0iMTIiIGNsYXNzPSJzdDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjIiLz48cmVjdCB4PSIxMSIgeT0iMTIiIGNsYXNzPSJzdDEiIHdpZHRoPSIzIiBoZWlnaHQ9IjIiLz48L2c+PHBvbHlnb24gY2xhc3M9InN0MTIiIHBvaW50cz0iMTIsNSA5LDUgOSwyIDcsMiA3LDUgNCw1IDQsNyA3LDcgNywxMCA5LDEwIDksNyAxMiw3ICIvPjwvc3ZnPg==) no-repeat center;
       vertical-align: middle; }
@@ -699,8 +699,8 @@ THEME : Realgrid light(Default)
   color: inherit; }
 
 .rg-selection {
-  background: rgba(229, 102, 21, 0.2) !important;
-  border: 1px solid rgba(229, 102, 21, 0.67); }
+  background: rgba(145, 132, 132, 0.2) !important;
+  border: 1px solid rgba(243, 179, 179, 0.67); }
 
 .rg-renderer {
   border: none;
