@@ -28,7 +28,7 @@
         SELECT
             A.CD_CODE code
             ,A.CD_NAME name
-            ,B.USER_ID userid
+            ,#{map.pid} userid
             ,CASE WHEN B.AUTH IS NOT NULL THEN 'Y'
             ELSE 'N'
             END AS auth
@@ -42,14 +42,31 @@
     </select>
 
     <insert id="insertList" parameterType="map" >
+        insert into SYS_USER_AUTH (
+                 USER_ID
+                ,AUTH
+                ,INST_DATE
+                ,INST_USER
+                ,UPDT_DATE
+                ,UPDT_USER
+        )
+            VALUES(
+                 #{userid}
+                ,#{code}
+                ,SYSDATE
+                ,'ADMIN'
+                ,SYSDATE
+                ,'ADMIN'
+        )
 
     </insert>
+
     <insert id="maintList" parameterType="map" >
 
     </insert>
     <insert id="deleteList" parameterType="map" >
         delete from SYS_USER_AUTH
          where user_id = #{userid}
-        and auth = #{userid}
+        and auth = #{code}
     </insert>
 </mapper>

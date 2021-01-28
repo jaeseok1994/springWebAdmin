@@ -78,7 +78,7 @@
             search();
         });
         $("#goSave").click(function(){
-            maintList('maint');
+            maintList('insert');
         });
         $("#goDelete").click(function(){
             maintList('delete');
@@ -143,6 +143,8 @@
         var searchParam = {};
         searchParam.func = func;
         var list = getCheckedRows(grid2);
+        list.userid = pid;
+
         if(list.length<1){
           fn_alert("자료를 선택하세요.");
           return;
@@ -167,16 +169,14 @@
             }else if(func == "select2"){
                 grid2.dataProvider.setRows(data.resultList);
                 grid2.gridView.refresh();
-                if(data.resultList.length == 0){
-                    grid2.dataProvider.addRow({pid:pid});
-                }
             }else{
                 fn_alert(data.message);
             }
         }
     }
     $(window).resize(function(){
-        gridView.refresh();
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
     });
 </script>
 <body>
