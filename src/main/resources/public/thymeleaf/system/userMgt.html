@@ -41,7 +41,7 @@
       {name: "usernm", fieldName: "usernm", type: "data", width: "150", header: { text: "성명" } },
       {name: "pass", fieldName: "pass", type: "data", width: "80", header: { text: "비밀번호" } },
       {name: "email", fieldName: "email", type: "data", width: "200", header: { text: "E-MAIL" } },
-      {name: "useyn", fieldName: "useyn", type: "data", width: "200", header: { text: "사용여부" } },
+      {name: "useyn", fieldName: "useyn", type: "data", width: "200", header: { text: "사용여부" },editable: false ,renderer:{type: "check",trueValues: 'Y',falseValues: 'N'} },
       {name: "auth", fieldName: "auth", type: "data", width: "200", header: { text: "권한" } },
       {name: "updtdate", fieldName: "updtdate", type: "data", width: "200", header: { text: "수정일" } },
       {name: "updtuser", fieldName: "updtuser", type: "data", width: "200", header: { text: "수정자" } },
@@ -76,6 +76,9 @@
 
         $("#goSelect").click(function(){
             search();
+        });
+        $("#goAdd").click(function(){
+           grid.dataProvider.addRow(1);
         });
         $("#goSave").click(function(){
             maintList('insert');
@@ -139,37 +142,46 @@
     }
     function maintList(func,key){
         grid2.gridView.commit(true);
+        grid.gridView.commit(true);
 
         var searchParam = {};
         searchParam.func = func;
         var list = getCheckedRows(grid2);
-        list.userid = pid;
 
-        if(list.length<1){
+        var list1 = getCheckedRows(grid);
+
+        if(list.length<1 && list1.length < 1){
           fn_alert("자료를 선택하세요.");
           return;
         }
-        var listData = {
-              list: list
-        };
 
-        fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
-
+        if(list1.length > 0){
+            var listData = {
+                  list: list1,
+            };
+            fn_transaction(func,"/service/system/userMgt/maintList.do/maintList",listData,fn_callback);
+        }
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+        }
         return;
     }
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
         }else{
-            if(func == "selectGroup"){
-                app.MenuList = data.resultList;
-            }else if(func == "select"){
+             if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
             }else if(func == "select2"){
                 grid2.dataProvider.setRows(data.resultList);
                 grid2.gridView.refresh();
             }else{
+                grid.gridView.refresh();
+                grid2.gridView.refresh();
                 fn_alert(data.message);
             }
         }
@@ -235,6 +247,7 @@
 
     <div class="ar">
         <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">사용자 추가</div>
         <div id="goSave" class="btn_typeA btn_save">저장</div>
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
         <div id="goExcel" class="btn_typeA btn_excel">Excel</div>

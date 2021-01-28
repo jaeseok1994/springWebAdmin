@@ -62,7 +62,20 @@
     </insert>
 
     <insert id="maintList" parameterType="map" >
-
+    MERGE INTO SYS_USER S
+        USING DUAL
+           ON (S.USER_ID = #{userid})
+        WHEN MATCHED THEN
+        UPDATE SET
+                S.USER_NAME = #{usernm}
+             ,  S.USER_PASS = #{pass}
+             ,  S.USER_EMAIL = nvl(#{email},' ')
+             ,  S.USER_USE_YN = #{useyn }
+             , S.UPDT_DATE = SYSDATE
+             , S.UPDT_USER = 'ADMIN'
+        WHEN NOT MATCHED THEN
+            INSERT (S.USER_ID, S.USER_NAME, S.USER_PASS, S.USER_EMAIL, S.USER_USE_YN, S.INST_DATE, S.INST_USER, S.UPDT_DATE, S.UPDT_USER)
+            VALUES (#{userid},#{usernm},#{pass},#{email},#{useyn},sysdate,'ADMIN',sysdate,'ADMIN ')
     </insert>
     <insert id="deleteList" parameterType="map" >
         delete from SYS_USER_AUTH
