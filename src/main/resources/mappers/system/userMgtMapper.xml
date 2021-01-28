@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.userMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        SELECT
+            USER_ID AS USERID
+            ,USER_NAME AS USERNM
+            ,USER_PASS AS PASS
+            ,USER_EMAIL AS EMAIL
+            ,USER_USE_YN AS USEYN
+            ,TO_CHAR(INST_DATE,'YYYY-MM-DD') AS INDATE
+            ,INST_USER AS INUSER
+            ,(SELECT WM_CONCAT(AUTH)
+                FROM SYS_USER_AUTH B
+                    WHERE A.USER_ID = B.USER_ID ) AUTH
+            ,TO_CHAR(UPDT_DATE,'YYYY-MM-DD') AS UPDTDATE
+            ,UPDT_USER AS UPDTUSER
+        FROM SYS_USER A
+            WHERE 1 = 1
+        <if test="map.usernm != '' and map.usernm != null">
+           AND A.USER_ID LIKE '%' || #{map.usernm } || '%'
+        </if>
+
+    </select>
+
+    <select id="selectList2" parameterType="map" resultType="cMap">
+        SELECT
+            A.CD_CODE code
+            ,A.CD_NAME name
+            ,B.USER_ID userid
+            ,CASE WHEN B.AUTH IS NOT NULL THEN 'Y'
+            ELSE 'N'
+            END AS auth
+            ,TO_CHAR(B.UPDT_DATE,'YYYY-MM-DD') updtdate
+            ,B.UPDT_USER updtuser
+            FROM SYS_CODE A
+            LEFT OUTER JOIN SYS_USER_AUTH B
+                ON B.USER_ID = #{map.pid}
+                AND A.CD_CODE = B.AUTH --'USER_ID'
+            WHERE A.CD_G_CODE = 'AUTH'
+    </select>
+
+    <insert id="insertList" parameterType="map" >
+
+    </insert>
+    <insert id="maintList" parameterType="map" >
+
+    </insert>
+    <insert id="deleteList" parameterType="map" >
+        delete from SYS_USER_AUTH
+         where user_id = #{userid}
+        and auth = #{userid}
+    </insert>
+</mapper>
