@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.stdMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        SELECT
+         STD_HAN_NM STDHANNM
+        ,STD_EN_NM  STDENNM
+        ,EN_ABBR_NM ENABBRNM
+        ,HAN_EXPL   HANEXPL
+        ,DOMN_NM    DOMNNM
+        ,TO_CHAR(FIN_MDFY_DT,'YYYY-MM-DD')  FINMDFYDT
+        ,FIN_UPDR_ID FINUPDRID
+        FROM STD_NM
+        WHERE 1 = 1
+        <choose>
+            <when test="map.seq == 1">
+               AND STD_HAN_NM LIKE '%' || #{map.search } || '%'
+            </when>
+            <when test="map.seq == 2">
+               AND STD_EN_NM LIKE '%' || #{map.search } ||'%'
+            </when>
+            <when test="map.seq == 3">
+               AND HAN_EXPL LIKE '%' || #{map.search } || '%'
+            </when>
+            <when test="map.seq == 4">
+               AND DOMN_NM LIKE '%' || #{map.search } || '%'
+            </when>
+            <otherwise>
+                AND (STD_HAN_NM LIKE '%' || #{map.search } || '%' OR
+                        STD_EN_NM LIKE '%' || #{map.search } ||'%' OR
+                        HAN_EXPL LIKE '%' || #{map.search } || '%' OR
+                        DOMN_NM LIKE '%' || #{map.search } || '%' )
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <insert id="maintList" parameterType="map" >
+        MERGE INTO STD_NM S
+        USING DUAL
+           ON ( S.STD_HAN_NM = #{stdhannm} )
+        WHEN MATCHED THEN
+        UPDATE SET
+                S.STD_EN_NM = #{stdennm}
+             ,  S.EN_ABBR_NM = #{enabbrnm}
+             ,  S.HAN_EXPL = #{hanexpl}
+             ,  S.DOMN_NM = #{domnnm}
+             ,  S.FIN_MDFY_DT = SYSDATE
+             ,  S.FIN_UPDR_ID = 'ADMIN'
+        WHEN NOT MATCHED THEN
+            INSERT (S.STD_HAN_NM, S.STD_EN_NM, S.EN_ABBR_NM, S.HAN_EXPL, S.DOMN_NM,S.VBG_CRE_USER_ID,S.FIN_UPDR_ID )
+            VALUES (#{stdhannm},#{stdennm},#{enabbrnm},#{hanexpl},#{domnnm},'ADMIN','ADMIN')
+    </insert>
+
+    <insert id="deleteList" parameterType="map" >
+        delete from STD_NM
+         where STD_HAN_NM = #{stdhannm}
+    </insert>
+</mapper>
