@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.domnMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        SELECT
+         DOMN_NM DOMNNM
+        ,DOMN
+        ,TO_CHAR(VBG_CRE_DT,'YYYY-MM-DD') VBG_CRE_DT
+        ,VBG_CRE_USER_ID
+        ,TO_CHAR(FIN_MDFY_DT,'YYYY-MM-DD') FIN_MDFY_DT
+        ,FIN_UPDR_ID
+        FROM STD_DOMN
+        WHERE 1 = 1
+        <if test="map.search != null and map.search != ''.toString()">
+           AND DOMN_NM LIKE '%' || #{map.search } || '%'
+        </if>
+    </select>
+
+
+    <insert id="maintList" parameterType="map" >
+        MERGE INTO STD_DOMN S
+        USING DUAL
+           ON ( S.DOMN_NM = #{domnnm} )
+        WHEN MATCHED THEN
+        UPDATE SET
+                S.DOMN = #{domn}
+             ,  S.FIN_MDFY_DT = SYSDATE
+             ,  S.FIN_UPDR_ID = 'ADMIN'
+        WHEN NOT MATCHED THEN
+            INSERT (S.DOMN_NM, S.DOMN, S.VBG_CRE_USER_ID, S.FIN_UPDR_ID)
+            VALUES (#{domnnm},#{domn},'ADMIN','ADMIN')
+    </insert>
+
+    <insert id="deleteList" parameterType="map" >
+        delete from STD_DOMN
+         where DOMN_NM = #{domnnm}
+    </insert>
+</mapper>
