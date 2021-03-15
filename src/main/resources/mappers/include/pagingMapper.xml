@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="paging">
+
+    <sql id="head">
+    SELECT *
+	FROM
+	    (
+	        SELECT /*+ INDEX(T1 PK1) */
+	            ROWNUM AS RN, T1.*
+	        FROM
+	            (
+	                SELECT /*+ INDEX(T0 PK1) */
+	                    COUNT(*)OVER() AS TCNT, T0.*
+	                FROM
+	                    (
+    </sql>
+    
+    <sql id="bottom">
+    					) T0
+                ) T1
+	        WHERE
+	            ROWNUM <![CDATA[ <= ]]> 
+					<if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
+			            (#{map.pagenum} * #{map.pagerows})
+			        </if>
+	    )
+	WHERE
+	    <if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
+            ((#{map.pagenum} - 1) * #{map.pagerows}) + 1
+        </if> 
+	    	<![CDATA[ <= ]]> RN
+    </sql>
+    
+</mapper>

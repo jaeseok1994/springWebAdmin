@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>페이징예제</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+    </div>
+</head>
+<script type="text/javascript">
+
+</script>
+<script>
+    var fields = [
+      {fieldName: "domn_nm",dataType: "text"},
+      {fieldName: "domn",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "domn_nm", fieldName: "domn_nm", type: "data", width: "150", header: { text: "도메인명" },styleName:"left-column" },
+      {name: "domn", fieldName: "domn", type: "data", width: "150", header: { text: "도메인" },styleName:"left-column" }
+    ];
+
+    var grid;
+    
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                    domn_nm:'',
+                    pid:'',
+                    
+                    /* 페이징 처리시 필수 */
+                    pagenum:1, // 현재 페이지 번호(★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:20 // 페이지당 표시할 데이터 건수(★변수명 변경금지)
+                    /* 페이징 처리시 필수 */
+                    
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	/* 페이징 처리시 필수 */
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+        	/* 페이징 처리시 필수 */
+        	search(); 
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+        }
+
+        createRGrid(grid);
+
+        grid.gridView.onCellClicked = function(g, cell) {
+            
+        };
+        
+        search();
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+        
+    });
+
+    var pid ;
+
+    function search(){
+        pid = "";
+        grid.dataProvider.clearRows();
+		
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/sample/samplePaging/selectList.do/selectList",jsonData,fn_callback);
+    }
+    
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                
+                /* 페이징 처리시 필수 */
+                /*
+                 * 페이지 네비게이션 생성 및 이동 처리
+                 * param1 : 총 데이터 건수
+                 * param2 : 페이지당 표시할 데이터 건수
+                 * param3 : 표시할 페이지 번호 수
+                 * param4 : 현재 페이지 번호
+                 * param5 : Vue Object
+                 * param6 : 조회 함수
+                 */
+                paging(data.resultList[0].tcnt, app.keys.pagerows, 10, app.keys.pagenum, app, search);
+                /* 페이징 처리시 필수 */
+            }
+        }
+    }
+    $(window).resize(function(){
+        grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">페이징예제</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>페이징예제</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">도메인명</td>
+                <td>
+                    <input id="domn_nm" type="text" class="input_A w90p"  v-model="keys.domn_nm">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <!-- 페이징 처리시 필수 -->
+        <div id="paging" class="paging" ></div>
+        <!-- 페이징 처리시 필수 -->
+    </div>
+</div>
+</body>
+</html>

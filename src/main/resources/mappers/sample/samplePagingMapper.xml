@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.sample.samplePaging">
+
+    <select id="selectList" parameterType="map" resultType="cMap">
+	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+	    
+	        select 
+	        	DOMN_NM,
+				DOMN
+            from STD_DOMN
+            where 1 = 1
+	        <if test="map.domn_nm != '' and map.domn_nm != null">
+	           AND domn_nm LIKE '%' || #{map.domn_nm} || '%'
+	        </if>
+	        order by domn_nm
+	        		
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    
+</mapper>

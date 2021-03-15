@@ -1,0 +1,7 @@
+/*page*/
+.paging {
+	text-align: center;
+}
+.paging .disabled {
+    display: none;
+}

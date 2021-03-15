@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" th:href="@{/css/style.css}"/>
 <link rel="stylesheet" th:href="@{/css/common_ui.css}"/>
+<link rel="stylesheet" th:href="@{/css/common_paging.css}"/> <!-- 페이징 처리 -->
 <link rel="stylesheet" th:href="@{/css/style.css}"/>
 <link rel="stylesheet" th:href="@{/realgrid/realgrid.2.1.0/realgrid-style.css}"/>
 <link rel="stylesheet" th:href="@{/css/realgrid.css}"/><!--realgrid-style.css 보다 나중-->
@@ -21,6 +22,7 @@
 
 <script th:src="@{/js/common/common_ui.js}"></script>
 <script th:src="@{/js/common/common_transaction.js}"></script>
+<script th:src="@{/js/common/common_paging.js}"></script> <!-- 페이징 처리 -->
 <script th:src="@{/js/vue/vue.js}"></script>
 
 <script src="/js/jquery/jquery-3.5.1.js"></script>
@@ -50,7 +52,7 @@ function createRGrid(_grid) {
     _grid.gridView.stateBar.width = 16;
     _grid.gridView.editOptions.insertable = true;
     _grid.gridView.editOptions.appendable = true;
-
+    
     _grid.gridView.onCellEdited = function (g, itemIndex, row, field) {
         console.log('Edit done! at ' + itemIndex + ', ' + field);
         _grid.gridView.checkItem(itemIndex, true);
