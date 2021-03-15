@@ -57,6 +57,32 @@ function createRGrid(_grid) {
         console.log('Edit done! at ' + itemIndex + ', ' + field);
         _grid.gridView.checkItem(itemIndex, true);
     }
+    //컨텍스트 메뉴단
+    _grid.gridView.setContextMenu([
+        {
+            label:"행추가",
+            tag :"insert"
+        }
+    ]);
+    //컨텍스트 메뉴 클릭 이벤트
+    _grid.gridView.onContextMenuItemClicked = function(grid,label,index){
+        if(label.tag == "insert"){
+            if(index == 0){
+              // 그리드에 선택된 행이 없을경우 맨마지막에 행추가
+              // 아래 화살표 기능으로 행추가 가능
+                grid.beginAppendRow();
+                grid.showEditor();
+                grid.setFocus();
+            }else{
+              // 현재 선택된 그리드 상단에 행 삽입
+              // insert 키로 사용가능
+                grid.beginInsertRow(Math.max(0,index),true);
+                grid.showEditor();
+                grid.setFocus();
+            }
+        }
+    };
+
 }
 function getCheckedRows(g){
     var rows = g.gridView.getCheckedRows(true);
