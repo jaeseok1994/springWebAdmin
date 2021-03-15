@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>표준도메인관리</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+        <link href="/realgrid/realgrid.2.1.0/realgrid-style.css" rel="stylesheet" />
+    <!--    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>-->
+        <script src="/js/jquery/jquery-3.5.1.js"></script>
+        <script src="/js/jquery/jquery-ui.js"></script>
+        <script src="/js/jquery/select2.min.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/realgrid-lic.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/realgrid.2.1.0.js"></script>
+        <script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+        <link href="/css/common_ui.css" rel="stylesheet" />
+        <script src="/js/common/common_ui.js"></script>
+        <script src="/js/common/common_transaction.js"></script>
+        <script src="/js/vue/vue.js"></script>
+    </div>
+</head>
+<script type="text/javascript">
+
+</script>
+<script>
+    var fields = [
+      {fieldName: "domnnm",dataType: "text"},
+      {fieldName: "domn",dataType: "text"},
+      {fieldName: "vbg_cre_dt",dataType: "text"},
+      {fieldName: "vbg_cre_user_id",dataType: "text"},
+      {fieldName: "fin_mdfy_dt",dataType: "text"},
+      {fieldName: "fin_updr_id",dataType: "text"},
+    ];
+
+    var columns = [
+      {name: "DOMNNM", fieldName: "domnnm", type: "data",  width: "200", header: { text: "도메인 명" } ,styleName:"left-column"},
+      {name: "DOMN", fieldName: "domn", type: "data", width: "200", header: { text: "도메인 타입" } ,styleName:"left-column"},
+      {name: "VBG_CRE_DT", fieldName: "vbg_cre_dt", editable : false, type: "data", width: "200",  header: { text: "최초 생성일" } ,styleName:"left-column"},
+      {name: "VBG_CRE_USER_ID", fieldName: "vbg_cre_user_id", editable : false, type: "data", width: "120", header: { text: "최초 등록자" } ,styleName:"left-column"},
+      {name: "FIN_MDFY_DT", fieldName: "fin_mdfy_dt", editable : false, type: "data", width: "100", header: { text: "마지막 수정일" } ,styleName:"left-column"},
+      {name: "FIN_UPDR_ID", fieldName: "fin_updr_id", editable : false, type: "data", width: "120", header: { text: "마지막 수정자" } },
+    ];
+
+    var grid;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                groupList:[],
+                keys:{
+                    search:'',
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+            search();
+        });
+        $("#goSave").click(function(){
+            maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+        }
+        createRGrid(grid);
+        grid.gridView.setStateBar({
+          visible: false
+        });
+        grid.gridView.setCheckBar({
+          visible: true
+        });
+        grid.gridView.onCellClicked = function(g, cell) {
+           // cell.itemIndex
+            //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
+            //var cd_code = grid.gridView.getValue(cell.itemIndex,"cd_code");
+        };
+
+                //ContextMenu 선언
+        grid.gridView.setContextMenu([
+            {
+                label:"행추가",
+                tag :"insert"
+            }
+        ]);
+        // 그리드 내부 넓이 속성값일 유지하면서 그리드 넓이 조정
+        grid.gridView.displayOptions.fitStyle = "evenFill"
+        //컨텍스트 메뉴 클릭 이벤트
+        grid.gridView.onContextMenuItemClicked  = function(grid,label,index){
+            if(label.tag == "insert"){
+                if(index == 0){
+                  // 그리드에 선택된 행이 없을경우 맨마지막에 행추가
+                  // 아래 화살표 기능으로 행추가 가능능
+                    grid.beginAppendRow();
+                    grid.showEditor();
+                    grid.setFocus();
+                }else{
+                  // 현재 선택된 그리드 상단에 행 삽입
+                  // insert 키로 사용가능
+                    grid.beginInsertRow(Math.max(0,index),true);
+                    grid.showEditor();
+                    grid.setFocus();
+                }
+            }
+        };
+        search();
+
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+    });
+
+    function search(){
+        grid.dataProvider.clearRows();
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/system/domnMgt/selectList.do/selectList",jsonData,fn_callback);
+    }
+
+    function maintList(func,key){
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+        var list = getCheckedRows(grid);
+
+        if(list.length<1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+        var listData = {
+              list: list
+        };
+
+        fn_transaction(func,"/service/system/domnMgt/maintList.do/"+func+"List",listData,fn_callback);
+
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+            if(func == "selectGroup"){
+                app.groupList = data.resultList;
+            }else if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+            }else{
+                fn_alert(data.message);
+            }
+        }
+    }
+    $(window).resize(function(){
+        gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">표준도메인관리</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <colgroup>
+                <col style="width:120px;"/>
+                <col style="width:150px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">도메인 명</td>
+                <td>
+                    <input id="itemnm" type="text" class="input_A w90p"  v-model="keys.search">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 100%;">
+            <div id="realgrid"  ></div>
+            <div class="paging" id="gridPageBarDiv" style="height:20px; "></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
