@@ -24,7 +24,6 @@
 </script>
 <script>
     var fields = [
-    //그리드에서 사용한 필드값들
       {fieldName: "userid",dataType: "text"},
       {fieldName: "usernm",dataType: "text"},
       {fieldName: "pass",dataType: "text"},
@@ -36,7 +35,7 @@
       {fieldName: "code",dataType: "text"},
       {fieldName: "name",dataType: "text"},
     ];
-    //그리드에서 사용한 컬럼 설정 정의
+
     var columns = [
       {name: "userid", fieldName: "userid", type: "data", width: "90", header: { text: "사번" } },
       {name: "usernm", fieldName: "usernm", type: "data", width: "150", header: { text: "성명" } },
@@ -44,7 +43,7 @@
       {name: "email", fieldName: "email", type: "data", width: "200", header: { text: "E-MAIL" } },
       {name: "useyn", fieldName: "useyn", type: "data", width: "200", header: { text: "사용여부" },editable: false ,renderer:{type: "check",trueValues: 'Y',falseValues: 'N'} },
       {name: "auth", fieldName: "auth", type: "data", width: "200", header: { text: "권한" } },
-      {name: "updtdate", fieldName: "updtdate", type: "data", width: "200", header: { text: "수정일" }, editor:{type:"date",mask:{ editMask:"9999-99-99", placeHolder:"yyyy-MM-dd", includedFormat:true },datetimeFormat:"yyyy-MM-dd" },datetimeFormat:"yyyy-MM-dd"},
+      {name: "updtdate", fieldName: "updtdate", type: "data", width: "200", header: { text: "수정일" } },
       {name: "updtuser", fieldName: "updtuser", type: "data", width: "200", header: { text: "수정자" } },
     ];
     var columns1 = [
@@ -70,12 +69,6 @@
                     group:'',
                     pid:'',
                 },
-                keyForm:{
-                    userid:'',
-                    pass:'',
-                    usernm:'',
-                    email:'',
-                },
                 methods:{
                 }
             },
@@ -85,82 +78,40 @@
             search();
         });
         $("#goAdd").click(function(){
-           grid.dataProvider.addRow({},0);
+           grid.dataProvider.addRow(1);
         });
         $("#goSave").click(function(){
             maintList('insert');
         });
-        $("#goUserSave").click(function(){
-            UserSaveList('insert');
-        });
         $("#goDelete").click(function(){
-            maintDelete('delete');
+            maintList('delete');
         });
 
         grid = {
-        //GRID ID
-        // GRID 필드 값
-        // GRID 컬럼 값
             id:"realgrid",
             fields:fields,
             columns:columns,
         }
         grid2 = {
             id:"realgrid2",
-            height:240,
             fields:fields,
-            resize:false,
             columns:columns1,
         }
         //createGrid("realgrid");
-        setResizeHeightObjs("realgrid","realgrid2");
-
         createRGrid(grid);
         createRGrid(grid2);
-        //그리드 행 선택 이벤트
-        //grid 이벤트 REALGRID 가이드 참조
-        //function(grid,cell) 그리드, 선택된 셀
-        grid.gridView.onCellClicked = function(g,
-        cell) {
+        grid.gridView.onCellClicked = function(g, cell) {
             cell.itemIndex
             //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
             var id = grid.gridView.getValue(cell.itemIndex,"userid");
-
-            selectUserInfo(id);
             searchDetail(id);
-        };
-
-        //ContextMenu 선언
-        grid.gridView.setContextMenu([
-            {
-                label:"행추가",
-                tag :"insert"
-            }
-        ]);
-
-        //컨텍스트 메뉴 클릭 이벤트
-        grid.gridView.onContextMenuItemClicked  = function(grid,label,index){
-            if(label.tag == "insert"){
-                if(index == 0){
-                  // 그리드에 선택된 행이 없을경우 맨마지막에 행추가
-                  // 아래 화살표 기능으로 행추가 가능능
-                    grid.beginAppendRow();
-                    grid.showEditor();
-                    grid.setFocus();
-                }else{
-                  // 현재 선택된 그리드 상단에 행 삽입
-                  // insert 키로 사용가능
-                    grid.beginInsertRow(Math.max(0,index),true);
-                    grid.showEditor();
-                    grid.setFocus();
-                }
-            }
         };
         search();
 
-
+        setResizeHeightObjs("realgrid","realgrid2");
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
     });
-
 
     var pid ;
 
@@ -177,14 +128,6 @@
 
         fn_transaction("select","/service/system/userMgt/selectList.do/selectList",jsonData,fn_callback);
     }
-    function selectUserInfo(id){
-        app.keys.id = id;
-        var jsonData = {
-                map: app.keys,
-        };
-
-        fn_transaction("selectUserInfo","/service/system/userMgt/selectList.do/selectUserInfo",jsonData,fn_callback);
-    }
     function searchDetail(_pid){
         pid = _pid;
         grid2.gridView.commit(false);
@@ -197,60 +140,33 @@
 
         fn_transaction("select2","/service/system/userMgt/selectList.do/selectList2",jsonData,fn_callback);
     }
-
-    function UserSaveList(func, key){
-
-            grid.gridView.commit(true);
-
-        var searchParam = {};
-        searchParam.func = func;
-        var list = getCheckedRows(grid);
-
-
-
-            var listData = {
-                  list: list,
-            };
-
-        fn_transaction(func,"/service/system/userMgt/maintList.do/maintUserList",listData,fn_callback);
-        return;
-
-    }
-
-
     function maintList(func,key){
         grid2.gridView.commit(true);
+        grid.gridView.commit(true);
 
         var searchParam = {};
         searchParam.func = func;
         var list = getCheckedRows(grid2);
 
+        var list1 = getCheckedRows(grid);
 
+        if(list.length<1 && list1.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
 
+        if(list1.length > 0){
+            var listData = {
+                  list: list1,
+            };
+            fn_transaction(func,"/service/system/userMgt/maintList.do/maintList",listData,fn_callback);
+        }
+        if(list.length >0){
             var listData = {
                   list: list,
-                  map:app.keyForm,
             };
-
-        fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
-
-        return;
-    }
-    function maintDelete(func,key){
-        grid2.gridView.commit(true);
-
-        var searchParam = {};
-        searchParam.func = func;
-        var list = getCheckedRows(grid2);
-
-
-
-            var listData = {
-                  list: list,
-                  map:app.keyForm,
-            };
-        fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
-
+            fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+        }
         return;
     }
     function fn_callback(func,data,status){
@@ -259,17 +175,21 @@
         }else{
              if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
-                app.keyForm={};
+                grid.gridView.refresh();
             }else if(func == "select2"){
                 grid2.dataProvider.setRows(data.resultList);
-            }else if(func=="selectUserInfo"){
-                app.keyForm = data.resultList[0];
+                grid2.gridView.refresh();
             }else{
+                grid.gridView.refresh();
+                grid2.gridView.refresh();
                 fn_alert(data.message);
             }
         }
     }
-
+    $(window).resize(function(){
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
+    });
 </script>
 <body>
 <div id="form" class="contentPgm">
@@ -324,36 +244,25 @@
         </table>
     </div>
     <div class="gap5"></div>
-    <table class="tbl_base" style ="border-cpllapse: collapse;">
-        <colgroup>
-            <col style="width:68%">
-            <col style="width:30%">
-        </colgroup>
-        <tbody>
-            <tr>
-                <td style="vertical-align:top;" colspan="2">
-                    <div class="ar" style="margin-bottom:5px">
-                        <div id="goSelect" class="btn_typeA btn_search">조회</div>
-                        <div id="goAdd" class="btn_typeA btn_save">사용자 추가</div>
-                        <div id="goUserSave" class="btn_typeA btn_save">사용자 저장</div>
-                        <div id="goSave" class="btn_typeA btn_save">권한저장</div>
-                        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
-                        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td  style="vertical-align:top;"  rowspan="2">
-                    <div id="realgrid"  ></div>
-                    <div class="paging" id="gridPageBarDiv" style="height:20px; "></div>
-                </td>
-                <td style="vertical-align:top; height:45%">
-                    <div id="realgrid2"  style="vertical-align:top; display: block;"></div>
-                    <div class="paging" id="gridPageBarDiv2" style="height:30px; vertical-align:top; display:block; "></div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">사용자 추가</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 70%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div class="paging" id="gridPageBarDiv" style="height:20px; "></div>
+        </div>
+        <div style=" width: 29%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            <div class="paging" id="gridPageBarDiv2" style="height:20px; "></div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
