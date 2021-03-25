@@ -3,9 +3,10 @@
 #    user:
 #      name: test
 #      password: 1111
+
 logging:
   level:
-    root: debug
+    root: info
     com.webAdmin: debug
     org:
        apache:
@@ -19,6 +20,10 @@ mybatis:
 
 server:
   port: 8000
+  servlet:
+    session:
+      timeout: 600m
+
 
 spring:
   jpa:
