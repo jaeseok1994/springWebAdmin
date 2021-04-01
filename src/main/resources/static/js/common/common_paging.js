@@ -1,29 +1,29 @@
 /**
  * 페이지 네비게이션 생성 및 이동 처리
+ * @param paramApp : Vue Object
  * @param totalData : 총 데이터 건수
- * @param dataPerPage : 페이지당 표시할 데이터 건수
- * @param pageCount : 표시할 페이지 번호 수
- * @param currentPage : 현재 페이지 번호
- * @param app : Vue Object
  * @param searchFunc : 조회 함수
  * @returns
  */
-function paging(totalData, dataPerPage, pageCount, currentPage, app, searchFunc){
+function commonPaging(paramApp, totalData, searchFunc){
+	
+	console.log("paramApp.keys.pagerows : " + paramApp.keys.pagerows);
+	console.log("paramApp.keys.pagecnt : " + paramApp.keys.pagecnt);
+	console.log("paramApp.keys.pagenum : " + paramApp.keys.pagenum);
 	console.log("totalData : " + totalData);
-	console.log("dataPerPage : " + dataPerPage);
-	console.log("pageCount : " + pageCount);
-	console.log("currentPage : " + currentPage);
   
-  var totalPage = Math.ceil(totalData/dataPerPage);    // 총 페이지 수
-  var pageGroup = Math.ceil(currentPage/pageCount);    // 페이지 그룹
+  var totalPage = Math.ceil(totalData/paramApp.keys.pagerows);    // 총 페이지 수
+  var pageGroup = Math.ceil(paramApp.keys.pagenum/paramApp.keys.pagecnt);    // 페이지 그룹
   
   console.log("totalPage : " + totalPage);
   console.log("pageGroup : " + pageGroup);
   
-  var last = pageGroup * pageCount;    // 화면에 보여질 마지막 페이지 번호
+  var last = pageGroup * paramApp.keys.pagecnt;    // 화면에 보여질 마지막 페이지 번호
+  var first = last - (paramApp.keys.pagecnt-1);    // 화면에 보여질 첫번째 페이지 번호
+  
   if(last > totalPage)
       last = totalPage;
-  var first = last - (pageCount-1);    // 화면에 보여질 첫번째 페이지 번호
+  
   var next = last+1;
   var prev = first-1;
   
@@ -32,7 +32,7 @@ function paging(totalData, dataPerPage, pageCount, currentPage, app, searchFunc)
   console.log("next : " + next);
   console.log("prev : " + prev);
 
-  var $pingingView = $("#paging");
+  var $pingingView = $("#commonPaging");
   
   var html = "";
 
@@ -57,16 +57,16 @@ function paging(totalData, dataPerPage, pageCount, currentPage, app, searchFunc)
       html += "<a href=# id='last' class='disabled'>>|</a>";
   }
   
-  $("#paging").html(html);    // 페이지 목록 생성
+  $("#commonPaging").html(html);    // 페이지 목록 생성
   
-  $("#paging a").css({"color": "black",
+  $("#commonPaging a").css({"color": "black",
                       "padding-left": "10px"});
                       
-  $("#paging a#" + currentPage).css({"text-decoration":"none", 
+  $("#commonPaging a#" + paramApp.keys.pagenum).css({"text-decoration":"none", 
                                      "color":"red", 
                                      "font-weight":"bold"});    // 현재 페이지 표시
                                      
-  $("#paging a").click(function(){
+  $("#commonPaging a").click(function(){
       var $item = $(this);
       var $id = $item.attr("id");
       var selectedPage = $item.text();
@@ -76,11 +76,9 @@ function paging(totalData, dataPerPage, pageCount, currentPage, app, searchFunc)
       if($id == "prev")    selectedPage = prev;
       if($id == "last")    selectedPage = totalPage;
       
-      app.keys.pagenum = Number(selectedPage);
+      paramApp.keys.pagenum = Number(selectedPage);
       
       if(typeof searchFunc === 'function') searchFunc(); // 조회 함수 실행
-      
-      // paging(totalData, dataPerPage, pageCount, selectedPage, searchFunc);
   });
                                      
 }

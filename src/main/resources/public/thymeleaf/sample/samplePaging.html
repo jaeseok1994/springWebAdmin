@@ -33,8 +33,9 @@
                     pid:'',
                     
                     /* 페이징 처리시 필수 */
-                    pagenum:1, // 현재 페이지 번호(★변수명 변경금지, 최초 값 1로 세팅)
-                    pagerows:20 // 페이지당 표시할 데이터 건수(★변수명 변경금지)
+                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
                     /* 페이징 처리시 필수 */
                     
                 },
@@ -44,9 +45,11 @@
         });
 
         $("#goSelect").click(function(){
+        	
         	/* 페이징 처리시 필수 */
         	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
         	/* 페이징 처리시 필수 */
+        	
         	search(); 
         });
 
@@ -93,15 +96,13 @@
                 /* 페이징 처리시 필수 */
                 /*
                  * 페이지 네비게이션 생성 및 이동 처리
-                 * param1 : 총 데이터 건수
-                 * param2 : 페이지당 표시할 데이터 건수
-                 * param3 : 표시할 페이지 번호 수
-                 * param4 : 현재 페이지 번호
-                 * param5 : Vue Object
-                 * param6 : 조회 함수
+                 * param1 : Vue Object
+                 * param2 : 총 데이터 건수
+                 * param3 : 조회 함수
                  */
-                paging(data.resultList[0].tcnt, app.keys.pagerows, 10, app.keys.pagenum, app, search);
+                 commonPaging(app, data.resultList[0].tcnt, search);
                 /* 페이징 처리시 필수 */
+                
             }
         }
     }
@@ -139,9 +140,11 @@
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">
         <div id="realgrid"  ></div>
+        
         <!-- 페이징 처리시 필수 -->
-        <div id="paging" class="paging" ></div>
+        <div id="commonPaging" class="commonPaging" ></div> <!-- ★ id, class 명칭 변경 금지 -->
         <!-- 페이징 처리시 필수 -->
+        
     </div>
 </div>
 </body>

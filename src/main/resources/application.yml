@@ -30,7 +30,7 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-      url: jdbc:oracle:thin:@upcns.iptime.org:21521:orcl
+      url: jdbc:oracle:thin:@upcns.iptime.org:25003:orcl
       driver-class-name: oracle.jdbc.OracleDriver
       username: DEMOADMIN
       password: DEMOADMIN
