@@ -7,16 +7,16 @@
  */
 function commonPaging(paramApp, totalData, searchFunc){
 	
-	console.log("paramApp.keys.pagerows : " + paramApp.keys.pagerows);
-	console.log("paramApp.keys.pagecnt : " + paramApp.keys.pagecnt);
-	console.log("paramApp.keys.pagenum : " + paramApp.keys.pagenum);
-	console.log("totalData : " + totalData);
+	//console.log("paramApp.keys.pagerows : " + paramApp.keys.pagerows);
+	//console.log("paramApp.keys.pagecnt : " + paramApp.keys.pagecnt);
+	//console.log("paramApp.keys.pagenum : " + paramApp.keys.pagenum);
+	//console.log("totalData : " + totalData);
   
   var totalPage = Math.ceil(totalData/paramApp.keys.pagerows);    // 총 페이지 수
   var pageGroup = Math.ceil(paramApp.keys.pagenum/paramApp.keys.pagecnt);    // 페이지 그룹
   
-  console.log("totalPage : " + totalPage);
-  console.log("pageGroup : " + pageGroup);
+  //console.log("totalPage : " + totalPage);
+  //console.log("pageGroup : " + pageGroup);
   
   var last = pageGroup * paramApp.keys.pagecnt;    // 화면에 보여질 마지막 페이지 번호
   var first = last - (paramApp.keys.pagecnt-1);    // 화면에 보여질 첫번째 페이지 번호
@@ -27,10 +27,10 @@ function commonPaging(paramApp, totalData, searchFunc){
   var next = last+1;
   var prev = first-1;
   
-  console.log("last : " + last);
-  console.log("first : " + first);
-  console.log("next : " + next);
-  console.log("prev : " + prev);
+  //console.log("last : " + last);
+  //console.log("first : " + first);
+  //console.log("next : " + next);
+  //console.log("prev : " + prev);
 
   var $pingingView = $("#commonPaging");
   
