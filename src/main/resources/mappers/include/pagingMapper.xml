@@ -20,17 +20,17 @@
     <sql id="bottom">
     					) T0
                 ) T1
-	        WHERE
-	            ROWNUM <![CDATA[ <= ]]> 
-					<if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
-			            (#{map.pagenum} * #{map.pagerows})
-			        </if>
+	        
+			<if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
+			WHERE ROWNUM <![CDATA[ <= ]]> (#{map.pagenum} * #{map.pagerows})
+			</if>
+			
 	    )
-	WHERE
-	    <if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
-            ((#{map.pagenum} - 1) * #{map.pagerows}) + 1
-        </if> 
-	    	<![CDATA[ <= ]]> RN
+	
+	<if test ="map.pagenum != null and map.pagenum != '' and map.pagerows != null and map.pagerows != ''">
+    WHERE ((#{map.pagenum} - 1) * #{map.pagerows}) + 1 <![CDATA[ <= ]]> RN
+    </if> 
+	    	
     </sql>
     
 </mapper>
