@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>프로젝트 관리</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+</head>
+<script>
+    var fields = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "text"},
+      {fieldName: "fn_dt",dataType: "text"},
+      {fieldName: "client",dataType: "text"},
+      {fieldName: "rem",dataType: "text"},
+      {fieldName: "upd_user_nm",dataType: "text"},
+      {fieldName: "upd_dtm",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: { text: "프로젝트번호" } },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: { text: "프로젝트명" } },
+      {name: "st_dt", fieldName: "st_dt", type: "data", width: "90", header: { text: "시작일" } },
+      {name: "fn_dt", fieldName: "fn_dt", type: "data", width: "90", header: { text: "종료일" } },
+      {name: "client", fieldName: "client", type: "data", width: "150", header: { text: "발주처" } },
+      {name: "rem", fieldName: "rem", type: "data", width: "200", header: { text: "비고" } },
+      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: { text: "수정자" },editable: false },
+      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: { text: "수정일시" },editable: false },
+    ];
+    var columns1 = [
+      {name: "user_id", fieldName: "user_id",  type: "data", width: "90", header: { text: "사용" } ,editable: false},
+      {name: "user_nm", fieldName: "user_nm", type: "data", width: "90", header: { text: "투입인력" } },
+      {name: "rem", fieldName: "updtdate", type: "data", width: "150", header: { text: "비고" } }
+    ];
+
+    var grid,grid2;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                	proj_no:'',
+                	proj_nm:'',
+                	user_nm:'',
+                    pid:'',
+                    
+                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+        	
+        	search();
+        });
+        $("#goAdd").click(function(){
+           grid.dataProvider.addRow(1);
+        });
+        $("#goSave").click(function(){
+            maintList('insert');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+        }
+        grid2 = {
+            id:"realgrid2",
+            fields:fields,
+            columns:columns1,
+        }
+
+        createRGrid(grid);
+        createRGrid(grid2);
+        
+        grid.gridView.onCellClicked = function(g, cell) {
+            var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");
+            searchDetail(proj_no);
+        };
+        search();
+
+        setResizeHeightObjs("realgrid","realgrid2");
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
+    });
+
+    var pid ;
+
+    function search(){
+        pid = "";
+        grid2.gridView.commit(false);
+        grid.dataProvider.clearRows();
+        grid2.dataProvider.clearRows();
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function searchDetail(_pid){
+        pid = _pid;
+        grid2.gridView.commit(false);
+        grid2.dataProvider.clearRows();
+
+        app.keys.pid = pid;
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select2","/service/pms/pms01/selectList.do/selectList2",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid2.gridView.commit(true);
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+        var list = getCheckedRows(grid2);
+
+        var list1 = getCheckedRows(grid);
+
+        if(list.length<1 && list1.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list1.length > 0){
+            var listData = {
+                  list: list1,
+            };
+            fn_transaction(func,"/service/system/userMgt/maintList.do/maintList",listData,fn_callback);
+        }
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                
+                commonPaging(app, data.resultList[0].tcnt, search);
+            }else if(func == "select2"){
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+            }else{
+                grid.gridView.refresh();
+                grid2.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
+    $(window).resize(function(){
+        grid.gridView.refresh();
+        grid2.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">사용자관리</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>사용자관리</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">프로젝트번호</td>
+                <td>
+                    <input id="proj_no" type="text" class="input_A w90p"  v-model="keys.proj_no">
+                </td>
+                <td class="ar">프로젝트명</td>
+                <td>
+                    <input id="proj_nm" type="text" class="input_A w90p"  v-model="keys.proj_nm">
+                </td>
+                <td class="ar">투입인력</td>
+                <td>
+                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
+                </td>
+                
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">추가</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 70%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div id="commonPaging" class="commonPaging" ></div>
+        </div>
+        <div style=" width: 29%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            
+        </div>
+    </div>
+</div>
+</body>
+</html>

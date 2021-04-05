@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.pms.pms01">
+
+    <select id="selectList" parameterType="map" resultType="cMap">
+	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+	    
+	        SELECT
+			    proj_no,
+			    proj_nm,
+			    st_dt,
+			    fn_dt,
+			    client,
+			    rem,
+			    upd_user_id,
+			    (SELECT user_nm FROM USERS WHERE id = a.upd_user_id) upd_user_nm,
+			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
+			FROM taprjm a
+			WHERE 1=1
+	        <if test="map.proj_no != '' and map.proj_no != null">
+	           AND proj_no LIKE '%' || #{map.proj_no} || '%'
+	        </if>
+	        <if test="map.proj_nm != '' and map.proj_nm != null">
+	           AND proj_nm LIKE '%' || #{map.proj_nm} || '%'
+	        </if>
+	        <if test="map.user_nm != '' and map.user_nm != null">
+	           AND EXIST (
+	           		SELECT 1
+	           		FROM TAPJMN x INNER JOIN USERS y
+	           		ON x.user_id = y.id
+	           		WHERE x.proj_no = a.proj_no
+	           		AND y.user_nm LIKE '%' || #{map.user_nm} || '%'
+	           )
+	        </if>
+	        order by proj_no
+	        		
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    
+    <select id="selectList2" parameterType="map" resultType="cMap">
+	    SELECT
+		    user_id,
+		    (SELECT user_nm FROM USERS WHERE id = a.user_id) user_nm,
+		    rem
+		FROM tapjmn a
+		WHERE proj_no = #{map.pid}
+        order by user_nm
+    </select>
+    
+</mapper>
