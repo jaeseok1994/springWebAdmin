@@ -4,14 +4,14 @@
 	<meta charset="utf-8">
     <title>프로젝트 관리</title>
     <div th:replace="headerRGrid"></div>
-    <div th:remove="all">
 </head>
 <script>
     var fields = [
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "proj_nm",dataType: "text"},
-      {fieldName: "st_dt",dataType: "text"},
-      {fieldName: "fn_dt",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "dev_mps",dataType: "text"},
       {fieldName: "client",dataType: "text"},
       {fieldName: "rem",dataType: "text"},
       {fieldName: "upd_user_nm",dataType: "text"},
@@ -19,22 +19,30 @@
     ];
 
     var columns = [
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: { text: "프로젝트번호" } },
-      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: { text: "프로젝트명" } },
-      {name: "st_dt", fieldName: "st_dt", type: "data", width: "90", header: { text: "시작일" } },
-      {name: "fn_dt", fieldName: "fn_dt", type: "data", width: "90", header: { text: "종료일" } },
-      {name: "client", fieldName: "client", type: "data", width: "150", header: { text: "발주처" } },
-      {name: "rem", fieldName: "rem", type: "data", width: "200", header: { text: "비고" } },
-      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: { text: "수정자" },editable: false },
-      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: { text: "수정일시" },editable: false },
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호" },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column"},
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", 
+    	  editor: {
+              type: "date",
+              datetimeFormat: "yyyy-MM-dd"
+          },
+          datetimeFormat: "yyyy-MM-dd"
+    	},
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", 
+    		editor: {
+                type: "date",
+                datetimeFormat: "yyyy-MM-dd"
+            },
+            datetimeFormat: "yyyy-MM-dd"
+        },
+      {name: "dev_mps", fieldName: "dev_mps", type: "data", width: "200", header: "투입인력 ( ','로 구분 )" ,styleName:"left-column"},
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처" ,styleName:"left-column"},
+      {name: "rem", fieldName: "rem", type: "data", width: "200", header: "비고" ,styleName:"left-column"},
+      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
+      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false },
     ];
-    var columns1 = [
-      {name: "user_id", fieldName: "user_id",  type: "data", width: "90", header: { text: "사용" } ,editable: false},
-      {name: "user_nm", fieldName: "user_nm", type: "data", width: "90", header: { text: "투입인력" } },
-      {name: "rem", fieldName: "updtdate", type: "data", width: "150", header: { text: "비고" } }
-    ];
-
-    var grid,grid2;
+	
+    var grid;
 
     var app;
     $(document.body).ready(function(){
@@ -44,8 +52,7 @@
                 keys:{
                 	proj_no:'',
                 	proj_nm:'',
-                	user_nm:'',
-                    pid:'',
+                	dev_mp:'',
                     
                     pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
                     pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
@@ -65,10 +72,26 @@
            grid.dataProvider.addRow(1);
         });
         $("#goSave").click(function(){
-            maintList('insert');
+            maintList('maint');
         });
         $("#goDelete").click(function(){
             maintList('delete');
+        });
+        $("#goExcel").click(function(){
+        	grid.gridView.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: "프로젝트 관리.xlsx", 
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        // alert("done excel export")
+			    }
+			});
         });
 
         grid = {
@@ -76,33 +99,21 @@
             fields:fields,
             columns:columns,
         }
-        grid2 = {
-            id:"realgrid2",
-            fields:fields,
-            columns:columns1,
-        }
 
         createRGrid(grid);
-        createRGrid(grid2);
         
         grid.gridView.onCellClicked = function(g, cell) {
             var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");
-            searchDetail(proj_no);
         };
+        
         search();
 
-        setResizeHeightObjs("realgrid","realgrid2");
+        setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
-        grid2.gridView.refresh();
     });
 
-    var pid ;
-
     function search(){
-        pid = "";
-        grid2.gridView.commit(false);
         grid.dataProvider.clearRows();
-        grid2.dataProvider.clearRows();
 
         var jsonData = {
                 map: app.keys,
@@ -110,44 +121,24 @@
 
         fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);
     }
-    function searchDetail(_pid){
-        pid = _pid;
-        grid2.gridView.commit(false);
-        grid2.dataProvider.clearRows();
-
-        app.keys.pid = pid;
-        var jsonData = {
-                map: app.keys,
-        };
-
-        fn_transaction("select2","/service/pms/pms01/selectList.do/selectList2",jsonData,fn_callback);
-    }
     function maintList(func,key){
-        grid2.gridView.commit(true);
         grid.gridView.commit(true);
 
         var searchParam = {};
         searchParam.func = func;
-        var list = getCheckedRows(grid2);
 
-        var list1 = getCheckedRows(grid);
+        var list = getCheckedRows(grid);
 
-        if(list.length<1 && list1.length < 1){
+        if(list.length < 1){
           fn_alert("자료를 선택하세요.");
           return;
         }
 
-        if(list1.length > 0){
-            var listData = {
-                  list: list1,
-            };
-            fn_transaction(func,"/service/system/userMgt/maintList.do/maintList",listData,fn_callback);
-        }
         if(list.length >0){
             var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/pms01/maintList.do/"+func+"List",listData,fn_callback);
         }
         return;
     }
@@ -159,28 +150,29 @@
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
                 
-                commonPaging(app, data.resultList[0].tcnt, search);
-            }else if(func == "select2"){
-                grid2.dataProvider.setRows(data.resultList);
-                grid2.gridView.refresh();
+                if(data.resultList.length > 0) commonPaging(app, data.resultList[0].tcnt, search);
+            }else if(func == "maint"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 grid.gridView.refresh();
-                grid2.gridView.refresh();
                 fn_alert(data.message);
             }
         }
     }
     $(window).resize(function(){
         grid.gridView.refresh();
-        grid2.gridView.refresh();
     });
 </script>
 <body>
 <div id="form" class="contentPgm">
-    <div class="content_title">사용자관리</div>
+    <div class="content_title">프로젝트 관리</div>
     <div class="box_Atype">
         <table class="tbl_base">
-            <caption>사용자관리</caption>
+            <caption>프로젝트 관리</caption>
             <colgroup>
                 <col style="width:150px;"/>
                 <col style="width:300px;"/>
@@ -202,7 +194,7 @@
                 </td>
                 <td class="ar">투입인력</td>
                 <td>
-                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
+                    <input id="dev_mp" type="text" class="input_A w90p"  v-model="keys.dev_mp">
                 </td>
                 
                 <td></td>
@@ -221,14 +213,8 @@
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">
-        <div style=" width: 70%;float:left;  ">
-            <div id="realgrid"  ></div>
-            <div id="commonPaging" class="commonPaging" ></div>
-        </div>
-        <div style=" width: 29%;float:right;  ">
-            <div id="realgrid2"  ></div>
-            
-        </div>
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
     </div>
 </div>
 </body>
