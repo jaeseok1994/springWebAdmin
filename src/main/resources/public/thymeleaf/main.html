@@ -3,10 +3,15 @@
 <head>
     <meta charset="utf-8">
     <title>스프링 부트 Admin FrameWork</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
     <div th:replace="header"></div>
     <div th:remove="all">
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>-->
+<!--        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>-->
+        <script src="/js/vue/vue.js"></script>
+        <script src="/js/jquery/jquery-3.5.1.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
         <script src="/js/common/common_transaction.js"></script>
     </div>
@@ -17,6 +22,9 @@
     body{
         height: 900px;
         margin:0;
+        font-size:1rem;
+        color:white;
+        font-family: 'Noto Sans KR', sans-serif;
     }
     .containerGrid{
         margin:0;
@@ -24,7 +32,7 @@
         border-width: 0px;
         display: grid;
         height: 100%;
-        grid-template-columns: 200px 1fr;
+        grid-template-columns: 250px 1fr;
         grid-template-rows: 160px 1fr 50px;
         grid-template-areas:
             "header header header"
@@ -37,20 +45,31 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        background: #26293b url(images/top_back.png) 0 0 no-repeat;
+        background-size:cover;
+    }
+    .headerRight{
+        background: #26293b url(images/side_back.png) 0 0 no-repeat;
+        background-size: cover;
     }
     main{
         grid-area: main;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
     }
     aside{
         grid-area: aside;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
+        background: #446ddf url(images/side_back.png) 0 -160px no-repeat;
+        background-size: cover;
     }
     footer{
         display: flex;
         grid-area: footer;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
         align-items: center;
+        color:black;
+        padding-left:20px;
     }
     .headerContainer{
         margin:0;
@@ -59,8 +78,8 @@
         display: grid;
         width: 100%;
         height: 100%;
-        grid-template-columns: 200px 1fr 200px;
-        grid-template-rows: 1fr 50px 50px;
+        grid-template-columns: 250px 1fr 200px;
+        grid-template-rows: 1fr 80px 50px;
         grid-template-areas:
             "headerRight . headerLeft"
             "headerRight menuGroup headerLeft"
@@ -70,24 +89,29 @@
     .headerRight{
         display: flex;
         grid-area: headerRight;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
         justify-content: center;
         align-items: center;
     }
     .headerLeft{
         display: flex;
         grid-area: headerLeft;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
         justify-content: center;
         align-items: center;
     }
+    .headerTitle{
+        font-family: 'Lobster', cursive;
+        font-size:2rem;
+        cursor:pointer;
+    }
     .menuGroup{
         grid-area: menuGroup;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
     }
     .menuTab{
         grid-area: menuTab;
-        border:1px dashed #dcddcb;
+        border:0px dashed #dcddcb;
         display: flex;
         justify-content: left;
         align-items: flex-end;
@@ -95,28 +119,28 @@
     .menuList{
         display: flex;
         border-radius:3px 3px 0 0 ;
-        border:solid 1px #ccc;
-        background:#eee;
-        color:#888;
+        color:white;
         padding:7px 10px 0;
+        font-size:1.3rem;
     }
 
     .menuListItem{
-        padding:7px 10px;
+        padding:7px 25px;
         columns: #999999;
-        border-radius: 5px 5px 0 0;
         cursor: pointer;
         border:solid 1px transparent;
-        margin:1px 0 0 10px;
     }
     .menuListItem:hover{
-        color: white;
-        background: #ccc;
+   /*     color: white;*/
+        background: #5c6fd6;
     }
     .active{
-        color:#333;
-        background: #f9f9f9;
-        border:solid 1px #ccc;
+        color:#ffffff;
+        font-weight:bold;
+    }
+    .activeGroup{
+        color:#ffffff;
+        background: #5c6fd6;
         font-weight:bold;
     }
     .asideContainer{
@@ -128,7 +152,7 @@
         grid-template-areas:
             "asideHeader asideRight"
             "asideMenu asideRight"
-            "asideFooter asideRight"
+            "asideFooter asideRight" ;
     }
     .asideHeader{
         grid-area: asideHeader;
@@ -155,42 +179,70 @@
         align-items: center;
     }
     .asideMenuUl{
-        padding: 0 5px;
-        border:1px solid #ccc;
+        padding: 2px 0 5px 20px;
+        border:0px solid #ccc;
+    }
+    .asideMenuUl2{
+        padding: 2px 0 2px 15px;
     }
     .asideMenuUl li{
         list-style:none;
+        line-height:35px;
     }
     .asideMenuLi{
-        padding: 5px;
+        padding: 0px;
         cursor: pointer;
-        border:1px solid #ccc;
+        border:0px solid #ccc;
+        font-size:1.1rem;
     }
 
+    /* tab menu */
     .nav {
         display: -webkit-box;
         display: flex;
         flex-wrap: wrap;
-        padding-left: 0;
+        padding-left: 20px;
         margin-bottom: 0;
         list-style: none;
     }
+    .nav-tabs li{
+        line-height:40px;
+        background:linear-gradient(to bottom,#515356,#767c89);
+        font-size:1.1rem;
+        color:#eeeeee;
+    }
     .nav-tabs .nav-link {
-        color: #495057;
+        color: #dfe5ea;
         border: 1px solid;
-        border-color: #dee2e6 #dee2e6 #fff;
+        border-color: #1d1d1f;
         border-top-left-radius: .25rem;
         border-top-right-radius: .25rem;
         text-decoration: none;
     }
+    .nav-close{
+        background:transparent url('./images/tab_x.png') 0 0 no-repeat;
+    }
     .nav-link {
-        padding: 5px 15PX;
+        display: block;
+        padding: 0 15PX;
         border-color: #dee2e6 #dee2e6 #fff;
     }
     .nav-link.active {
         color: #495057;
         background-color: #fff;
         border-color: #2a363f #363a3f #fff;
+    }
+    .nav-tabs>li>a>div{
+        display:none;
+        cursor:pointer;
+        position:relative;
+        width:20px;
+        height:20px;
+        left:4px;
+        top:6px;
+    }
+    .nav-tabs>li:hover>a>div{
+        display:inline-block;
     }
     .tab-content{
         height: 100%;
@@ -316,7 +368,7 @@
             // app.tabs = tabs;
             // app.tabs.push(menu); //젤 마지막으로
 
-        }).on("click", "span", removeTab);
+        }).on("click", "div", removeTab);
     });
 
     function fn_callback(func,data,status){
@@ -339,7 +391,7 @@
     function sideMenuSlide(){
         var css = $(".containerGrid").css("grid-template-columns");
 
-        if(css.includes("200")){
+        if(css.includes("250")){
             $("aside").hide();
             gsap.to(".containerGrid",0.2,{
                 gridTemplateColumns:"0px 1fr",
@@ -347,7 +399,7 @@
         }else{
             $("aside").show();
             gsap.to(".containerGrid",0.2,{
-                gridTemplateColumns:"200px 1fr",
+                gridTemplateColumns:"250px 1fr",
             });
         }
     }
@@ -360,12 +412,12 @@
         var nextTab = $('#tabList li').length + 1;
         // create the tab
         var tabList = '<li>\
-                            <a class="nav-link" href="#'+ menu.id + '" data-toggle="tab">' + menu.name + '<span class="oi oi-circle-x"></span>\
+                            <a class="nav-link" href="#'+ menu.id + '" data-toggle="tab">' + menu.name + '<div class="nav-close"></div>\
                             </a>\
                        </li>';
         $(tabList).appendTo('#tabList');
         var content = '<div role="tabpanel" class="tab-pane fade h-100" id="' + menu.id + '">\
-                    <iframe src="'+ menu.url + '" width="100%" frameborder="NO" framespacing="0"  height="99%"></iframe>\
+                    <iframe src="'+ menu.url + '" width="100%" frameborder="NO" framespacing="0"  height="99%">Loading ... </iframe>\
                 </div>';
         $(content).appendTo('#tabContentList');
         //$('#tabList a:last').tab('show');
@@ -389,15 +441,15 @@
 <div id="main" class="containerGrid">
     <header>
         <div class="headerContainer">
-            <div class="headerRight"><a href="javascript:sideMenuSlide()">상단 좌측 로그</a></div>
+            <div class="headerRight headerTitle" onclick="sideMenuSlide()">Boot Admin</div>
             <div class="headerLeft">상단 우측
-                <a th:href="@{/logout?/login}">
+                <a th:href="@{/logout?/login}" class="logout">
                     <span class="glyphicon glyphicon-log-out"></span> &nbsp;&nbsp;&nbsp;<span th:text="로그아웃"></span>&nbsp;
                 </a>
             </div>
             <div class="menuGroup">
                 <div class="menuList">
-                    <div v-for="group in groups" class="menuListItem" :class="group.id == selectGroupId?'active':''" @click="selectGroup(group.id)">
+                    <div v-for="group in groups" class="menuListItem" :class="group.id == selectGroupId?'activeGroup':''" @click="selectGroup(group.id)">
                         {{group.name}}
                     </div>
                 </div>
@@ -426,7 +478,7 @@
                         </template>
                         <template v-else>
                             <div class="asideMenuLi" :class="menu.folder?'active_do':''" @click="menu.folder=!menu.folder">{{menu.name}}</div>
-                            <ul class="asideMenuUl" v-show="menu.folder" >
+                            <ul class="asideMenuUl asideMenuUl2" v-show="menu.folder" >
                                 <li v-for="smenu in submenu(menu.id)" @click="selectMenu(smenu.id)">
                                     <div class="asideMenuLi" >{{smenu.name}}</div>
                                 </li>
@@ -445,7 +497,7 @@
         </div>
     </main>
     <footer>
-        footer
+        Message :
     </footer>
 </div>
 
