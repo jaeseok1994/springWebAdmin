@@ -233,12 +233,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         List<Map<?, ?>> result = dao.selectList(param);
 
 
-        for(Map<?, ?> auth : result) {
-            String url = (String)auth.get("URL");
+        for(Map<?, ?> role : result) {
+            String url = (String)role.get("URL");
             logger.info(url);
-            String authority = (String)auth.get("AUTHORITY");
-            logger.info(authority);
-            String[] roles = authority.split(",");
+            String role_id = (String)role.get("ROLE_ID");
+            logger.info(role_id);
+            String[] roles = role_id.split(",");
 
             for(int i = 0; i < roles.length; i++) {
                 roles[i] = roles[i].toUpperCase();

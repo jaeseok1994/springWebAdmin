@@ -29,7 +29,7 @@ public class UserDetailService implements UserDetailsService {
         param.put("mapperGroup","webAdmin");
         param.put("mapperPgm","security");
         param.put("mapperSqlId","selectUserList");
-        param.put("id",id);
+        param.put("USER_ID",id);
         List<Map<?, ?>> result = dao.selectList(param);
 
         if(result==null || result.size()==0){
@@ -37,13 +37,13 @@ public class UserDetailService implements UserDetailsService {
         }
         HashMap<String,String>  user = (HashMap<String,String>)result.get(0);
         HashMap  user2 = (HashMap)result.get(0);
-        System.out.println(user2.get("DISABLED").equals("0"));
-        System.out.println(user2.get("DISABLED").toString().equals("0"));
-//        System.out.println(user.get("DISABLED"));
-//        System.out.println(user.get("DISABLED").equals("0"));
-        Object dis = result.get(0).get("DISABLED");
-        boolean disabled = (dis.toString()+"").equals("0");
-        SecurityUser userDetails = new SecurityUser(user.get("ID"), user.get("USERNAME"),user.get("PASSWORD"),disabled, true, true, true, grantedAuthorities(user.get("ID")), user.get("SALT"), user.get("EMAIL"));
+//        System.out.println(user2.get("USER_USE_YN").equals("Y"));
+//        System.out.println(user2.get("USER_USE_YN").toString().equals("0"));
+//        System.out.println(user.get("USER_USE_YN"));
+//        System.out.println(user.get("USER_USE_YN").equals("0"));
+        Object dis = result.get(0).get("USER_USE_YN");
+        boolean enabled = (dis.toString()+"").equals("Y");
+        SecurityUser userDetails = new SecurityUser(user.get("USER_ID"), user.get("USER_ID"),user.get("USER_PASS"),enabled, true, true, true, grantedAuthorities(user.get("USER_ID")), "r", "b");
 //        SecurityUser userDetails = new SecurityUser(user.get("id"), user.get("id")username, user.getPassword(), !user.isDisabled(), true, true, true, grantedAuthorities(user.getUsername()), user.getSalt(), user.getEmail());
         return userDetails;
     }
@@ -54,7 +54,7 @@ public class UserDetailService implements UserDetailsService {
         param.put("mapperGroup","webAdmin");
         param.put("mapperPgm","security");
         param.put("mapperSqlId","selectUserRoleList");
-        param.put("id",id);
+        param.put("USER_ID",id);
         List<Map<?, ?>> result = dao.selectList(param);
 
         if(CollectionUtils.isEmpty(result)){
@@ -65,7 +65,7 @@ public class UserDetailService implements UserDetailsService {
         //result.stream().filter(role -> !role.isDisabled()).forEach((resource -> {
         result.stream().forEach(
                         resource -> {
-                            authorities.add(new SimpleGrantedAuthority((String) resource.get("NAME")));
+                            authorities.add(new SimpleGrantedAuthority((String) resource.get("ROLE_ID")));
                         }
                 );
         return authorities;

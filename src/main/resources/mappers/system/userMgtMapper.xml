@@ -11,9 +11,11 @@
             ,USER_USE_YN AS USEYN
             ,TO_CHAR(INST_DATE,'YYYY-MM-DD') AS INDATE
             ,INST_USER AS INUSER
-            ,(SELECT WM_CONCAT(AUTH)
-                FROM SYS_USER_AUTH B
-                    WHERE A.USER_ID = B.USER_ID ) AUTH
+            ,f_pvtcol(cursor(
+                        select ROLE_ID
+                          from SYS_USER_ROLE B
+                         where A.USER_ID = B.USER_ID
+                    ),',') AUTH
             ,TO_CHAR(UPDT_DATE,'YYYY-MM-DD') AS UPDTDATE
             ,UPDT_USER AS UPDTUSER
         FROM SYS_USER A
@@ -26,25 +28,26 @@
 
     <select id="selectList2" parameterType="map" resultType="cMap">
         SELECT
-            A.CD_CODE code
-            ,A.CD_NAME name
+            A.ROLE_ID code
+            ,A.ROLE_NAME name
             ,#{map.pid} userid
-            ,CASE WHEN B.AUTH IS NOT NULL THEN 'Y'
-            ELSE 'N'
-            END AS auth
+            ,CASE WHEN B.ROLE_ID IS NOT NULL THEN 'Y'
+                  ELSE 'N'
+                  END AS auth
             ,TO_CHAR(B.UPDT_DATE,'YYYY-MM-DD') updtdate
             ,B.UPDT_USER updtuser
-            FROM SYS_CODE A
-            LEFT OUTER JOIN SYS_USER_AUTH B
+            FROM SYS_ROLE A
+            LEFT OUTER JOIN SYS_USER_ROLE B
                 ON B.USER_ID = #{map.pid}
-                AND A.CD_CODE = B.AUTH --'USER_ID'
-            WHERE A.CD_G_CODE = 'AUTH'
+                AND A.ROLE_ID = B.ROLE_ID --'USER_ID'
+            WHERE A.USE_YN = 'Y'
+           ORDER BY auth DESC, NAME
     </select>
 
     <insert id="insertList" parameterType="map" >
-        insert into SYS_USER_AUTH (
+        insert into SYS_USER_ROLE (
                  USER_ID
-                ,AUTH
+                ,ROLE_ID
                 ,INST_DATE
                 ,INST_USER
                 ,UPDT_DATE
@@ -78,8 +81,8 @@
             VALUES (#{userid},#{usernm},#{pass},#{email},#{useyn},sysdate,'ADMIN',sysdate,'ADMIN ')
     </insert>
     <insert id="deleteList" parameterType="map" >
-        delete from SYS_USER_AUTH
+        delete from SYS_USER_ROLE
          where user_id = #{userid}
-        and auth = #{code}
+        and ROLE_ID = #{code}
     </insert>
 </mapper>

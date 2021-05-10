@@ -4,18 +4,18 @@
 <mapper namespace="proj.webAdmin.security">
     <select id="selectAuthList" parameterType="map" resultType="map">
         SELECT *
-        FROM authority
+        FROM SYS_URL_ROLE
         order by 1
     </select>
     <select id="selectUserList" parameterType="map" resultType="map">
         SELECT *
-        FROM users
-        where id=#{id}
+        FROM SYS_USER
+        where USER_ID = #{USER_ID}
     </select>
     <select id="selectUserRoleList" parameterType="map" resultType="map">
-        select
-             r.*,ur.*, 1 aa_a1
-          from role  r join user_roles ur
-          on r.name=ur.roles where ur.username=#{id}
+         SELECT
+              R.*,UR.*
+          FROM SYS_ROLE  R JOIN SYS_USER_ROLE UR
+            ON R.ROLE_ID=UR.ROLE_ID WHERE UR.USER_ID=#{USER_ID}
     </select>
 </mapper>

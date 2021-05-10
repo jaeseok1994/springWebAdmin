@@ -21,7 +21,7 @@
 			    client,
 			    rem,
 			    upd_user_id,
-			    (select username from users where id = a.upd_user_id) upd_user_nm,
+			    (select user_name from SYS_user where user_id = a.upd_user_id) upd_user_nm,
 			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
 			from taprjm a
 			where 1=1
