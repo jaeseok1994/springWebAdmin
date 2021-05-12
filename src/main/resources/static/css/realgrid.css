@@ -72,6 +72,14 @@
 .rg-header-focus{
     background: #ccdbe8;
 }
+
 .rg-table tr td.rg-rowindicator-focus{
     background-color:#ccdbe8;
+}
+
+.rg-fixed-body .rg-data-row {
+    background-color: unset;
+}
+.rg-fixed-body .rg-alternate-row {
+    background-color: #f8f8f8;
 }

@@ -83,6 +83,16 @@ function createRGrid(_grid) {
         }
     };
 
+    _grid.gridView.setStateBar({
+      visible: false
+    });
+    _grid.gridView.setCheckBar({
+      visible: true
+    });
+    _grid.gridView.setFooters({
+      visible:false
+    });
+
 }
 function getCheckedRows(g){
     var rows = g.gridView.getCheckedRows(true);

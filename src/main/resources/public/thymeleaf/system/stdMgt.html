@@ -85,11 +85,8 @@
             columns:columns,
         }
         createRGrid(grid);
-        grid.gridView.setStateBar({
-          visible: false
-        });
-        grid.gridView.setCheckBar({
-          visible: true
+        grid.gridView.setFixedOptions({
+          colCount: 2
         });
         grid.gridView.onCellClicked = function(g, cell) {
            // cell.itemIndex
