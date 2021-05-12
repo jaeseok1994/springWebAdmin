@@ -58,7 +58,7 @@
 
                     /* 페이징 처리시 필수 */
                     pagenum:1, // 현재 페이지 번호(★변수명 변경금지, 최초 값 1로 세팅)
-                    pagerows:20 // 페이지당 표시할 데이터 건수(★변수명 변경금지)
+                    pagerows:100 // 페이지당 표시할 데이터 건수(★변수명 변경금지)
                     /* 페이징 처리시 필수 */
                 },
                 methods:{
@@ -153,7 +153,8 @@
                  * param5 : Vue Object
                  * param6 : 조회 함수
                  */
-                paging(data.resultList[0].tcnt, app.keys.pagerows, 10, app.keys.pagenum, app, search);
+                //paging(data.resultList[0].tcnt, app.keys.pagerows, 10, app.keys.pagenum, app, search);
+                 commonPaging(app, data.resultList[0].tcnt, search);
                 /* 페이징 처리시 필수 */
 
             }else{
@@ -162,7 +163,7 @@
         }
     }
     $(window).resize(function(){
-        gridView.refresh();
+        grid.gridView.refresh();
     });
 </script>
 <body>
@@ -207,7 +208,7 @@
         <div style=" width: 100%;">
             <div id="realgrid"  ></div>
             <!-- 페이징 처리시 필수 -->
-            <div id="paging" class="paging" ></div>
+            <div id="commonPaging" class="commonPaging" ></div>
             <!-- 페이징 처리시 필수 -->
         </div>
     </div>

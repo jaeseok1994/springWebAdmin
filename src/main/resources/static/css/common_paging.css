@@ -1,6 +1,7 @@
 /*page*/
 .commonPaging {
 	text-align: center;
+	padding:5px 5px;
 }
 .commonPaging .disabled {
     display: none;

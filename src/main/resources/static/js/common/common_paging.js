@@ -11,15 +11,17 @@ function commonPaging(paramApp, totalData, searchFunc){
 	//console.log("paramApp.keys.pagecnt : " + paramApp.keys.pagecnt);
 	//console.log("paramApp.keys.pagenum : " + paramApp.keys.pagenum);
 	//console.log("totalData : " + totalData);
+  var pagerows = paramApp.keys.pagerows||100;
+  var pagecnt = paramApp.keys.pagecnt||10;
   
-  var totalPage = Math.ceil(totalData/paramApp.keys.pagerows);    // 총 페이지 수
-  var pageGroup = Math.ceil(paramApp.keys.pagenum/paramApp.keys.pagecnt);    // 페이지 그룹
+  var totalPage = Math.ceil(totalData/pagerows);    // 총 페이지 수
+  var pageGroup = Math.ceil(paramApp.keys.pagenum/pagecnt);    // 페이지 그룹
   
   //console.log("totalPage : " + totalPage);
   //console.log("pageGroup : " + pageGroup);
   
-  var last = pageGroup * paramApp.keys.pagecnt;    // 화면에 보여질 마지막 페이지 번호
-  var first = last - (paramApp.keys.pagecnt-1);    // 화면에 보여질 첫번째 페이지 번호
+  var last = pageGroup * pagecnt;    // 화면에 보여질 마지막 페이지 번호
+  var first = last - (pagecnt-1);    // 화면에 보여질 첫번째 페이지 번호
   
   if(last > totalPage)
       last = totalPage;
@@ -40,8 +42,8 @@ function commonPaging(paramApp, totalData, searchFunc){
       html += "<a href=# id='first' class='disabled'>|<</a> ";
       html += "<a href=# id='prev' class='disabled'><</a> ";
   } else {
-      html += "<a href=# id='first'>|<</a> ";
-      html += "<a href=# id='prev'><</a> ";         
+      html += "<a href=# id='first' style='letter-spacing: -6px'>◀◀</a> ";
+      html += "<a href=# id='prev' >◀</a> ";
   }
   
   
@@ -50,20 +52,23 @@ function commonPaging(paramApp, totalData, searchFunc){
   }
   
   if(last < totalPage) {
-      html += "<a href=# id='next'>></a>";
-      html += "<a href=# id='last'>>|</a>";
+      html += "<a href=# id='next'>▶</a>";
+      html += "<a href=# id='last' style='letter-spacing: -6px'>▶▶</a>";
   } else {
       html += "<a href=# id='next' class='disabled'>></a>";
       html += "<a href=# id='last' class='disabled'>>|</a>";
   }
-  
+
+  if(totalData > 0 ){
+      html += "<a style='padding-left:20px;font-size:0.9em;'>전체 : "+ totalData + " 건</a>";
+  }
   $("#commonPaging").html(html);    // 페이지 목록 생성
   
   $("#commonPaging a").css({"color": "black",
                       "padding-left": "10px"});
                       
-  $("#commonPaging a#" + paramApp.keys.pagenum).css({"text-decoration":"none", 
-                                     "color":"red", 
+  $("#commonPaging a#" + paramApp.keys.pagenum).css({"text-decoration":"underline",
+                                     "color":"#4b79bd",
                                      "font-weight":"bold"});    // 현재 페이지 표시
                                      
   $("#commonPaging a").click(function(){
