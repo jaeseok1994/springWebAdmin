@@ -43,7 +43,7 @@ public class UserDetailService implements UserDetailsService {
 //        System.out.println(user.get("USER_USE_YN").equals("0"));
         Object dis = result.get(0).get("USER_USE_YN");
         boolean enabled = (dis.toString()+"").equals("Y");
-        SecurityUser userDetails = new SecurityUser(user.get("USER_ID"), user.get("USER_ID"),user.get("USER_PASS"),enabled, true, true, true, grantedAuthorities(user.get("USER_ID")), "r", "b");
+        SecurityUser userDetails = new SecurityUser(user.get("USER_ID"), user.get("USER_NAME"),user.get("USER_PASS"),enabled, true, true, true, grantedAuthorities(user.get("USER_ID")), "r", "b");
 //        SecurityUser userDetails = new SecurityUser(user.get("id"), user.get("id")username, user.getPassword(), !user.isDisabled(), true, true, true, grantedAuthorities(user.getUsername()), user.getSalt(), user.getEmail());
         return userDetails;
     }

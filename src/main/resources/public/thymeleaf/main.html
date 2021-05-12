@@ -442,7 +442,7 @@
     <header>
         <div class="headerContainer">
             <div class="headerRight headerTitle" onclick="sideMenuSlide()">Boot Admin</div>
-            <div class="headerLeft">상단 우측
+            <div class="headerLeft"><div th:text="${#authentication.name}" />
                 <a th:href="@{/logout?/login}" class="logout">
                     <span class="glyphicon glyphicon-log-out"></span> &nbsp;&nbsp;&nbsp;<span th:text="로그아웃"></span>&nbsp;
                 </a>
