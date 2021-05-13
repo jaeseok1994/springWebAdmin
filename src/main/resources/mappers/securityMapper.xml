@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="proj.webAdmin.security">
-    <select id="selectAuthList" parameterType="map" resultType="map">
+    <select id="selectUrlRoleList" parameterType="map" resultType="map">
         SELECT *
         FROM SYS_URL_ROLE
         order by 1

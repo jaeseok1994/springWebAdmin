@@ -3,26 +3,17 @@
 
 <mapper namespace="proj.webAdmin.user">
     <select id="selectMenuGroup" parameterType="map" resultType="cMap">
-        select a.*, 'test' test_test from SYS_MENU a
+        select a.*, 'test' test_test
+          from SYS_MENU a
          where pid = '0' and id > '0'
          order by sort
     </select>
     <select id="selectMenu" parameterType="map" resultType="cMap">
-        select a.*, 'true' folder from SYS_MENU a
-        where 1=1
+        select a.*, 'true' folder
+          from SYS_MENU a
+         where 1=1
          start with id > '0' and pid = '0'
-         connect by prior id = pid
-        order siblings by sort
-    </select>
-    <select id="selectUserList" parameterType="map" resultType="map">
-        SELECT *
-        FROM users
-        where id=#{id}
-    </select>
-    <select id="selectUserRoleList" parameterType="map" resultType="map">
-        select
-             r.*,ur.*, 1 aa_a1
-          from role  r join user_roles ur
-          on r.name=ur.roles where ur.username=#{id}
+        connect by prior id = pid
+         order siblings by sort
     </select>
 </mapper>

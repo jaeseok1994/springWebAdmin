@@ -237,7 +237,19 @@ $(document.body).ready(function () {
     beforeDestroy: function () { $(this.$el).monthpicker('hide').monthpicker('destroy') }
     });
 
+    //enter auto select
+    setTimeout(function(){$(":input").keydown(fn_auto_search)},1500);
+
 });
+function fn_auto_search(e){
+    if(this.className.indexOf("noSelect")>-1) return;
+    if(e.keyCode==13){
+        try{
+            search();
+        }catch(e){
+        }
+    }
+}
 
 function fn_alert(msg,time){
     app_alert.message=msg;

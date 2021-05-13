@@ -229,7 +229,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         HashMap<String, Object> param = new HashMap<>();
         param.put("mapperGroup","webAdmin");
         param.put("mapperPgm","security");
-        param.put("mapperSqlId","selectAuthList");
+        param.put("mapperSqlId","selectUrlRoleList");
         List<Map<?, ?>> result = dao.selectList(param);
 
 

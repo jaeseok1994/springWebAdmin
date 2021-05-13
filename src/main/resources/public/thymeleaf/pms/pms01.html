@@ -53,10 +53,7 @@
                 	proj_no:'',
                 	proj_nm:'',
                 	dev_mp:'',
-                    
-                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
-                    pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
-                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                    data1:'2021-05-13'
                 },
                 methods:{
                 }
@@ -98,6 +95,8 @@
             id:"realgrid",
             fields:fields,
             columns:columns,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:100, // 페이지당 표시할 데이터 건수
         }
 
         createRGrid(grid);
@@ -114,6 +113,7 @@
 
     function search(){
         grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
 
         var jsonData = {
                 map: app.keys,
@@ -150,7 +150,7 @@
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
                 
-                if(data.resultList.length > 0) commonPaging(app, data.resultList[0].tcnt, search);
+                commonPaging(grid, data.resultList[0].tcnt, search);
             }else if(func == "maint"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 저장되었습니다.');
@@ -196,7 +196,21 @@
                 <td>
                     <input id="dev_mp" type="text" class="input_A w90p"  v-model="keys.dev_mp">
                 </td>
-                
+
+                <td></td>
+            </tr>
+            <tr>
+                <td class="ar">일자</td>
+                <td>
+                    <datepicker id="date1" class="form-control" v-model="keys.data1"></datepicker>
+                </td>
+                <td class="ar"></td>
+                <td>
+                </td>
+                <td class="ar"></td>
+                <td>
+                </td>
+
                 <td></td>
             </tr>
             </tbody>
