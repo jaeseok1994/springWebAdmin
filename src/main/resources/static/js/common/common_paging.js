@@ -1,21 +1,23 @@
 /**
  * 페이지 네비게이션 생성 및 이동 처리
- * @param paramApp : Vue Object
+ * @param grid : Vue Object
  * @param totalData : 총 데이터 건수
  * @param searchFunc : 조회 함수
  * @returns
  */
-function commonPaging(paramApp, totalData, searchFunc){
+function commonPaging(grid, totalData, searchFunc){
 	
-	//console.log("paramApp.keys.pagerows : " + paramApp.keys.pagerows);
-	//console.log("paramApp.keys.pagecnt : " + paramApp.keys.pagecnt);
-	//console.log("paramApp.keys.pagenum : " + paramApp.keys.pagenum);
+	//console.log("grid.keys.pagerows : " + grid.keys.pagerows);
+	//console.log("grid.keys.pagecnt : " + grid.keys.pagecnt);
+	//console.log("grid.keys.pagenum : " + grid.keys.pagenum);
+
 	//console.log("totalData : " + totalData);
-  var pagerows = paramApp.keys.pagerows||100;
-  var pagecnt = paramApp.keys.pagecnt||10;
+  var pageDiv = grid.pageDiv||"#commonPaging";
+  var pagerows = grid.pagerows||100;
+  var pagecnt = grid.pagecnt||10;
   
   var totalPage = Math.ceil(totalData/pagerows);    // 총 페이지 수
-  var pageGroup = Math.ceil(paramApp.keys.pagenum/pagecnt);    // 페이지 그룹
+  var pageGroup = Math.ceil(grid.pagenum/pagecnt);    // 페이지 그룹
   
   //console.log("totalPage : " + totalPage);
   //console.log("pageGroup : " + pageGroup);
@@ -34,7 +36,6 @@ function commonPaging(paramApp, totalData, searchFunc){
   //console.log("next : " + next);
   //console.log("prev : " + prev);
 
-  var $pingingView = $("#commonPaging");
   
   var html = "";
 
@@ -62,16 +63,16 @@ function commonPaging(paramApp, totalData, searchFunc){
   if(totalData > 0 ){
       html += "<a style='padding-left:20px;font-size:0.9em;'>전체 : "+ totalData + " 건</a>";
   }
-  $("#commonPaging").html(html);    // 페이지 목록 생성
+  $(pageDiv).html(html);    // 페이지 목록 생성
   
-  $("#commonPaging a").css({"color": "black",
+  $(pageDiv + " a").css({"color": "black",
                       "padding-left": "10px"});
                       
-  $("#commonPaging a#" + paramApp.keys.pagenum).css({"text-decoration":"underline",
+  $(pageDiv + " a#" + grid.pagenum).css({"text-decoration":"underline",
                                      "color":"#4b79bd",
                                      "font-weight":"bold"});    // 현재 페이지 표시
                                      
-  $("#commonPaging a").click(function(){
+  $(pageDiv + " a").click(function(){
       var $item = $(this);
       var $id = $item.attr("id");
       var selectedPage = $item.text();
@@ -81,8 +82,10 @@ function commonPaging(paramApp, totalData, searchFunc){
       if($id == "prev")    selectedPage = prev;
       if($id == "last")    selectedPage = totalPage;
       
-      paramApp.keys.pagenum = Number(selectedPage);
-      
+      grid.pagenum = Number(selectedPage);
+      app.keys.pagenum = grid.pagenum;
+      app.keys.pagerows = grid.pagerows;
+
       if(typeof searchFunc === 'function') searchFunc(); // 조회 함수 실행
   });
                                      

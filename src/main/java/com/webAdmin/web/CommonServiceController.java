@@ -1,7 +1,10 @@
 package com.webAdmin.web;
 
 import com.webAdmin.dao.CommonMybatisDao;
+import com.webAdmin.security.domain.model.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,6 +81,7 @@ public class CommonServiceController {
         int count = 0;
         for(Map map:list){
             //System.out.println(map);
+            initParam(map);
             count += dao.maint(param,map);
         }
         //List<Map<String, Object>> result = dao.selectList(param);
@@ -99,5 +103,34 @@ public class CommonServiceController {
         } else if (sqlId.startsWith("delete")) {
             mv.addObject("message", "삭제이 되었습니다.");
         }
+    }
+    private void initParam(Map map){
+        String userId = "";
+        SecurityUser user = getSecurityUser();
+        if(user != null){
+            userId = user.getUid();
+        }
+        map.put("_loginId_",userId);
+    }
+    private void initParam(HashMap<String,Object> param){
+        String userId = "";
+        SecurityUser user = getSecurityUser();
+        if(user != null){
+            userId = user.getUid();
+        }
+        param.put("_loginId_",userId);
+    }
+    private SecurityUser getSecurityUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String userId = "";
+        if(auth != null){
+            Object o = auth.getPrincipal();
+            if(o instanceof SecurityUser){
+                SecurityUser user = (SecurityUser)auth.getPrincipal();
+                return user;
+            }
+        }
+        return null;
     }
 }

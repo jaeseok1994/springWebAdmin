@@ -22,6 +22,7 @@
     ];
 
     var grid;
+    var grid2;
     
     var app;
     $(document.body).ready(function(){
@@ -31,13 +32,6 @@
                 keys:{
                     domn_nm:'',
                     pid:'',
-                    
-                    /* 페이징 처리시 필수 */
-                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
-                    pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
-                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
-                    /* 페이징 처리시 필수 */
-                    
                 },
                 methods:{
                 }
@@ -46,20 +40,34 @@
 
         $("#goSelect").click(function(){
         	
-        	/* 페이징 처리시 필수 */
-        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-        	/* 페이징 처리시 필수 */
-        	
+        	grid.pagenum = 1;
         	search(); 
+        });
+        $("#goSelect2").click(function(){
+
+        	grid2.pagenum = 1;
+        	search2();
         });
 
         grid = {
             id:"realgrid",
             fields:fields,
             columns:columns,
+            pagenum:1,
+            pagerows:100,
+            pageDiv:"#commonPaging"
+        }
+        grid2 = {
+            id:"realgrid2",
+            fields:fields,
+            columns:columns,
+            pagenum:1,
+            pagerows:200,
+            pageDiv:"#commonPaging2"
         }
 
         createRGrid(grid);
+        createRGrid(grid2);
 
         grid.gridView.onCellClicked = function(g, cell) {
             
@@ -67,8 +75,9 @@
         
         search();
 
-        setResizeHeightObjs("realgrid");
+        setResizeHeightObjs("realgrid","realgrid2");
         grid.gridView.refresh();
+        grid2.gridView.refresh();
         
     });
 
@@ -77,6 +86,7 @@
     function search(){
         pid = "";
         grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
 		
         var jsonData = {
                 map: app.keys,
@@ -84,7 +94,19 @@
 
         fn_transaction("select","/service/sample/samplePaging/selectList.do/selectList",jsonData,fn_callback);
     }
-    
+
+    function search2(){
+        pid = "";
+        grid2.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum2;
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select2","/service/sample/samplePaging/selectList.do/selectList",jsonData,fn_callback);
+    }
+
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
@@ -92,17 +114,15 @@
              if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
-                
-                /* 페이징 처리시 필수 */
-                /*
-                 * 페이지 네비게이션 생성 및 이동 처리
-                 * param1 : Vue Object
-                 * param2 : 총 데이터 건수
-                 * param3 : 조회 함수
-                 */
-                 commonPaging(app, data.resultList[0].tcnt, search);
+                 commonPaging(grid, data.resultList[0].tcnt, search);
                 /* 페이징 처리시 필수 */
                 
+            }else if(func == "select2"){
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+                 commonPaging(grid2, data.resultList[0].tcnt, search2);
+                /* 페이징 처리시 필수 */
+
             }
         }
     }
@@ -136,15 +156,18 @@
 
     <div class="ar">
         <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goSelect2" class="btn_typeA btn_search">조회2</div>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">
-        <div id="realgrid"  ></div>
-        
-        <!-- 페이징 처리시 필수 -->
-        <div id="commonPaging" class="commonPaging" ></div> <!-- ★ id, class 명칭 변경 금지 -->
-        <!-- 페이징 처리시 필수 -->
-        
+        <div style=" width: 60%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div id="commonPaging" class="commonPaging" ></div>
+        </div>
+        <div style=" width: 39%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            <div class="commonPaging" id="commonPaging2" style="height:20px; "></div>
+        </div>
     </div>
 </div>
 </body>

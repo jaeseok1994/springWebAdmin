@@ -3,6 +3,7 @@
 
 <mapper namespace="proj.system.userMgt">
     <select id="selectList" parameterType="map" resultType="cMap">
+        <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
         SELECT
             USER_ID AS USERID
             ,USER_NAME AS USERNM
@@ -23,6 +24,7 @@
         <if test="map.usernm != '' and map.usernm != null">
            AND A.USER_ID LIKE '%' || #{map.usernm } || '%'
         </if>
+        <include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 
     </select>
 
@@ -81,8 +83,39 @@
             VALUES (#{userid},#{usernm},#{pass},#{email},#{useyn},sysdate,'ADMIN',sysdate,'ADMIN ')
     </insert>
     <insert id="deleteList" parameterType="map" >
-        delete from SYS_USER_ROLE
-         where user_id = #{userid}
-        and ROLE_ID = #{code}
+        DECLARE
+            USER_EXCEPTION EXCEPTION;
+            V_ERR_MSG VARCHAR(2000);
+        BEGIN
+            DELETE FROM SYS_USER
+             WHERE USER_ID = #{userid}
+            ;
+
+            DELETE FROM SYS_USER_ROLE
+             WHERE USER_ID = #{userid}
+            ;
+        EXCEPTION
+        WHEN USER_EXCEPTION THEN
+            RAISE_APPLICATION_ERROR(-20001,V_ERR_MSG);
+        END;
+    </insert>
+    <insert id="maintRoleList" parameterType="map" >
+        DECLARE
+            USER_EXCEPTION EXCEPTION;
+            V_ERR_MSG VARCHAR(2000);
+        BEGIN
+            DELETE FROM SYS_USER_ROLE
+             WHERE USER_ID = #{userid}
+            ;
+
+            INSERT INTO SYS_USER_ROLE(USER_ID,ROLE_ID,INST_DATE,INST_USER)
+            SELECT #{userid} USER_ID,ROLE_ID,SYSDATE, #{_loginId_}
+              FROM SYS_ROLE
+            WHERE INSTR( #{roles},ROLE_ID||',') > 0
+            ;
+        EXCEPTION
+        WHEN USER_EXCEPTION THEN
+            RAISE_APPLICATION_ERROR(-20001,V_ERR_MSG);
+        END;
     </insert>
 </mapper>

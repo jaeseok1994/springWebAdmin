@@ -67,9 +67,7 @@
         });
 
         $("#goSelect").click(function(){
-            /* 페이징 처리시 필수 */
-        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-        	/* 페이징 처리시 필수 */
+            grid.pagenum = 1;
             search();
         });
         $("#goSave").click(function(){
@@ -83,6 +81,9 @@
             id:"realgrid",
             fields:fields,
             columns:columns,
+            pagenum:1, // 현재 페이지 번호(★변수명 변경금지, 최초 값 1로 세팅)
+            pagerows:100, // 페이지당 표시할 데이터 건수(★변수명 변경금지)
+            pageDiv:"#commonPaging"
         }
         createRGrid(grid);
         grid.gridView.setFixedOptions({
@@ -103,6 +104,7 @@
     function search(){
         pid = "";
         grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
 
         var jsonData = {
                 map: app.keys,
@@ -139,19 +141,7 @@
             }else if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
-
-                /* 페이징 처리시 필수 */
-                /*
-                 * 페이지 네비게이션 생성 및 이동 처리
-                 * param1 : 총 데이터 건수
-                 * param2 : 페이지당 표시할 데이터 건수
-                 * param3 : 표시할 페이지 번호 수
-                 * param4 : 현재 페이지 번호
-                 * param5 : Vue Object
-                 * param6 : 조회 함수
-                 */
-                //paging(data.resultList[0].tcnt, app.keys.pagerows, 10, app.keys.pagenum, app, search);
-                 commonPaging(app, data.resultList[0].tcnt, search);
+                commonPaging(grid, data.resultList[0].tcnt, search);
                 /* 페이징 처리시 필수 */
 
             }else{

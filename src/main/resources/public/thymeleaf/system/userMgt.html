@@ -86,11 +86,17 @@
         $("#goDelete").click(function(){
             maintList('delete');
         });
+        $("#goSaveRole").click(function(){
+            maintRoleList('maintRole');
+        });
 
         grid = {
             id:"realgrid",
             fields:fields,
             columns:columns,
+            pagenum:1,
+            pagerows:100,
+            pageDiv:"#commonPaging"
         }
         grid2 = {
             id:"realgrid2",
@@ -141,32 +147,39 @@
         fn_transaction("select2","/service/system/userMgt/selectList.do/selectList2",jsonData,fn_callback);
     }
     function maintList(func,key){
-        grid2.gridView.commit(true);
         grid.gridView.commit(true);
 
-        var searchParam = {};
-        searchParam.func = func;
-        var list = getCheckedRows(grid2);
+        var list = getCheckedRows(grid);
 
-        var list1 = getCheckedRows(grid);
-
-        if(list.length<1 && list1.length < 1){
+        if(list.length<1 ){
           fn_alert("자료를 선택하세요.");
           return;
         }
+        var listData = {
+              list: list,
+        };
+        fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+        return;
+    }
+    function maintRoleList(func,key){
+        grid2.gridView.commit(true);
 
-        if(list1.length > 0){
-            var listData = {
-                  list: list1,
-            };
-            fn_transaction(func,"/service/system/userMgt/maintList.do/maintList",listData,fn_callback);
+        var list = getCheckedRows(grid2);
+        if(list.length<1 ){
+          fn_alert("권한을 선택하세요.");
+          return;
         }
-        if(list.length >0){
-            var listData = {
-                  list: list,
-            };
-            fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
+        debugger;
+        var roles = "";
+        for(var i = 0;i < list.length;i++){
+            roles += list[i].code + ",";
         }
+        var list2 = [{"userid":list[0].userid,"roles":roles}];
+
+        var listData = {
+              list: list2,
+        };
+        fn_transaction(func,"/service/system/userMgt/maintList.do/"+func+"List",listData,fn_callback);
         return;
     }
     function fn_callback(func,data,status){
@@ -175,6 +188,7 @@
         }else{
              if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
+                commonPaging(grid, data.resultList[0].tcnt, search);
                 grid.gridView.refresh();
             }else if(func == "select2"){
                 grid2.dataProvider.setRows(data.resultList);
@@ -250,13 +264,14 @@
         <div id="goAdd" class="btn_typeA btn_save">사용자 추가</div>
         <div id="goSave" class="btn_typeA btn_save">저장</div>
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goSaveRole" class="btn_typeA btn_delete">권한저장</div>
         <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">
         <div style=" width: 70%;float:left;  ">
             <div id="realgrid"  ></div>
-            <div class="paging" id="gridPageBarDiv" style="height:20px; "></div>
+            <div id="commonPaging" class="commonPaging" ></div>
         </div>
         <div style=" width: 29%;float:right;  ">
             <div id="realgrid2"  ></div>
