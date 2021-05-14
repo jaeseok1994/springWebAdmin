@@ -67,7 +67,7 @@ function fn_setCombo(param,mapId,define_callback){
     fn_transaction('combosearch',"/commonCode/selectList.do/"+mapId,jsonData,
         function(func,data, status){
             if(data.error){
-                fn_alert(data.error.message);
+                fn_alert(data.message);
             }else{
                 define_callback(data.resultList);
             }

@@ -44,7 +44,7 @@ $(document.body).ready(function () {
         mounted: function () {
             var _url = this.url;
             if(_url.indexOf('/') == -1){
-                _url = "/common/selectList.do/" + _url;
+                _url = "/commonCode/selectList.do/" + _url;
             }
             var vm = this;
             var _para = this.para;

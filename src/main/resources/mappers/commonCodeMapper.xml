@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.commonCode.common">
+    <select id="selectCodeList" parameterType="map" resultType="cMap">
+        select CD_CODE value, CD_NAME text
+          from SYS_CODE a
+         where CD_G_CODE = #{map.group}
+         order by cd_ordr
+    </select>
+    <select id="selectRoleList" parameterType="map" resultType="cMap">
+        select ROLE_ID value, ROLE_NAME text
+          from SYS_ROLE a
+         where 1=1
+        <if test="map.q != '' and map.q != null">
+            AND ( UPPER(A.ROLE_ID) LIKE '%' || UPPER(#{map.q }) || '%'
+              OR  UPPER(A.ROLE_NAME) LIKE '%' || UPPER(#{map.q }) || '%' )
+        </if>
+         order by ROLE_NAME
+    </select>
+</mapper>

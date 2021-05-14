@@ -22,8 +22,8 @@ public class CommonCodeController {
     @Autowired
     private CommonMybatisDao dao;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/selectList/{sqlId}")
-    public ModelAndView list(@PathVariable("group") String group, @PathVariable("sqlId") String sqlId, @RequestBody HashMap<String,Object> param  ) {
+    @RequestMapping(method = RequestMethod.POST, value = "/selectList.do/{sqlId}")
+    public ModelAndView list(@PathVariable("sqlId") String sqlId, @RequestBody HashMap<String,Object> param  ) {
 
         LinkedHashMap linkedHashMap = (LinkedHashMap)param.get("test");
 

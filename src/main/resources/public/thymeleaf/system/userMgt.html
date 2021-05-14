@@ -62,13 +62,16 @@
             data:{
                 MenuList:['1'],
                 loctList:[],
+                compList:[],
                 keys:{
                     search:'',
-                    comp:'',
+                    comp:'*',
                     loct:'',
                     group:'',
+                    role:'',
                     pid:'',
                 },
+                roleUrl:'selectRoleList',
                 methods:{
                 }
             },
@@ -107,16 +110,23 @@
         createRGrid(grid);
         createRGrid(grid2);
         grid.gridView.onCellClicked = function(g, cell) {
-            cell.itemIndex
+            //cell.itemIndex
             //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
             var id = grid.gridView.getValue(cell.itemIndex,"userid");
             searchDetail(id);
         };
-        search();
+
 
         setResizeHeightObjs("realgrid","realgrid2");
         grid.gridView.refresh();
         grid2.gridView.refresh();
+
+        fn_codeDataSync({group:"COMP"},function(list){
+            app.compList = list;
+        });
+
+        search();
+
     });
 
     var pid ;
@@ -227,26 +237,13 @@
                 <td class="ar">회사</td>
                 <td>
                     <select name="comp" id="comp" class="ui_sel w100p" v-model="keys.comp">
-                        <option value="">전체</option>
-                        <option value="1">1번회사</option>
-                        <option value="2">2번회사</option>
-                        <option value="3">3번회사</option>
+                        <option value="*">전체</option>
+                        <option v-for="list in compList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
-                <td class="ar">지역</td>
+                <td class="ar">권한</td>
                 <td>
-                    <select name="loct" id="loct" class="ui_sel w100p" v-model="keys.loct">
-                        <option value="">전체</option>
-                        <option value="1">서울</option>
-                        <option value="2">부산</option>
-                        <option value="3">울산</option>
-                        <option value="4">대구</option>
-                        <option value="5">대전</option>
-                    </select>
-                </td>
-                <td class="ar">조직/조직명</td>
-                <td>
-                    <input id="group" type="text" class="input_A w90p"  v-model="keys.search3">
+                    <select2 id="role" class="form-control" v-model="keys.role" :url="roleUrl" :para="keys" style="width:200px"></select2>
                 </td>
                 <td class="ar">사번/성명</td>
                 <td>
