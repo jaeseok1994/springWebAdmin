@@ -61,7 +61,7 @@
                 ,SYSDATE
                 ,'ADMIN'
                 ,SYSDATE
-                ,'ADMIN'
+                ,#{_loginId_}
         )
 
     </insert>
@@ -77,10 +77,10 @@
              ,  S.USER_EMAIL = nvl(#{email},' ')
              ,  S.USER_USE_YN = #{useyn }
              , S.UPDT_DATE = SYSDATE
-             , S.UPDT_USER = 'ADMIN'
+             , S.UPDT_USER = #{_loginId_}
         WHEN NOT MATCHED THEN
             INSERT (S.USER_ID, S.USER_NAME, S.USER_PASS, S.USER_EMAIL, S.USER_USE_YN, S.INST_DATE, S.INST_USER, S.UPDT_DATE, S.UPDT_USER)
-            VALUES (#{userid},#{usernm},#{pass},#{email},#{useyn},sysdate,'ADMIN',sysdate,'ADMIN ')
+            VALUES (#{userid},#{usernm},#{pass},#{email},#{useyn},sysdate,#{_loginId_},sysdate,'')
     </insert>
     <insert id="deleteList" parameterType="map" >
         DECLARE

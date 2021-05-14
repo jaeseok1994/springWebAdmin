@@ -43,6 +43,7 @@
 }
 
 .modal-header {
+  font-size:23px;
   padding: 15px;
   border-bottom: 1px solid #e5e5e5;
 }
@@ -51,15 +52,16 @@
 }
 .modal-title {
   margin: 0;
-  line-height: 1.42857143;
+  line-height: 1.5;
 }
 .modal-body {
+  font-size:19px;
   position: relative;
   padding: 15px;
 }
 .modal-header h3 {
     margin-top: 0;
-    color: #42b983;
+    color: #4569ad;
 }
 
 .modal-body {

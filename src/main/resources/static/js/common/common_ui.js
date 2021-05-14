@@ -258,7 +258,7 @@ function fn_alert(msg,time){
     var reset = function(){
         app_alert.showModal=false;
     }
-    setTimeout(reset,23000);
+    setTimeout(reset,2000);
 }
 function fn_confirm(msg,callback){
     return confirm(msg);

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.system.urlRoleMgt">
+    <select id="selectList" parameterType="map" resultType="cMap">
+        <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+        SELECT *
+          FROM sys_role
+         where 1=1
+        order by role_id
+        <include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    <select id="selectList2" parameterType="map" resultType="cMap">
+        <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+        SELECT a.*
+            ,TO_CHAR(INST_DATE,'YYYY-MM-DD') AS indt
+            ,TO_CHAR(updt_date,'YYYY-MM-DD') AS updt
+         FROM sys_url_role a
+        where 1=1
+        <if test ="map.role_id != null and map.role_id != ''">
+            and role_id = #{map.role_id}
+        </if>
+        order by sort_sn
+        <include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    <insert id="maintList" parameterType="map" >
+        MERGE INTO sys_url_role S
+        USING DUAL
+           ON (S.url = #{url} and S.role_id = #{role_id})
+        WHEN MATCHED THEN
+        UPDATE SET
+               S.sort_sn = #{sort_sn}
+            ,  S.use_yn = #{use_yn}
+            ,  S.updt_date = sysdate
+            ,  S.updt_user = #{_loginId_}
+        WHEN NOT MATCHED THEN
+            INSERT (S.url, S.role_id, S.use_yn, S.sort_sn, S.inst_date, S.inst_user)
+            VALUES (#{url},#{role_id},#{use_yn}, #{sort_sn}, sysdate, #{_loginId_} )
+    </insert>
+    <insert id="deleteList" parameterType="map" >
+        delete from sys_url_role
+         where url = #{url} and role_id = #{role_id}
+    </insert>
+</mapper>

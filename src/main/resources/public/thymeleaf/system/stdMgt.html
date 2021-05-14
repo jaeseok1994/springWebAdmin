@@ -141,7 +141,7 @@
             }else if(func == "select"){
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
-                commonPaging(grid, data.resultList[0].tcnt, search);
+                commonPaging(grid, data.resultList?data.resultList[0].tcnt:0, search);
                 /* 페이징 처리시 필수 */
 
             }else{
