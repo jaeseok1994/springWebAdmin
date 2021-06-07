@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>연차 관리</title>
+    <div th:replace="headerRGrid"></div>
+</head>
+<script>
+    var fields = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "dev_mps",dataType: "text"},
+      {fieldName: "client",dataType: "text"},
+      {fieldName: "rem",dataType: "text"},
+      {fieldName: "upd_user_nm",dataType: "text"},
+      {fieldName: "upd_dtm",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호" },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column"},
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
+    	  editor: {
+              type: "date",
+              datetimeFormat: "yyyy-MM-dd"
+          },
+          datetimeFormat: "yyyy-MM-dd"
+    	},
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",
+    		editor: {
+                type: "date",
+                datetimeFormat: "yyyy-MM-dd"
+            },
+            datetimeFormat: "yyyy-MM-dd"
+        },
+      {name: "dev_mps", fieldName: "dev_mps", type: "data", width: "200", header: "투입인력 ( ','로 구분 )" ,styleName:"left-column"},
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처" ,styleName:"left-column"},
+      {name: "rem", fieldName: "rem", type: "data", width: "200", header: "비고" ,styleName:"left-column"},
+      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
+      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+    ];
+
+    var grid;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                	proj_no:'',
+                	proj_nm:'',
+                	dev_mp:'',
+                    data1:'2021-05-13'
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+
+        	search();
+        });
+        $("#goAdd").click(function(){
+           grid.dataProvider.addRow(1);
+        });
+        $("#goSave").click(function(){
+            maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+        $("#goExcel").click(function(){
+        	grid.gridView.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: "프로젝트 관리.xlsx",
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        // alert("done excel export")
+			    }
+			});
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:100, // 페이지당 표시할 데이터 건수
+        }
+
+        createRGrid(grid);
+
+        grid.gridView.onCellClicked = function(g, cell) {
+            var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");
+        };
+
+        search();
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+    });
+
+    function search(){
+        grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+
+        var list = getCheckedRows(grid);
+
+        if(list.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/pms/pms01/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+
+                commonPaging(grid, data.resultList[0].tcnt, search);
+            }else if(func == "maint"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 삭제되었습니다.');
+            }else{
+                grid.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
+    $(window).resize(function(){
+        grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">연차 관리</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>연차 관리</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">사원명</td>
+                <td>
+                    <input id="proj_nm" type="text" class="input_A w90p"  v-model="keys.proj_nm">
+                </td>
+                <td class="ar">직책</td>
+                <td>
+                    <input id="dev_mp" type="text" class="input_A w90p"  v-model="keys.dev_mp">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">추가</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+</div>
+</body>
+</html>
