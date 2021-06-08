@@ -75,8 +75,7 @@
     ];
 
     <!-- 레이아웃 헤더(헤더 병합) -->
-    var layout
-    layout = [
+    var layout1 = [
         "usernm", "rbof",
         {name: "month01", direction: "horizontal", items: ["half_yvc01","yvc01"], header: "1월"},
         {name: "month02", direction: "horizontal", items: ["half_yvc02","yvc02"], header: "2월"},
@@ -138,15 +137,16 @@
             id:"realgrid",
             fields:fields,
             columns:columns,
+            layout1:layout1,
             pagenum:1, // 현재 페이지 번호
             pagerows:100, // 페이지당 표시할 데이터 건수
         }
 
         createRGrid(grid);
 
-<!--        grid.gridView.onCellClicked = function(g, cell) {
-            var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");
-        };-->
+        grid.gridView.onCellClicked = function(g, cell) {
+            <!--var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");-->
+        };
 
         search();
 
@@ -162,7 +162,7 @@
                 map: app.keys,
         };
 
-        fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);
+        <!--fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);-->
     }
     function maintList(func,key){
         grid.gridView.commit(true);
