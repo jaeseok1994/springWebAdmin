@@ -74,10 +74,9 @@
       {name: "yvc_total", fieldName: "yvc_total", type: "data", width: "50", header: "연차" }
     ];
 
-    var grid;
-
-    <!-- 헤더 병합 -->
-    grid = [
+    <!-- 레이아웃 헤더(헤더 병합) -->
+    var layout
+    layout = [
         "usernm", "rbof",
         {name: "month01", direction: "horizontal", items: ["half_yvc01","yvc01"], header: "1월"},
         {name: "month02", direction: "horizontal", items: ["half_yvc02","yvc02"], header: "2월"},
@@ -93,6 +92,8 @@
         {name: "month12", direction: "horizontal", items: ["half_yvc12","yvc12"], header: "12월"},
         {name: "total", direction: "horizontal", items: ["half_total","yvc_total"], header: "계"}
     ];
+
+    var grid;
 
     var app;
     $(document.body).ready(function(){
