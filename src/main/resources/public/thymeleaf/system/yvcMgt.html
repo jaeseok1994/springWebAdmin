@@ -75,7 +75,7 @@
     ];
 
     <!-- 레이아웃 헤더(헤더 병합) -->
-    var layout1 = [
+<!--    var layout1 = [
         "usernm", "rbof",
         {name: "month01", direction: "horizontal", items: ["half_yvc01","yvc01"], header: "1월"},
         {name: "month02", direction: "horizontal", items: ["half_yvc02","yvc02"], header: "2월"},
@@ -90,7 +90,7 @@
         {name: "month11", direction: "horizontal", items: ["half_yvc11","yvc11"], header: "11월"},
         {name: "month12", direction: "horizontal", items: ["half_yvc12","yvc12"], header: "12월"},
         {name: "total", direction: "horizontal", items: ["half_total","yvc_total"], header: "계"}
-    ];
+    ];-->
 
     var grid;
 
@@ -137,17 +137,11 @@
             id:"realgrid",
             fields:fields,
             columns:columns,
-            layout1:layout1,
             pagenum:1, // 현재 페이지 번호
             pagerows:100, // 페이지당 표시할 데이터 건수
         }
 
         createRGrid(grid);
-
-        grid.gridView.onCellClicked = function(g, cell) {
-            <!--var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");-->
-        };
-
         search();
 
         setResizeHeightObjs("realgrid");
@@ -197,9 +191,6 @@
             }else if(func == "maint"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 저장되었습니다.');
-            }else if(func == "delete"){
-            	 grid.gridView.refresh();
-            	 fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 grid.gridView.refresh();
                 fn_alert(data.message);
@@ -229,7 +220,7 @@
                 </td>
                 <td class="ar">직책</td>
                 <td>
-                    <select name="seq" id="seq" class="ui_sel w100p" v-model="keys.rbof">
+                    <select name="seq" id="seq" class="ui_sel w50p" v-model="keys.rbof">
                         <!--<option v-for="list in groupList" :value="list.value">{{list.text}}</option>-->
                         <option value="">전체</option>
                         <option value="1">이사</option>
