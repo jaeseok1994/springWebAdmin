@@ -43,8 +43,8 @@
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
-    
-    <insert id="maintList" parameterType="map" >
+
+    <update id="maintList" parameterType="map" >
     {call
         declare
         begin
@@ -92,10 +92,6 @@
 		    from table(f_pvtrow(#{dev_mps},','));
         end
     }
-    </insert>
-    
-    <insert id="deleteList" parameterType="map" >
-        delete from taprjm
-        where proj_no = #{proj_no}
-    </insert>
+    </update>
+
 </mapper>

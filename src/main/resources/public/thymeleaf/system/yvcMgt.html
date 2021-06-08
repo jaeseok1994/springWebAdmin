@@ -7,42 +7,92 @@
 </head>
 <script>
     var fields = [
-      {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "proj_nm",dataType: "text"},
-      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "dev_mps",dataType: "text"},
-      {fieldName: "client",dataType: "text"},
-      {fieldName: "rem",dataType: "text"},
-      {fieldName: "upd_user_nm",dataType: "text"},
-      {fieldName: "upd_dtm",dataType: "text"}
+      {fieldName: "usernm",dataType: "text"},
+      {fieldName: "rbof",dataType: "text"},
+
+      {fieldName: "half_yvc01",dataType: "number"},
+      {fieldName: "half_yvc02",dataType: "number"},
+      {fieldName: "half_yvc03",dataType: "number"},
+      {fieldName: "half_yvc04",dataType: "number"},
+      {fieldName: "half_yvc05",dataType: "number"},
+      {fieldName: "half_yvc06",dataType: "number"},
+      {fieldName: "half_yvc07",dataType: "number"},
+      {fieldName: "half_yvc08",dataType: "number"},
+      {fieldName: "half_yvc09",dataType: "number"},
+      {fieldName: "half_yvc10",dataType: "number"},
+      {fieldName: "half_yvc11",dataType: "number"},
+      {fieldName: "half_yvc12",dataType: "number"},
+
+      {fieldName: "yvc01",dataType: "number"},
+      {fieldName: "yvc02",dataType: "number"},
+      {fieldName: "yvc03",dataType: "number"},
+      {fieldName: "yvc04",dataType: "number"},
+      {fieldName: "yvc05",dataType: "number"},
+      {fieldName: "yvc06",dataType: "number"},
+      {fieldName: "yvc07",dataType: "number"},
+      {fieldName: "yvc08",dataType: "number"},
+      {fieldName: "yvc09",dataType: "number"},
+      {fieldName: "yvc10",dataType: "number"},
+      {fieldName: "yvc11",dataType: "number"},
+      {fieldName: "yvc12",dataType: "number"},
+
+      {fieldName: "half_total",dataType: "number"},
+      {fieldName: "yvc_total",dataType: "number"}
     ];
 
     var columns = [
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호" },
-      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column"},
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
-    	  editor: {
-              type: "date",
-              datetimeFormat: "yyyy-MM-dd"
-          },
-          datetimeFormat: "yyyy-MM-dd"
-    	},
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",
-    		editor: {
-                type: "date",
-                datetimeFormat: "yyyy-MM-dd"
-            },
-            datetimeFormat: "yyyy-MM-dd"
-        },
-      {name: "dev_mps", fieldName: "dev_mps", type: "data", width: "200", header: "투입인력 ( ','로 구분 )" ,styleName:"left-column"},
-      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처" ,styleName:"left-column"},
-      {name: "rem", fieldName: "rem", type: "data", width: "200", header: "비고" ,styleName:"left-column"},
-      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
-      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+      {name: "usernm", fieldName: "usernm", type: "data", width: "150", header: "사원명" editable: false },
+      {name: "rbof", fieldName: "rbof", type: "data", width: "200", header: "직책" editable: false },
+
+      {name: "half_yvc01", fieldName: "half_yvc01", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc02", fieldName: "half_yvc02", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc03", fieldName: "half_yvc03", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc04", fieldName: "half_yvc04", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc05", fieldName: "half_yvc05", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc06", fieldName: "half_yvc06", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc07", fieldName: "half_yvc07", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc08", fieldName: "half_yvc08", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc09", fieldName: "half_yvc09", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc10", fieldName: "half_yvc10", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc11", fieldName: "half_yvc11", type: "data", width: "50", header: "반차" },
+      {name: "half_yvc12", fieldName: "half_yvc12", type: "data", width: "50", header: "반차" },
+
+      {name: "yvc01", fieldName: "yvc01", type: "data", width: "50", header: "연차" },
+      {name: "yvc02", fieldName: "yvc02", type: "data", width: "50", header: "연차" },
+      {name: "yvc03", fieldName: "yvc03", type: "data", width: "50", header: "연차" },
+      {name: "yvc04", fieldName: "yvc04", type: "data", width: "50", header: "연차" },
+      {name: "yvc05", fieldName: "yvc05", type: "data", width: "50", header: "연차" },
+      {name: "yvc06", fieldName: "yvc06", type: "data", width: "50", header: "연차" },
+      {name: "yvc07", fieldName: "yvc07", type: "data", width: "50", header: "연차" },
+      {name: "yvc08", fieldName: "yvc08", type: "data", width: "50", header: "연차" },
+      {name: "yvc09", fieldName: "yvc09", type: "data", width: "50", header: "연차" },
+      {name: "yvc10", fieldName: "yvc10", type: "data", width: "50", header: "연차" },
+      {name: "yvc11", fieldName: "yvc11", type: "data", width: "50", header: "연차" },
+      {name: "yvc12", fieldName: "yvc12", type: "data", width: "50", header: "연차" },
+
+      {name: "half_total", fieldName: "half_total", type: "data", width: "50", header: "반차" },
+      {name: "yvc_total", fieldName: "yvc_total", type: "data", width: "50", header: "연차" }
     ];
 
     var grid;
+
+    <!-- 헤더 병합 -->
+    grid = [
+        "usernm", "rbof",
+        {name: "month01", direction: "horizontal", items: ["half_yvc01","yvc01"], header: "1월"},
+        {name: "month02", direction: "horizontal", items: ["half_yvc02","yvc02"], header: "2월"},
+        {name: "month03", direction: "horizontal", items: ["half_yvc03","yvc03"], header: "3월"},
+        {name: "month04", direction: "horizontal", items: ["half_yvc04","yvc04"], header: "4월"},
+        {name: "month05", direction: "horizontal", items: ["half_yvc05","yvc05"], header: "5월"},
+        {name: "month06", direction: "horizontal", items: ["half_yvc06","yvc06"], header: "6월"},
+        {name: "month07", direction: "horizontal", items: ["half_yvc07","yvc07"], header: "7월"},
+        {name: "month08", direction: "horizontal", items: ["half_yvc08","yvc08"], header: "8월"},
+        {name: "month09", direction: "horizontal", items: ["half_yvc09","yvc09"], header: "9월"},
+        {name: "month10", direction: "horizontal", items: ["half_yvc10","yvc10"], header: "10월"},
+        {name: "month11", direction: "horizontal", items: ["half_yvc11","yvc11"], header: "11월"},
+        {name: "month12", direction: "horizontal", items: ["half_yvc12","yvc12"], header: "12월"},
+        {name: "total", direction: "horizontal", items: ["half_total","yvc_total"], header: "계"}
+    ];
 
     var app;
     $(document.body).ready(function(){
@@ -50,10 +100,8 @@
             el:'#form',
             data:{
                 keys:{
-                	proj_no:'',
-                	proj_nm:'',
-                	dev_mp:'',
-                    data1:'2021-05-13'
+                	usernm:'',
+                	rbof:''
                 },
                 methods:{
                 }
@@ -65,20 +113,14 @@
 
         	search();
         });
-        $("#goAdd").click(function(){
-           grid.dataProvider.addRow(1);
-        });
         $("#goSave").click(function(){
             maintList('maint');
-        });
-        $("#goDelete").click(function(){
-            maintList('delete');
         });
         $("#goExcel").click(function(){
         	grid.gridView.exportGrid({
 			    type: "excel",
 			    target: "local",
-			    fileName: "프로젝트 관리.xlsx",
+			    fileName: "연차 관리.xlsx",
 			    showProgress: true,
 			    progressMessage: "엑셀 Export중입니다.",
 			    indicator: 'visible',
@@ -101,9 +143,9 @@
 
         createRGrid(grid);
 
-        grid.gridView.onCellClicked = function(g, cell) {
+<!--        grid.gridView.onCellClicked = function(g, cell) {
             var proj_no = grid.gridView.getValue(cell.itemIndex,"proj_no");
-        };
+        };-->
 
         search();
 
@@ -177,21 +219,25 @@
                 <col style="width:150px;"/>
                 <col style="width:300px;"/>
                 <col style="width:150px;"/>
-                <col style="width:300px;"/>
-                <col style="width:150px;"/>
-                <col style="width:300px;"/>
-                <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
                 <td class="ar">사원명</td>
                 <td>
-                    <input id="proj_nm" type="text" class="input_A w90p"  v-model="keys.proj_nm">
+                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
                 </td>
                 <td class="ar">직책</td>
                 <td>
-                    <input id="dev_mp" type="text" class="input_A w90p"  v-model="keys.dev_mp">
+                    <select name="seq" id="seq" class="ui_sel w100p" v-model="keys.rbof">
+                        <!--<option v-for="list in groupList" :value="list.value">{{list.text}}</option>-->
+                        <option value="">전체</option>
+                        <option value="1">이사</option>
+                        <option value="2">팀장</option>
+                        <option value="3">대리</option>
+                        <option value="4">사원</option>
+                    </select>
                 </td>
+                <td></td>
             </tr>
             </tbody>
         </table>
@@ -200,9 +246,7 @@
 
     <div class="ar">
         <div id="goSelect" class="btn_typeA btn_search">조회</div>
-        <div id="goAdd" class="btn_typeA btn_save">추가</div>
         <div id="goSave" class="btn_typeA btn_save">저장</div>
-        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
         <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
     </div>
     <div class="gap10"></div>
