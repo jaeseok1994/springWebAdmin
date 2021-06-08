@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>연차 관리</title>
+    <div th:replace="headerRGrid"></div>
+</head>
+<script>
+    var fields = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "dev_mps",dataType: "text"},
+      {fieldName: "client",dataType: "text"},
+      {fieldName: "rem",dataType: "text"},
+      {fieldName: "upd_user_nm",dataType: "text"},
+      {fieldName: "upd_dtm",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호" },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column"},
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
+    	  editor: {
+              type: "date",
+              datetimeFormat: "yyyy-MM-dd"
+          },
+          datetimeFormat: "yyyy-MM-dd"
+    	},
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",
+    		editor: {
+                type: "date",
+                datetimeFormat: "yyyy-MM-dd"
+            },
+            datetimeFormat: "yyyy-MM-dd"
+        },
+      {name: "dev_mps", fieldName: "dev_mps", type: "data", width: "200", header: "투입인력 ( ','로 구분 )" ,styleName:"left-column"},
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처" ,styleName:"left-column"},
+      {name: "rem", fieldName: "rem", type: "data", width: "200", header: "비고" ,styleName:"left-column"},
+      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
+      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+    ];
+
+    var grid;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                	proj_no:'',
+                	proj_nm:'',
+                	dev_mp:'',
+                    data1:'2021-05-13'
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+
+        	search();
+        });
+        $("#goSave").click(function(){
+            maintList('maint');
+        });
+        $("#goExcel").click(function(){
+        	grid.gridView.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: "연차 관리.xlsx",
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        // alert("done excel export")
+			    }
+			});
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:100, // 페이지당 표시할 데이터 건수
+        }
+
+        createRGrid(grid);
+        search();
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+    });
+
+
+    $(window).resize(function(){
+        grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">연차 관리</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>연차 관리</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">사원명</td>
+                <td>
+                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
+                </td>
+                <td class="ar">직책</td>
+                <td>
+                    <select name="seq" id="seq" class="ui_sel w50p" v-model="keys.rbof">
+                        <!--<option v-for="list in groupList" :value="list.value">{{list.text}}</option>-->
+                        <option value="">전체</option>
+                        <option value="1">이사</option>
+                        <option value="2">팀장</option>
+                        <option value="3">대리</option>
+                        <option value="4">사원</option>
+                    </select>
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+</div>
+</body>
+</html>
