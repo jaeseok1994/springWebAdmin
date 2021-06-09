@@ -7,41 +7,93 @@
 </head>
 <script>
     var fields = [
-      {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "proj_nm",dataType: "text"},
-      {fieldName: "usernm",dataType: "text"},
-      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "dev_mps",dataType: "text"},
-      {fieldName: "client",dataType: "text"},
-      {fieldName: "rem",dataType: "text"},
-      {fieldName: "upd_user_nm",dataType: "text"},
-      {fieldName: "upd_dtm",dataType: "text"}
+      {fieldName: "user_id",dataType: "text"},
+      {fieldName: "user_name",dataType: "text"},
+      {fieldName: "rbof_id",dataType: "text"},
+      {fieldName: "rbof_nm",dataType: "text"},
+
+      {fieldName: "half_yvc01",dataType: "number"},
+      {fieldName: "half_yvc02",dataType: "number"},
+      {fieldName: "half_yvc03",dataType: "number"},
+      {fieldName: "half_yvc04",dataType: "number"},
+      {fieldName: "half_yvc05",dataType: "number"},
+      {fieldName: "half_yvc06",dataType: "number"},
+      {fieldName: "half_yvc07",dataType: "number"},
+      {fieldName: "half_yvc08",dataType: "number"},
+      {fieldName: "half_yvc09",dataType: "number"},
+      {fieldName: "half_yvc10",dataType: "number"},
+      {fieldName: "half_yvc11",dataType: "number"},
+      {fieldName: "half_yvc12",dataType: "number"},
+
+      {fieldName: "full_yvc01",dataType: "number"},
+      {fieldName: "full_yvc02",dataType: "number"},
+      {fieldName: "full_yvc03",dataType: "number"},
+      {fieldName: "full_yvc04",dataType: "number"},
+      {fieldName: "full_yvc05",dataType: "number"},
+      {fieldName: "full_yvc06",dataType: "number"},
+      {fieldName: "full_yvc07",dataType: "number"},
+      {fieldName: "full_yvc08",dataType: "number"},
+      {fieldName: "full_yvc09",dataType: "number"},
+      {fieldName: "full_yvc10",dataType: "number"},
+      {fieldName: "full_yvc11",dataType: "number"},
+      {fieldName: "full_yvc12",dataType: "number"},
+
+      {fieldName: "half_total",dataType: "number"},
+      {fieldName: "full_total",dataType: "number"}
     ];
 
     var columns = [
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호" },
-      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column"},
-      {name: "usernm", fieldName: "proj_nm", type: "data", width: "150", header: "성명" ,styleName:"left-column"},
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
-    	  editor: {
-              type: "date",
-              datetimeFormat: "yyyy-MM-dd"
-          },
-          datetimeFormat: "yyyy-MM-dd"
-    	},
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",
-    		editor: {
-                type: "date",
-                datetimeFormat: "yyyy-MM-dd"
-            },
-            datetimeFormat: "yyyy-MM-dd"
-        },
-      {name: "dev_mps", fieldName: "dev_mps", type: "data", width: "200", header: "투입인력 ( ','로 구분 )" ,styleName:"left-column"},
-      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처" ,styleName:"left-column"},
-      {name: "rem", fieldName: "rem", type: "data", width: "200", header: "비고" ,styleName:"left-column"},
-      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
-      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+      {name: "user_id", fieldName: "user_id", type: "data", width: "150", header: "사원ID", visible: false },
+      {name: "user_name", fieldName: "user_name", type: "data", width: "150", header: "사원명", editable: false },
+      {name: "rbof_id", fieldName: "rbof_id", type: "data", width: "150", header: "직책ID", visible: false },
+      {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "200", header: "직책", editable: false },
+
+      {name: "half_yvc01", fieldName: "half_yvc01", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc02", fieldName: "half_yvc02", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc03", fieldName: "half_yvc03", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc04", fieldName: "half_yvc04", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc05", fieldName: "half_yvc05", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc06", fieldName: "half_yvc06", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc07", fieldName: "half_yvc07", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc08", fieldName: "half_yvc08", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc09", fieldName: "half_yvc09", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc10", fieldName: "half_yvc10", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc11", fieldName: "half_yvc11", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "half_yvc12", fieldName: "half_yvc12", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+
+      {name: "full_yvc01", fieldName: "full_yvc01", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc02", fieldName: "full_yvc02", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc03", fieldName: "full_yvc03", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc04", fieldName: "full_yvc04", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc05", fieldName: "full_yvc05", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc06", fieldName: "full_yvc06", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc07", fieldName: "full_yvc07", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc08", fieldName: "full_yvc08", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc09", fieldName: "full_yvc09", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc10", fieldName: "full_yvc10", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc11", fieldName: "full_yvc11", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+      {name: "full_yvc12", fieldName: "full_yvc12", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" },
+
+      {name: "half_total", fieldName: "half_total", type: "data", width: "50", numberFormat: "#,##0.###", header: "반차" },
+      {name: "full_total", fieldName: "full_total", type: "data", width: "50", numberFormat: "#,##0.###", header: "연차" }
+    ];
+
+    <!-- 레이아웃 헤더(헤더 병합) -->
+    var layout1 = [
+        "user_id", "user_nm", "rbof_id", "rbof_nm",
+        {name: "month01", direction: "horizontal", items: ["half_yvc01","full_yvc01"], header: "1월"},
+        {name: "month02", direction: "horizontal", items: ["half_yvc02","full_yvc02"], header: "2월"},
+        {name: "month03", direction: "horizontal", items: ["half_yvc03","full_yvc03"], header: "3월"},
+        {name: "month04", direction: "horizontal", items: ["half_yvc04","full_yvc04"], header: "4월"},
+        {name: "month05", direction: "horizontal", items: ["half_yvc05","full_yvc05"], header: "5월"},
+        {name: "month06", direction: "horizontal", items: ["half_yvc06","full_yvc06"], header: "6월"},
+        {name: "month07", direction: "horizontal", items: ["half_yvc07","full_yvc07"], header: "7월"},
+        {name: "month08", direction: "horizontal", items: ["half_yvc08","full_yvc08"], header: "8월"},
+        {name: "month09", direction: "horizontal", items: ["half_yvc09","full_yvc09"], header: "9월"},
+        {name: "month10", direction: "horizontal", items: ["half_yvc10","full_yvc10"], header: "10월"},
+        {name: "month11", direction: "horizontal", items: ["half_yvc11","full_yvc11"], header: "11월"},
+        {name: "month12", direction: "horizontal", items: ["half_yvc12","full_yvc12"], header: "12월"},
+        {name: "total", direction: "horizontal", items: ["half_total","full_total"], header: "계"}
     ];
 
     var grid;
@@ -52,10 +104,8 @@
             el:'#form',
             data:{
                 keys:{
-                	proj_no:'',
-                	proj_nm:'',
-                	dev_mp:'',
-                    data1:'2021-05-13'
+                	user_name:'',
+                	rbof_id:''
                 },
                 methods:{
                 }
@@ -67,8 +117,14 @@
 
         	search();
         });
+        $("#goAdd").click(function(){
+           grid.dataProvider.addRow(1);
+        });
         $("#goSave").click(function(){
             maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
         });
         $("#goExcel").click(function(){
         	grid.gridView.exportGrid({
@@ -91,6 +147,7 @@
             id:"realgrid",
             fields:fields,
             columns:columns,
+            layout:layout1,
             pagenum:1, // 현재 페이지 번호
             pagerows:100, // 페이지당 표시할 데이터 건수
         }
@@ -102,7 +159,58 @@
         grid.gridView.refresh();
     });
 
+    function search(){
+        grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
 
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/system/yvcMgt/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+
+        var list = getCheckedRows(grid);
+
+        if(list.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/system/yvcMgt/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+
+                commonPaging(grid, data.resultList[0].tcnt, search);
+            }else if(func == "maint"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 삭제되었습니다.');
+            }else{
+                grid.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
     $(window).resize(function(){
         grid.gridView.refresh();
     });
@@ -122,17 +230,17 @@
             <tr>
                 <td class="ar">사원명</td>
                 <td>
-                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
+                    <input id="user_name" type="text" class="input_A w90p"  v-model="keys.user_name">
                 </td>
                 <td class="ar">직책</td>
                 <td>
-                    <select name="seq" id="seq" class="ui_sel w50p" v-model="keys.rbof">
+                    <select name="rbof_id" id="rbof_id" class="ui_sel w30p" v-model="keys.rbof_id">
                         <!--<option v-for="list in groupList" :value="list.value">{{list.text}}</option>-->
                         <option value="">전체</option>
-                        <option value="1">이사</option>
-                        <option value="2">팀장</option>
-                        <option value="3">대리</option>
-                        <option value="4">사원</option>
+                        <option value="A">이사</option>
+                        <option value="B">팀장</option>
+                        <option value="C">대리</option>
+                        <option value="D">사원</option>
                     </select>
                 </td>
                 <td></td>

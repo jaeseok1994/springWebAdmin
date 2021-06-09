@@ -5,41 +5,52 @@
 
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-	    
-	        select
-			    proj_no,
-			    proj_nm,
-			    st_dt,
-			    fn_dt,
-			    (select
-				f_pvtcol(cursor(
-				    select dev_mp
-				      from tapjmn
-				     where proj_no = a.proj_no
-				),',') dev_mps
-				from dual) dev_mps,
-			    client,
-			    rem,
-			    upd_user_id,
-			    (select user_name from SYS_user where user_id = a.upd_user_id) upd_user_nm,
-			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
-			from taprjm a
+
+			select
+				a.*,
+				(a.half_yvc01 + a.half_yvc02 + a.half_yvc03 + a.half_yvc04 + a.half_yvc05 + a.half_yvc06 +
+				a.half_yvc07 + a.half_yvc08 + a.half_yvc09 + a.half_yvc10 + a.half_yvc11 + a.half_yvc12) as half_total,
+				(a.full_yvc01 + a.full_yvc02 + a.full_yvc03 + a.full_yvc04 + a.full_yvc05 + a.full_yvc06 +
+				a.full_yvc07 + a.full_yvc08 + a.full_yvc09 + a.full_yvc10 + a.full_yvc11 + a.full_yvc12) as full_total
+			from(select
+					user_id,
+					user_name,
+					rbof_id,
+					rbof_nm,
+					sum(nvl(half_yvc01,0)) as half_yvc01,
+					sum(nvl(full_yvc01,0)) as full_yvc01,
+					sum(nvl(half_yvc01,0)) as half_yvc02,
+					sum(nvl(full_yvc01,0)) as full_yvc02,
+					sum(nvl(half_yvc01,0)) as half_yvc03,
+					sum(nvl(full_yvc01,0)) as full_yvc03,
+					sum(nvl(half_yvc01,0)) as half_yvc04,
+					sum(nvl(full_yvc01,0)) as full_yvc04,
+					sum(nvl(half_yvc01,0)) as half_yvc05,
+					sum(nvl(full_yvc01,0)) as full_yvc05,
+					sum(nvl(half_yvc01,0)) as half_yvc06,
+					sum(nvl(full_yvc01,0)) as full_yvc06,
+					sum(nvl(half_yvc01,0)) as half_yvc07,
+					sum(nvl(full_yvc01,0)) as full_yvc07,
+					sum(nvl(half_yvc01,0)) as half_yvc08,
+					sum(nvl(full_yvc01,0)) as full_yvc08,
+					sum(nvl(half_yvc01,0)) as half_yvc09,
+					sum(nvl(full_yvc01,0)) as full_yvc09,
+					sum(nvl(half_yvc01,0)) as half_yvc10,
+					sum(nvl(full_yvc01,0)) as full_yvc10,
+					sum(nvl(half_yvc01,0)) as half_yvc11,
+					sum(nvl(full_yvc01,0)) as full_yvc11,
+					sum(nvl(half_yvc01,0)) as half_yvc12,
+					sum(nvl(full_yvc01,0)) as full_yvc12
+				from sys_yvc
+				group by user_id, user_name, rbof_id, rbof_nm ) a
 			where 1=1
-	        <if test="map.proj_no != '' and map.proj_no != null">
-	           and proj_no like '%' || #{map.proj_no} || '%'
+	        <if test="map.user_name != '' and map.user_name != null">
+	           and user_name like '%' || #{map.user_name} || '%'
 	        </if>
-	        <if test="map.proj_nm != '' and map.proj_nm != null">
-	           and proj_nm like '%' || #{map.proj_nm} || '%'
+	        <if test="map.rbof_id != '' and map.rbof_id != null">
+	           and rbof_id = #{map.rbof_id}
 	        </if>
-	        <if test="map.dev_mp != '' and map.dev_mp != null">
-	           and exists (
-	           		select 1
-	           		from tapjmn
-	           		where proj_no = a.proj_no
-	           		and dev_mp like '%' || #{map.dev_mp} || '%'
-	           )
-	        </if>
-	        order by proj_no
+	        order by rbof_id, user_name
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
