@@ -82,7 +82,7 @@
 		full_yvc11 = #{full_yvc11},
 		half_yvc12 = #{half_yvc12},
 		full_yvc12 = #{full_yvc12}
-		where user_id = #{user_id}
+		where user_id 	= #{user_id}
 		and user_name = #{user_name}
 	</update>
 
