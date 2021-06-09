@@ -42,14 +42,14 @@
 					sum(nvl(half_yvc01,0)) as half_yvc12,
 					sum(nvl(full_yvc01,0)) as full_yvc12
 				from sys_yvc
+				where 1=1
+				<if test="map.user_name != '' and map.user_name != null">
+				   and user_name like '%' || #{map.user_name} || '%'
+				</if>
+				<if test="map.rbof_id != '' and map.rbof_id != null">
+				   and rbof_id = #{map.rbof_id}
+				</if>
 				group by user_id, user_name, rbof_id, rbof_nm ) a
-			where 1=1
-	        <if test="map.user_name != '' and map.user_name != null">
-	           and user_name like '%' || #{map.user_name} || '%'
-	        </if>
-	        <if test="map.rbof_id != '' and map.rbof_id != null">
-	           and rbof_id = #{map.rbof_id}
-	        </if>
 	        order by rbof_id, user_name
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
