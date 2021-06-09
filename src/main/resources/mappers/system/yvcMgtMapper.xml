@@ -3,106 +3,87 @@
 
 <mapper namespace="proj.system.yvcMgt">
 
-    <select id="selectList" parameterType="map" resultType="cMap">
-	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+	<select id="selectList" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
-			select
-				a.*,
-				(a.half_yvc01 + a.half_yvc02 + a.half_yvc03 + a.half_yvc04 + a.half_yvc05 + a.half_yvc06 +
-				a.half_yvc07 + a.half_yvc08 + a.half_yvc09 + a.half_yvc10 + a.half_yvc11 + a.half_yvc12) as half_total,
-				(a.full_yvc01 + a.full_yvc02 + a.full_yvc03 + a.full_yvc04 + a.full_yvc05 + a.full_yvc06 +
-				a.full_yvc07 + a.full_yvc08 + a.full_yvc09 + a.full_yvc10 + a.full_yvc11 + a.full_yvc12) as full_total
-			from(select
-					user_id,
-					user_name,
-					rbof_id,
-					rbof_nm,
-					sum(nvl(half_yvc01,0)) as half_yvc01,
-					sum(nvl(full_yvc01,0)) as full_yvc01,
-					sum(nvl(half_yvc01,0)) as half_yvc02,
-					sum(nvl(full_yvc01,0)) as full_yvc02,
-					sum(nvl(half_yvc01,0)) as half_yvc03,
-					sum(nvl(full_yvc01,0)) as full_yvc03,
-					sum(nvl(half_yvc01,0)) as half_yvc04,
-					sum(nvl(full_yvc01,0)) as full_yvc04,
-					sum(nvl(half_yvc01,0)) as half_yvc05,
-					sum(nvl(full_yvc01,0)) as full_yvc05,
-					sum(nvl(half_yvc01,0)) as half_yvc06,
-					sum(nvl(full_yvc01,0)) as full_yvc06,
-					sum(nvl(half_yvc01,0)) as half_yvc07,
-					sum(nvl(full_yvc01,0)) as full_yvc07,
-					sum(nvl(half_yvc01,0)) as half_yvc08,
-					sum(nvl(full_yvc01,0)) as full_yvc08,
-					sum(nvl(half_yvc01,0)) as half_yvc09,
-					sum(nvl(full_yvc01,0)) as full_yvc09,
-					sum(nvl(half_yvc01,0)) as half_yvc10,
-					sum(nvl(full_yvc01,0)) as full_yvc10,
-					sum(nvl(half_yvc01,0)) as half_yvc11,
-					sum(nvl(full_yvc01,0)) as full_yvc11,
-					sum(nvl(half_yvc01,0)) as half_yvc12,
-					sum(nvl(full_yvc01,0)) as full_yvc12
-				from sys_yvc
-				where 1=1
-				<if test="map.user_name != '' and map.user_name != null">
-				   and user_name like '%' || #{map.user_name} || '%'
-				</if>
-				<if test="map.rbof_id != '' and map.rbof_id != null">
-				   and rbof_id = #{map.rbof_id}
-				</if>
-				group by user_id, user_name, rbof_id, rbof_nm ) a
-	        order by rbof_id, user_name
-	        		
+		select
+		a.*,
+		(a.half_yvc01 + a.half_yvc02 + a.half_yvc03 + a.half_yvc04 + a.half_yvc05 + a.half_yvc06 +
+		a.half_yvc07 + a.half_yvc08 + a.half_yvc09 + a.half_yvc10 + a.half_yvc11 + a.half_yvc12) as half_total,
+		(a.full_yvc01 + a.full_yvc02 + a.full_yvc03 + a.full_yvc04 + a.full_yvc05 + a.full_yvc06 +
+		a.full_yvc07 + a.full_yvc08 + a.full_yvc09 + a.full_yvc10 + a.full_yvc11 + a.full_yvc12) as full_total
+		from(select
+		user_id,
+		user_name,
+		rbof_id,
+		rbof_nm,
+		sum(nvl(half_yvc01,0)) as half_yvc01,
+		sum(nvl(full_yvc01,0)) as full_yvc01,
+		sum(nvl(half_yvc02,0)) as half_yvc02,
+		sum(nvl(full_yvc02,0)) as full_yvc02,
+		sum(nvl(half_yvc03,0)) as half_yvc03,
+		sum(nvl(full_yvc03,0)) as full_yvc03,
+		sum(nvl(half_yvc04,0)) as half_yvc04,
+		sum(nvl(full_yvc04,0)) as full_yvc04,
+		sum(nvl(half_yvc05,0)) as half_yvc05,
+		sum(nvl(full_yvc05,0)) as full_yvc05,
+		sum(nvl(half_yvc06,0)) as half_yvc06,
+		sum(nvl(full_yvc06,0)) as full_yvc06,
+		sum(nvl(half_yvc07,0)) as half_yvc07,
+		sum(nvl(full_yvc07,0)) as full_yvc07,
+		sum(nvl(half_yvc08,0)) as half_yvc08,
+		sum(nvl(full_yvc08,0)) as full_yvc08,
+		sum(nvl(half_yvc09,0)) as half_yvc09,
+		sum(nvl(full_yvc09,0)) as full_yvc09,
+		sum(nvl(half_yvc10,0)) as half_yvc10,
+		sum(nvl(full_yvc10,0)) as full_yvc10,
+		sum(nvl(half_yvc11,0)) as half_yvc11,
+		sum(nvl(full_yvc11,0)) as full_yvc11,
+		sum(nvl(half_yvc12,0)) as half_yvc12,
+		sum(nvl(full_yvc12,0)) as full_yvc12
+		from sys_yvc
+		where 1=1
+		<if test="map.user_name != '' and map.user_name != null">
+			and upper(user_name) like upper('%' || #{map.user_name} || '%')
+		</if>
+		<if test="map.rbof_id != '' and map.rbof_id != null">
+			and rbof_id = #{map.rbof_id}
+		</if>
+		group by user_id, user_name, rbof_id, rbof_nm ) a
+		order by rbof_id, user_name
+
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
-    </select>
+	</select>
 
-    <update id="maintList" parameterType="map" >
-    {call
-        declare
-        begin
-            merge into taprjm a
-		        using dual
-		           on (a.proj_no = #{proj_no})
-		        when matched then
-		        update set
-		               a.proj_nm = #{proj_nm}
-		             , a.st_dt = to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , a.fn_dt = to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , a.client = #{client}
-		             , a.rem = #{rem}
-		             , a.upd_user_id = 'admin'
-		             , a.upd_dtm = systimestamp
-		        when not matched then
-		            insert (a.proj_no, a.proj_nm, 
-		            		a.st_dt, a.fn_dt, 
-		            		a.client, a.rem, a.cre_user_id, a.cre_dtm, a.upd_user_id, a.upd_dtm)
-		            values (#{proj_no},#{proj_nm},
-		            		to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		#{client},#{rem},'admin',systimestamp,'admin',systimestamp);
-		    
-		    delete from tapjmn
-		    where proj_no = #{proj_no};
-		    
-		    insert into tapjmn (
-		    	proj_no,
-		    	dev_mp,
-		    	rem,
-		    	cre_user_id,
-				cre_dtm,
-				upd_user_id,
-				upd_dtm
-		    )
-		    select 
-		    	#{proj_no},
-		    	column_value,
-		    	'',
-		    	'admin',
-		    	systimestamp,
-		    	'admin',
-		    	systimestamp
-		    from table(f_pvtrow(#{dev_mps},','));
-        end
-    }
-    </update>
+	<update id="maintList" parameterType="map" >
+		update  sys_yvc
+		set
+		half_yvc01 = #{half_yvc01},
+		full_yvc01 = #{full_yvc01},
+		half_yvc02 = #{half_yvc02},
+		full_yvc02 = #{full_yvc02},
+		half_yvc03 = #{half_yvc03},
+		full_yvc03 = #{full_yvc03},
+		half_yvc04 = #{half_yvc04},
+		full_yvc04 = #{full_yvc04},
+		half_yvc05 = #{half_yvc05},
+		full_yvc05 = #{full_yvc05},
+		half_yvc06 = #{half_yvc06},
+		full_yvc06 = #{full_yvc06},
+		half_yvc07 = #{half_yvc07},
+		full_yvc07 = #{full_yvc07},
+		half_yvc08 = #{half_yvc08},
+		full_yvc08 = #{full_yvc08},
+		half_yvc09 = #{half_yvc09},
+		full_yvc09 = #{full_yvc09},
+		half_yvc10 = #{half_yvc10},
+		full_yvc10 = #{full_yvc10},
+		half_yvc11 = #{half_yvc11},
+		full_yvc11 = #{full_yvc11},
+		half_yvc12 = #{half_yvc12},
+		full_yvc12 = #{full_yvc12}
+		where user_id = #{user_id}
+		and user_name = #{user_name}
+	</update>
 
 </mapper>

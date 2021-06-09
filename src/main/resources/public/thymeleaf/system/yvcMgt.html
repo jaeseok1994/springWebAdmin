@@ -114,18 +114,13 @@
 
         $("#goSelect").click(function(){
         	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-
         	search();
         });
-        $("#goAdd").click(function(){
-           grid.dataProvider.addRow(1);
-        });
+
         $("#goSave").click(function(){
             maintList('maint');
         });
-        $("#goDelete").click(function(){
-            maintList('delete');
-        });
+
         $("#goExcel").click(function(){
         	grid.gridView.exportGrid({
 			    type: "excel",
@@ -202,9 +197,6 @@
             }else if(func == "maint"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 저장되었습니다.');
-            }else if(func == "delete"){
-            	 grid.gridView.refresh();
-            	 fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 grid.gridView.refresh();
                 fn_alert(data.message);
