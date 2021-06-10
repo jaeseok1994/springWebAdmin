@@ -7,6 +7,7 @@
 </head>
 <style>
     .total { background: #e4e7eb; }
+    .total2 { background: #e4e7eb; color: #3b77ff; font-weight: bold; }
     .point { color: #3b77ff; font-weight: bold; }
     .center-column { text-align: center; }
 </style>
@@ -17,252 +18,122 @@
       {fieldName: "rbof_id",dataType: "text"},
       {fieldName: "rbof_nm",dataType: "text"},
 
-      {fieldName: "half_yvc01",dataType: "number"},
-      {fieldName: "half_yvc02",dataType: "number"},
-      {fieldName: "half_yvc03",dataType: "number"},
-      {fieldName: "half_yvc04",dataType: "number"},
-      {fieldName: "half_yvc05",dataType: "number"},
-      {fieldName: "half_yvc06",dataType: "number"},
-      {fieldName: "half_yvc07",dataType: "number"},
-      {fieldName: "half_yvc08",dataType: "number"},
-      {fieldName: "half_yvc09",dataType: "number"},
-      {fieldName: "half_yvc10",dataType: "number"},
-      {fieldName: "half_yvc11",dataType: "number"},
-      {fieldName: "half_yvc12",dataType: "number"},
+      {fieldName: "half_yvc01",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc02",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc03",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc04",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc05",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc06",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc07",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc08",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc09",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc10",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc11",dataType: "number",subType: "uint"},
+      {fieldName: "half_yvc12",dataType: "number",subType: "uint"},
 
-      {fieldName: "full_yvc01",dataType: "number"},
-      {fieldName: "full_yvc02",dataType: "number"},
-      {fieldName: "full_yvc03",dataType: "number"},
-      {fieldName: "full_yvc04",dataType: "number"},
-      {fieldName: "full_yvc05",dataType: "number"},
-      {fieldName: "full_yvc06",dataType: "number"},
-      {fieldName: "full_yvc07",dataType: "number"},
-      {fieldName: "full_yvc08",dataType: "number"},
-      {fieldName: "full_yvc09",dataType: "number"},
-      {fieldName: "full_yvc10",dataType: "number"},
-      {fieldName: "full_yvc11",dataType: "number"},
-      {fieldName: "full_yvc12",dataType: "number"},
+      {fieldName: "full_yvc01",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc02",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc03",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc04",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc05",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc06",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc07",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc08",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc09",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc10",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc11",dataType: "number",subType: "uint"},
+      {fieldName: "full_yvc12",dataType: "number",subType: "uint"},
 
-      {fieldName: "half_total",dataType: "number"},
-      {fieldName: "full_total",dataType: "number"}
+      {fieldName: "half_total",dataType: "number",subType: "uint"},
+      {fieldName: "full_total",dataType: "number",subType: "uint"}
     ];
 
     var columns = [
       {name: "user_id", fieldName: "user_id", type: "data", width: "140", header: "사원ID", visible: false },
-      {name: "user_name", fieldName: "user_name", type: "data", width: "141", styles: { "text-align" : "center" }, header: "사원명", editable: false },
+      {name: "user_name", fieldName: "user_name", type: "data", width: "141", styleName: "center-column", header: "사원명", editable: false },
       {name: "rbof_id", fieldName: "rbof_id", type: "data", width: "140", header: "직책ID", visible: false },
-      {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "100", styles: { "text-align" : "center" }, header: "직책", editable: false },
+      {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "100", styleName: "center-column", header: "직책", editable: false },
 
-      {name: "half_yvc01", fieldName: "half_yvc01", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc01", fieldName: "half_yvc01", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc02", fieldName: "half_yvc02", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc02", fieldName: "half_yvc02", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc03", fieldName: "half_yvc03", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc03", fieldName: "half_yvc03", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc04", fieldName: "half_yvc04", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc04", fieldName: "half_yvc04", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc05", fieldName: "half_yvc05", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc05", fieldName: "half_yvc05", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc06", fieldName: "half_yvc06", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc06", fieldName: "half_yvc06", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc07", fieldName: "half_yvc07", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc07", fieldName: "half_yvc07", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc08", fieldName: "half_yvc08", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc08", fieldName: "half_yvc08", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc09", fieldName: "half_yvc09", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc09", fieldName: "half_yvc09", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc10", fieldName: "half_yvc10", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc10", fieldName: "half_yvc10", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc11", fieldName: "half_yvc11", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc11", fieldName: "half_yvc11", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "half_yvc12", fieldName: "half_yvc12", type: "data", width: "52", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "half_yvc12", fieldName: "half_yvc12", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
 
-      {name: "full_yvc01", fieldName: "full_yvc01", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc01", fieldName: "full_yvc01", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc02", fieldName: "full_yvc02", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc02", fieldName: "full_yvc02", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc03", fieldName: "full_yvc03", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc03", fieldName: "full_yvc03", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc04", fieldName: "full_yvc04", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc04", fieldName: "full_yvc04", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc05", fieldName: "full_yvc05", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc05", fieldName: "full_yvc05", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc06", fieldName: "full_yvc06", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc06", fieldName: "full_yvc06", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc07", fieldName: "full_yvc07", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc07", fieldName: "full_yvc07", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc08", fieldName: "full_yvc08", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc08", fieldName: "full_yvc08", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc09", fieldName: "full_yvc09", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc09", fieldName: "full_yvc09", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc10", fieldName: "full_yvc10", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc10", fieldName: "full_yvc10", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc11", fieldName: "full_yvc11", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc11", fieldName: "full_yvc11", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
-      {name: "full_yvc12", fieldName: "full_yvc12", type: "data", width: "52", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+      {name: "full_yvc12", fieldName: "full_yvc12", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "연차",
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
       },
 
       {name: "half_total", fieldName: "half_total", type: "data", width: "52", styleName: "total", numberFormat: "#,##0", header: "반차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'total2'; } return ret; }, editable: false
       },
       {name: "full_total", fieldName: "full_total", type: "data", width: "52", styleName: "total", numberFormat: "#,##0", header: "연차",
-              renderer:{type:"html",
-                        callback: function(grid, cell, w, h) {
-                            var str = ""; var data = cell.value;
-                            if(data > 0){ str = "<div class='point'>"; }else{ str = "<div>"; } return str+data+"</div>";
-                        }
-              }
-      },
+       styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'total2'; } return ret; }, editable: false
+      }
     ];
 
     <!-- 레이아웃 헤더(헤더 병합) -->
