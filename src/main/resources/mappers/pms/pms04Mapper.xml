@@ -41,7 +41,7 @@
 		sum(nvl(full_yvc11,0)) as full_yvc11,
 		sum(nvl(half_yvc12,0)) as half_yvc12,
 		sum(nvl(full_yvc12,0)) as full_yvc12
-		from sys_yvc
+		from tayvcm
 		where 1=1
 		<if test="map.user_name != '' and map.user_name != null">
 			and upper(user_name) like upper('%' || #{map.user_name} || '%')
@@ -56,7 +56,7 @@
 	</select>
 
 	<update id="maintList" parameterType="map" >
-		update  sys_yvc
+		update  tayvcm
 		set
 		half_yvc01 = #{half_yvc01},
 		full_yvc01 = #{full_yvc01},
