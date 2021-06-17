@@ -50,9 +50,9 @@
 
     var columns = [
       {name: "user_id", fieldName: "user_id", type: "data", width: "140", header: "사원ID", visible: false },
-      {name: "user_name", fieldName: "user_name", type: "data", width: "141", styleName: "center-column", header: "사원명", editable: false },
+      {name: "user_name", fieldName: "user_name", type: "data", width: "141", header: "사원명", editable: false },
       {name: "rbof_id", fieldName: "rbof_id", type: "data", width: "140", header: "직책ID", visible: false },
-      {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "100", styleName: "center-column", header: "직책", editable: false },
+      {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "100", header: "직책", editable: false },
 
       {name: "half_yvc01", fieldName: "half_yvc01", type: "data", width: "52", numberFormat: "#,##0", editor:{"type":"number","max":15,"maxIntegerLength": 2}, header: "반차",
        styleCallback: function(grid, dataCell) { var ret = {}; if ((dataCell.value > 0)){ ret.styleName = 'point'; } return ret; }
