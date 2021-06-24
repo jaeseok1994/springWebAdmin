@@ -207,6 +207,7 @@
         }
 
         createRGrid(grid);
+        grid.gridView.setColumnLayout(grid.layout);
 
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
@@ -230,7 +231,7 @@
           colCount: 2
         });
 
-        fn_transaction("select","/service/system/yvcMgt/selectList.do/selectList",jsonData,fn_callback);
+        fn_transaction("select","/service/pms/pms04/selectList.do/selectList",jsonData,fn_callback);
     }
     function maintList(func,key){
         grid.gridView.commit(true);
@@ -249,7 +250,7 @@
             var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/system/yvcMgt/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/pms04/maintList.do/"+func+"List",listData,fn_callback);
         }
         return;
     }
@@ -297,10 +298,6 @@
                     <select name="rbof_id" id="rbof_id" class="ui_sel w30p" v-model="keys.rbof_id">
                         <option value="">전체</option>
                         <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
-                        <!--<option value="A">이사</option>
-                        <option value="B">팀장</option>
-                        <option value="C">대리</option>
-                        <option value="D">사원</option>-->
                     </select>
                 </td>
                 <td></td>

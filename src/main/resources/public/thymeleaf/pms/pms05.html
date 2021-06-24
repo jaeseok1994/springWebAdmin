@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>위험 및 이슈 관리대장</title>
+    <div th:replace="headerRGrid"></div>
+</head>
+<script>
+    var fields = [
+      {fieldName: "rkis_no",dataType: "text"},
+      {fieldName: "acdn_title",dataType: "text"},
+      {fieldName: "scn",dataType: "text"},
+      {fieldName: "rsk_isu_id",dataType: "text"},
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "prry_rnkg",dataType: "text"},
+      {fieldName: "area",dataType: "text"},
+      {fieldName: "dcrm_lev",dataType: "text"},
+      {fieldName: "mgmt_scn",dataType: "text"},
+      {fieldName: "cre_user_id",dataType: "text"},
+      {fieldName: "cre_dtm",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
+      {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
+      {name: "rsk_isu_id", fieldName: "rsk_isu_id", type: "data", width: "120", header: "위험·이슈ID", editable: false },
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
+      {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
+      {name: "area", fieldName: "area", type: "data", width: "80", header: "영역", editable: false },
+      {name: "dcrm_lev", fieldName: "dcrm_lev", type: "data", width: "80", header: "식별단계", editable: false },
+      {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "500", header: "사건명", editable: false },
+      {name: "mgmt_scn", fieldName: "mgmt_scn", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "cre_user_id", fieldName: "cre_user_id", type: "data", width: "100", header: "등록자", editable: false },
+      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "100", header: "등록일자", editable: false }
+    ];
+
+    var grid;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+        	search();
+        });
+
+        $("#goRskAdd").click(function(){
+            goRskAdd();
+        });
+        $("#goIsuAdd").click(function(){
+            maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+
+        $("#goExcel").click(function(){
+        	grid.gridView.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: "연차 관리.xlsx",
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        // alert("done excel export")
+			    }
+			});
+        });
+
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:100, // 페이지당 표시할 데이터 건수
+        }
+
+        createRGrid(grid);
+        grid.gridView.displayOptions.fitStyle = "even";
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+
+        fn_codeDataSync({group:"RBOF"},function(list){
+            app.rbofList = list;
+        });
+
+        search();
+    });
+    function goRskAdd(){
+        var url    = "/service/pms/pms05_riskPop/selectForm.do";
+        var name   = "riskPop";
+        var option = "width=700, height=500, top=100, left=200, location=no";
+        window.open(url, name, option);
+    }
+    function search(){
+        grid.dataProvider.clearRows();
+        app.keys.pagenum = grid.pagenum;
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/pms/pms05/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+
+        var list = getCheckedRows(grid);
+
+        if(list.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/pms/pms05/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+
+                commonPaging(grid, data.resultList[0].tcnt, search);
+            }else if(func == "maint"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 저장되었습니다.');
+            }else{
+                grid.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
+    $(window).resize(function(){
+        grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">위험 및 이슈 관리대장</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>위험 및 이슈 관리대장</caption>
+            <colgroup>
+                <col style="width:50px;"/>
+                <col style="width:90px;"/>
+                <col style="width:50px;"/>
+                <col style="width:100px;"/>
+                <col style="width:50px;"/>
+                <col style="width:90px;"/>
+                <col style="width:50px;"/>
+                <col style="width:150px;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">구분</td>
+                <td>
+                    <select name="rbof_id1" id="rbof_id1" class="ui_sel w80p" v-model="keys.rbof_id">
+                        <option value="">전체</option>
+                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+                <td class="ar">프로젝트 번호</td>
+                <td>
+                    <input id="user_name" type="text" class="input_A w80p"  v-model="keys.user_name">
+                </td>
+                <td class="ar">우선순위</td>
+                <td>
+                    <select name="rbof_id2" id="rbof_id2" class="ui_sel w80p" v-model="keys.rbof_id">
+                        <option value="">전체</option>
+                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+                <td class="ar">영역</td>
+                <td>
+                    <select name="rbof_id3" id="rbof_id3" class="ui_sel w42p" v-model="keys.rbof_id">
+                        <option value="">전체</option>
+                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="ar">식별단계</td>
+                <td>
+                    <select name="rbof_id4" id="rbof_id4" class="ui_sel w80p" v-model="keys.rbof_id">
+                        <option value="">전체</option>
+                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+                <td class="ar">위험·이슈ID</td>
+                <td>
+                    <input id="user_name2" type="text" class="input_A w80p"  v-model="keys.user_name">
+                </td>
+                <td class="ar">진행상황</td>
+                <td>
+                    <select name="rbof_id5" id="rbof_id5" class="ui_sel w80p" v-model="keys.rbof_id">
+                        <option value="">전체</option>
+                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+                <td class="ar">등록일자</td>
+                <td>
+                    <datepicker id="date1" class="input_Mast w40p" v-model="keys.data1"></datepicker> ~
+                    <datepicker id="date2" class="input_Mast w40p" v-model="keys.data2"></datepicker>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goRskAdd" class="btn_typeA btn_save">위험추가</div>
+        <div id="goIsuAdd" class="btn_typeA btn_save">이슈추가</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+</div>
+</body>
+</html>
