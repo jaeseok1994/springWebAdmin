@@ -168,7 +168,7 @@
             <colgroup>
                 <col style="width:50px;"/>
                 <col style="width:90px;"/>
-                <col style="width:50px;"/>
+                <col style="width:60px;"/>
                 <col style="width:100px;"/>
                 <col style="width:50px;"/>
                 <col style="width:90px;"/>
@@ -197,7 +197,7 @@
                 </td>
                 <td class="ar">영역</td>
                 <td>
-                    <select name="rbof_id3" id="rbof_id3" class="ui_sel w42p" v-model="keys.rbof_id">
+                    <select name="rbof_id3" id="rbof_id3" class="ui_sel w40p" v-model="keys.rbof_id">
                         <option value="">전체</option>
                         <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
                     </select>
@@ -224,8 +224,8 @@
                 </td>
                 <td class="ar">등록일자</td>
                 <td>
-                    <datepicker id="date1" class="input_Mast w40p" v-model="keys.data1"></datepicker> ~
-                    <datepicker id="date2" class="input_Mast w40p" v-model="keys.data2"></datepicker>
+                    <datepicker id="date1" class="input_A w40p" v-model="keys.data1"></datepicker> ~
+                    <datepicker id="date2" class="input_A w40p" v-model="keys.data2"></datepicker>
                 </td>
             </tr>
             </tbody>
