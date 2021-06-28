@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="proj.pms.pms05_riskPop">
+<mapper namespace="proj.pms.pms05RiskPop">
 
 	<select id="selectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
@@ -10,7 +10,7 @@
 		a.*
 
 		from tarkis
-		where rkis_no = #{rkis_no}
+		where rkis_no = #{rkisNo}
 <!--		<if test="map.user_name != '' and map.user_name != null">-->
 <!--			and upper(user_name) like upper('%' || #{map.user_name} || '%')-->
 <!--		</if>-->
@@ -23,7 +23,7 @@
 
 	<delete id="deleteList" parameterType="map">
 		delete from tarkis
-		where rkis_no = #{rkis_no}
+		where rkis_no = #{rkisNo}
 	</delete>
 
 </mapper>

@@ -109,7 +109,7 @@
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
 
-        // 콤보 코드 데이터
+        // 콤보박스 코드 데이터
         fn_codeDataSync({group:"MGMT_SCN"},function(list){
             app.scnList = list;     // 구분(관리구분)
         });
@@ -129,7 +129,7 @@
         search();
     });
     function goRskAdd(){
-        var url    = "/service/pms/pms05_riskPop/selectForm.do";
+        var url    = "/service/pms/pms05RiskPop/selectForm.do";
         var name   = "riskPop";
         var option = "width=980, height=650, top=50, left=200, location=no";
         window.open(url, name, option);
@@ -214,11 +214,11 @@
                 </td>
                 <td class="ar">프로젝트 번호</td>
                 <td>
-                    <input id="proj_no" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.projNo">
+                    <input id="projNo" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.projNo">
                 </td>
                 <td class="ar">우선순위</td>
                 <td>
-                    <select name="prry_rnkg" id="prry_rnkg" class="ui_sel w80p" v-model="keys.prryRnkg">
+                    <select name="prryRnkg" id="prryRnkg" class="ui_sel w80p" v-model="keys.prryRnkg">
                         <!--<option value="">전체</option>-->
                         <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
                     </select>
@@ -234,18 +234,18 @@
             <tr>
                 <td class="ar">식별단계</td>
                 <td>
-                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w80p" v-model="keys.dcrmLev">
+                    <select name="dcrmLev" id="dcrmLev" class="ui_sel w80p" v-model="keys.dcrmLev">
                         <option value="">전체</option>
                         <option v-for="list in levList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">위험·이슈ID</td>
                 <td>
-                    <input id="rsk_isu_id" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rskIsuid">
+                    <input id="rskIsuid" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rskIsuid">
                 </td>
                 <td class="ar">진행상황</td>
                 <td>
-                    <select name="pgs_st" id="pgs_st" class="ui_sel w80p" v-model="keys.pgsSt">
+                    <select name="pgsSt" id="pgsSt" class="ui_sel w80p" v-model="keys.pgsSt">
                         <option value="">전체</option>
                         <option v-for="list in pgs_stList" :value="list.value">{{list.text}}</option>
                     </select>

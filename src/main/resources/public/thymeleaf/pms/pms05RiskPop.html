@@ -8,9 +8,9 @@
 <style>
   .wrapper span { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
   .wrapper .textBar { padding-left: 0.5em; padding-right: 0.5em; }
-  .wrapper .t-area { margin:0; padding: 0; width: 100%; }
-  .wrapper .t-area span { float: left; width: 90px; height: 100px; margin-right: 6px;}
-  .wrapper .t-area textarea { float: left; height: 111px; box-sizing:border-box; }
+  .wrapper .tArea { margin:0; padding: 0; width: 100%; }
+  .wrapper .tArea span { float: left; width: 90px; height: 100px; margin-right: 6px;}
+  .wrapper .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
 </style>
 <script>
       var app;
@@ -20,29 +20,49 @@
         app = new Vue({
             el:'#form',
             data:{
+                areaList:[],
+                rnkgList:[],
+                levList:[],
+                pgsStList:[],
+                mgmtGrdList:[],
                 keys:{
                     scn: '위험',
-                    area: 'a',
-                    dcrm_lev: 'a',
-                    dcrm_dt: setToday,
-                    cre_dtm: setToday,
-                    parr_dt: setToday,
-                    trtm_dt: setToday
+                    area: '',
+                    dcrmLev: '',
+                    dcrmDt: setToday,
+                    creDtm: setToday,
+                    parrDt: setToday,
+                    trtmDt: setToday
                 },
                 methods:{
                 }
             },
         });
 
-        $("#goAdd").click(function(){
-           grid.dataProvider.addRow(1);
-        });
         $("#goSave").click(function(){
             maintList('maint');
         });
-        $("#goDelete").click(function(){
-            maintList('delete');
+        $("#goClose").click(function(){
+
         });
+
+        // 콤보박스 코드 데이터
+        fn_codeDataSync({group:"PRRY_RNKG"},function(list){
+            app.rnkgList = list;    // 우선순위
+        });
+        fn_codeDataSync({group:"AREA"},function(list){
+            app.areaList = list;    // 영역
+        });
+        fn_codeDataSync({group:"DCRM_LEV"},function(list){
+            app.levList = list;     // 식별단계
+        });
+        fn_codeDataSync({group:"PGS_ST"},function(list){
+            app.pgsStList = list;  // 진행상황
+        });
+        fn_codeDataSync({group:"MGMT_GRD"},function(list){
+            app.mgmtGrdList = list;  // 진행상황
+        });
+
     });
     function maintList(func,key){
         grid.gridView.commit(true);
@@ -97,88 +117,77 @@
     <span class="al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="al mg10 w90">프로젝트번호</span>
-    <input id="proj_no" type="text" class="input_Ac textBar w100" placeholder="번호 입력" v-model="keys.projNo" readonly>
+    <input id="projNo" type="text" class="input_Ac textBar w100" placeholder="번호 입력" v-model="keys.projNo" readonly>
     <div class="gap5"></div>
     <span class="al w90">위험ID</span>
-    <input id="rsk_id" type="text" class="input_Ac textBar w100" placeholder="ID 자동생성" v-model="keys.rskId" readonly>
+    <input id="rskId" type="text" class="input_Ac textBar w100" placeholder="ID 자동생성" v-model="keys.rskId" readonly>
     <span class="al mg10 w90">영역</span>
     <select name="area" id="area" class="ui_selC w100" v-model="keys.area">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+      <option value="">선택</option>
+      <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">식별단계</span>
-    <select name="dcrm_lev" id="dcrm_lev" class="ui_selC w100" v-model="keys.dcrmLev">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <select name="dcrmLev" id="dcrmLev" class="ui_selC w100" v-model="keys.dcrmLev">
+      <option value="">선택</option>
+      <option v-for="list in levList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">식별일</span>
-    <datepicker id="dcrm_dt" class="input_Ac w100" v-model="keys.dcrm_dt"></datepicker>
+    <datepicker id="dcrmDt" class="input_Ac w100" v-model="keys.dcrmDt"></datepicker>
     <div class="gap20"></div>
 
     <span class="al w90">우선순위</span>
-    <select name="prry_rnkg" id="prry_rnkg" class="ui_selC w100" v-model="keys.prryRnkg">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <select name="prryRnkg" id="prryRnkg" class="ui_selC w100" v-model="keys.prryRnkg">
+      <!--<option value="">전체</option>-->
+      <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">발생확률</span>
-    <select name="occu_prob" id="occu_prob" class="ui_selC w100" v-model="keys.occuProb">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <select name="occuProb" id="occuProb" class="ui_selC w100" v-model="keys.occuProb">
+      <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">영향도</span>
-    <select name="iflu_deg" id="iflu_deg" class="ui_selC w100" v-model="keys.ifluDeg">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <select name="ifluDeg" id="ifluDeg" class="ui_selC w100" v-model="keys.ifluDeg">
+      <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">위험도</span>
-    <select name="rsk_deg" id="rsk_deg" class="ui_selC w100" v-model="keys.rskDeg">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <select name="rskDeg" id="rskDeg" class="ui_selC w100" v-model="keys.rskDeg">
+      <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap20"></div>
 
     <span class="al w90">등록자</span>
-    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_userId" readonly>
+    <input id="creUserId" type="text" class="input_Ac textBar w100" v-model="keys.creUserId" readonly>
     <span class="al mg10 w90">등록일자</span>
-    <datepicker id="cre_dtm" class="input_Ac w100" v-model="keys.creDtm"></datepicker>
+    <datepicker id="creDtm" class="input_Ac w100" v-model="keys.creDtm"></datepicker>
     <div class="gap5"></div>
     <span class="al w90">사건명</span>
-    <input id="acdn_title" type="text" class="input_Ac textBar w87p" v-model="keys.acdnTitle" readonly>
+    <input id="acdnTitle" type="text" class="input_Ac textBar w87p" v-model="keys.acdnTitle" readonly>
     <div class="gap5"></div>
-    <div class="t-area">
+    <div class="tArea">
       <span class="al w90">상세내용</span>
-      <textarea id="acdn_sbc" type="text" class="w87p" v-model="keys.acdnSbc" placeholder="내용 입력"></textarea>
+      <textarea id="acdnSbc" type="text" class="w87p" v-model="keys.acdnSbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="al w90">담당자</span>
     <input id="crgr" type="text" class="input_Ac textBar w100" v-model="keys.crgr" readonly>
     <span class="al mg10 w90">예정일</span>
-    <input id="parr_dt" type="text" class="input_Ac textBar w100" placeholder="ID 입력" v-model="keys.parrDt" readonly>
+    <input id="parrDt" type="text" class="input_Ac textBar w100" placeholder="ID 입력" v-model="keys.parrDt" readonly>
     <div class="gap5"></div>
-    <div class="t-area">
+    <div class="tArea">
       <span class="al w90">예방계획</span>
-      <textarea id="pvnt_pln" type="text" class="w87p" v-model="keys.pvntPln" placeholder="내용 입력"></textarea>
+      <textarea id="pvntPln" type="text" class="w87p" v-model="keys.pvntPln" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="al w120">처리확인일자</span>
-    <datepicker id="trtm_dt" class="input_Ac w100" v-model="keys.trtmDt"></datepicker>
-    <span class="al mg10 w90">위험상태</span>
-    <select name="rsk_st" id="rsk_st" class="ui_selC w100" v-model="keys.rskSt">
-      <option value="a">A</option>
-      <option value="b">B</option>
-      <!--<option v-for="list in rbofList" :value="list.value">{{list.text}}</option>-->
+    <datepicker id="trtmDt" class="input_Ac w100" v-model="keys.trtmDt"></datepicker>
+    <span class="al mg10 w90">진행상황</span>
+    <select name="pgsSt" id="pgsSt" class="ui_selC w100" v-model="keys.pgsSt">
+      <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap5"></div>
     <span class="al w120">처리공수(M/H)</span>
-    <input id="trtm_manh" type="text" class="input_Ac ar textBar w100" placeholder="0" v-model="keys.trtmManh">
+    <input id="trtmManh" type="text" class="input_Ac ar textBar w100" placeholder="0" v-model="keys.trtmManh">
     <div class="gap10"></div>
   </div>
   <div class="gap10"></div>
