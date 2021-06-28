@@ -54,6 +54,6 @@
     </insert>
     <insert id="deleteList" parameterType="map" >
         delete from sys_code
-         where cd_code = #{cd_code} and cd_code = #{cd_code}
+         where cd_g_code = #{cd_g_code} and cd_code = #{cd_code}
     </insert>
 </mapper>

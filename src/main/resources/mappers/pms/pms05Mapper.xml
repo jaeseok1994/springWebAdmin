@@ -7,18 +7,18 @@
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
 		select
-		a.rkis_no,
-		a.acdn_title,
+		a.rkis_no as rkisNo,
+		a.acdn_title as acdnTitle,
 		a.scn,
-		decode(a.scn,'1',a.rsk_id,'2',a.isu_id,'') as rsk_isu_id,
-		a.proj_no,
-		b.proj_nm,
-		a.prry_rnkg,
+		decode(a.scn,'1',a.rsk_id,'2',a.isu_id,'') as rskIsuId,
+		a.proj_no as projNo,
+		b.proj_nm as projNm,
+		a.prry_rnkg as prryRnkg,
 		a.area,
-		a.dcrm_lev,
-		a.mgmt_scn,
-		a.cre_user_id,
-		a.cre_dtm
+		a.dcrm_lev as dcrmLev,
+		a.pgs_st as pgsSt,
+		a.cre_user_id as creUserId,
+		a.cre_dtm as creDtm
 		from tarkis a, taprjm b
 		where a.proj_no = b.proj_no
 <!--		<if test="map.user_name != '' and map.user_name != null">-->
@@ -34,7 +34,7 @@
 
 	<delete id="deleteList" parameterType="map">
 		delete from tarkis
-		where rkis_no = #{rkis_no}
+		where rkis_no = #{rkisNo}
 	</delete>
 
 </mapper>

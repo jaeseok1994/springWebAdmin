@@ -7,41 +7,56 @@
 </head>
 <script>
     var fields = [
-      {fieldName: "rkis_no",dataType: "text"},
-      {fieldName: "acdn_title",dataType: "text"},
+      {fieldName: "rkisNo",dataType: "text"},
+      {fieldName: "acdnTitle",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
-      {fieldName: "rsk_isu_id",dataType: "text"},
-      {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "prry_rnkg",dataType: "text"},
+      {fieldName: "rskIsuId",dataType: "text"},
+      {fieldName: "projNo",dataType: "text"},
+      {fieldName: "prryRnkg",dataType: "text"},
       {fieldName: "area",dataType: "text"},
-      {fieldName: "dcrm_lev",dataType: "text"},
-      {fieldName: "mgmt_scn",dataType: "text"},
-      {fieldName: "cre_user_id",dataType: "text"},
-      {fieldName: "cre_dtm",dataType: "text"}
+      {fieldName: "dcrmLev",dataType: "text"},
+      {fieldName: "pgsSt",dataType: "text"},
+      {fieldName: "creUserId",dataType: "text"},
+      {fieldName: "creDtm",dataType: "text"}
     ];
 
     var columns = [
-      {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
+      {name: "rkisNo", fieldName: "rkisNo", type: "data", width: "80", header: "관리대장번호", visible: false },
       {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
-      {name: "rsk_isu_id", fieldName: "rsk_isu_id", type: "data", width: "120", header: "위험·이슈ID", editable: false },
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
-      {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
+      {name: "rskIsuId", fieldName: "rskIsuId", type: "data", width: "120", header: "위험·이슈ID", editable: false },
+      {name: "projNo", fieldName: "projNo", type: "data", width: "100", header: "프로젝트 번호", editable: false },
+      {name: "prryRnkg", fieldName: "prryRnkg", type: "data", width: "80", header: "우선순위", editable: false },
       {name: "area", fieldName: "area", type: "data", width: "80", header: "영역", editable: false },
-      {name: "dcrm_lev", fieldName: "dcrm_lev", type: "data", width: "80", header: "식별단계", editable: false },
-      {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "500", header: "사건명", editable: false },
-      {name: "mgmt_scn", fieldName: "mgmt_scn", type: "data", width: "100", header: "진행상황", editable: false },
-      {name: "cre_user_id", fieldName: "cre_user_id", type: "data", width: "100", header: "등록자", editable: false },
-      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "100", header: "등록일자", editable: false }
+      {name: "dcrmLev", fieldName: "dcrmLev", type: "data", width: "80", header: "식별단계", editable: false },
+      {name: "acdnTitle", fieldName: "acdnTitle", type: "data", width: "500", header: "사건명", editable: false },
+      {name: "pgsSt", fieldName: "pgsSt", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "creUserId", fieldName: "creUserId", type: "data", width: "100", header: "등록자", editable: false },
+      {name: "creDtm", fieldName: "creDtm", type: "data", width: "100", header: "등록일자", editable: false }
     ];
 
     var grid;
 
     var app;
+    var today = new Date();
+    var ft = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-01';
+    var st = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+today.getDate();
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
             data:{
+                scnList:[],
+                areaList:[],
+                rnkgList:[],
+                levList:[],
+                pgsStList:[],
                 keys:{
+                    scn: '',
+                    area: '',
+                    prryRnkg: '01',
+                    dcrmLev: '',
+                    pgsSt: '',
+                    date1: ft,
+                    date2: st
                 },
                 methods:{
                 }
@@ -94,8 +109,21 @@
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
 
-        fn_codeDataSync({group:"RBOF"},function(list){
-            app.rbofList = list;
+        // 콤보 코드 데이터
+        fn_codeDataSync({group:"MGMT_SCN"},function(list){
+            app.scnList = list;     // 구분(관리구분)
+        });
+        fn_codeDataSync({group:"PRRY_RNKG"},function(list){
+            app.rnkgList = list;    // 우선순위
+        });
+        fn_codeDataSync({group:"AREA"},function(list){
+            app.areaList = list;    // 영역
+        });
+        fn_codeDataSync({group:"DCRM_LEV"},function(list){
+            app.levList = list;     // 식별단계
+        });
+        fn_codeDataSync({group:"PGS_ST"},function(list){
+            app.pgsStList = list;  // 진행상황
         });
 
         search();
@@ -103,7 +131,7 @@
     function goRskAdd(){
         var url    = "/service/pms/pms05_riskPop/selectForm.do";
         var name   = "riskPop";
-        var option = "width=700, height=500, top=100, left=200, location=no";
+        var option = "width=980, height=650, top=50, left=200, location=no";
         window.open(url, name, option);
     }
     function search(){
@@ -179,53 +207,53 @@
             <tr>
                 <td class="ar">구분</td>
                 <td>
-                    <select name="rbof_id1" id="rbof_id1" class="ui_sel w80p" v-model="keys.rbof_id">
+                    <select name="scn" id="scn" class="ui_sel w80p" v-model="keys.scn">
                         <option value="">전체</option>
-                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in scnList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">프로젝트 번호</td>
                 <td>
-                    <input id="user_name" type="text" class="input_A w80p"  v-model="keys.user_name">
+                    <input id="proj_no" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.projNo">
                 </td>
                 <td class="ar">우선순위</td>
                 <td>
-                    <select name="rbof_id2" id="rbof_id2" class="ui_sel w80p" v-model="keys.rbof_id">
-                        <option value="">전체</option>
-                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                    <select name="prry_rnkg" id="prry_rnkg" class="ui_sel w80p" v-model="keys.prryRnkg">
+                        <!--<option value="">전체</option>-->
+                        <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">영역</td>
                 <td>
-                    <select name="rbof_id3" id="rbof_id3" class="ui_sel w40p" v-model="keys.rbof_id">
+                    <select name="area" id="area" class="ui_sel w40p" v-model="keys.area">
                         <option value="">전체</option>
-                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td class="ar">식별단계</td>
                 <td>
-                    <select name="rbof_id4" id="rbof_id4" class="ui_sel w80p" v-model="keys.rbof_id">
+                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w80p" v-model="keys.dcrmLev">
                         <option value="">전체</option>
-                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in levList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">위험·이슈ID</td>
                 <td>
-                    <input id="user_name2" type="text" class="input_A w80p"  v-model="keys.user_name">
+                    <input id="rsk_isu_id" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rskIsuid">
                 </td>
                 <td class="ar">진행상황</td>
                 <td>
-                    <select name="rbof_id5" id="rbof_id5" class="ui_sel w80p" v-model="keys.rbof_id">
+                    <select name="pgs_st" id="pgs_st" class="ui_sel w80p" v-model="keys.pgsSt">
                         <option value="">전체</option>
-                        <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in pgs_stList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">등록일자</td>
                 <td>
-                    <datepicker id="date1" class="input_A w40p" v-model="keys.data1"></datepicker> ~
-                    <datepicker id="date2" class="input_A w40p" v-model="keys.data2"></datepicker>
+                    <datepicker id="date1" class="input_A w40p" v-model="keys.date1"></datepicker> ~
+                    <datepicker id="date2" class="input_A w40p" v-model="keys.date2"></datepicker>
                 </td>
             </tr>
             </tbody>
