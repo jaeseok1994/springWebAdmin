@@ -21,6 +21,55 @@
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
+	<insert id="maintList" parameterType="map" >
+		{call
+			declare
+			begin
+				merge into tarkis
+				using dual
+					on (rkis_no = #{rkisNo})
+				when matched then
+				update set
+					  acdn_title = #{acdnTitle}
+					, scn = #{scn}
+					, proj_no = #{projNo}
+					, prry_rnkg = #{prryRnkg}
+					, area = #{area}
+					, dcrm_lev = #{dcrmLev}
+					, pgs_st = #{pgsSt}
+					, dcrm_dt = to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
+					, occu_prob = #{occuProb}
+					, iflu_deg = #{ifluDeg}
+					, rsk_deg = #{rskDeg}
+					, acdn_sbc = #{acdnSbc}
+					, ctms = #{ctms}
+					, crgr = #{crgr}
+					, parr_dt = to_char(to_date(substr(replace(#{parrDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
+					, pvnt_pln = #{pvntPln}
+					, trtm_dt = to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
+					, trtm_manh = #{trtmManh}
+					, upd_user_id = 'admin'
+					, upd_dtm = systimestamp
+				when not matched then
+				insert(
+					rkis_no, acdn_title, scn, proj_no, rsk_id, prry_rnkg,
+					area, dcrm_lev, pgs_st, occu_prob, iflu_deg, rsk_deg,
+					acdn_sbc, ctms, crgr, pvnt_pln, trtm_manh,
+					dcrm_dt, parr_dt, trtm_dt
+					cre_user_id, cre_dtm, upd_user_id, upd_dtm
+				)values(
+					#{rkisNo},#{acdnTitle},#{scn},#{projNo}, 'PJ001RSK001', #{prryRnkg},
+					#{area}, #{dcrmLev}, #{pgsSt}, #{occuProb}, #{ifluDeg}, #{rskDeg},
+					#{acdnSbc}, #{ctms}, #{crgr}, #{pvntPln},
+					to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+					to_char(to_date(substr(replace(#{parrDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+					to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+					'admin',systimestamp,'admin',systimestamp
+				);
+			end
+		}
+	</insert>
+
 	<delete id="deleteList" parameterType="map">
 		delete from tarkis
 		where rkis_no = #{rkisNo}

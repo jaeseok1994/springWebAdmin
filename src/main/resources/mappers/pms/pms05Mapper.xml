@@ -10,7 +10,7 @@
 		a.rkis_no as rkisNo,
 		a.acdn_title as acdnTitle,
 		a.scn,
-		decode(a.scn,'1',a.rsk_id,'2',a.isu_id,'') as rskIsuId,
+		decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'') as rskIsuId,
 		a.proj_no as projNo,
 		b.proj_nm as projNm,
 		a.prry_rnkg as prryRnkg,

@@ -29,6 +29,11 @@
                     scn: '위험',
                     area: '',
                     dcrmLev: '',
+                    prryRnkg: '',
+                    occuProb: '',
+                    ifluDeg: '',
+                    rskDeg: '',
+                    pgsSt: 'O',
                     dcrmDt: setToday,
                     creDtm: setToday,
                     parrDt: setToday,
@@ -39,11 +44,14 @@
             },
         });
 
+        $("#projNo").click(function(){
+          projPop();
+        });
         $("#goSave").click(function(){
             maintList('maint');
         });
-        $("#goClose").click(function(){
-
+        $("#popClose").click(function(){
+            close();
         });
 
         // 콤보박스 코드 데이터
@@ -64,44 +72,42 @@
         });
 
     });
+    function projPop(){
+        var url    = "/service/pms/pms01/selectForm.do";
+        var name   = "projPop";
+        var option = "width=400, height=500, top=60, left=400, location=no";
+        window.open(url, name, option);
+    };
     function maintList(func,key){
-        grid.gridView.commit(true);
 
         var searchParam = {};
         searchParam.func = func;
 
-        var list = getCheckedRows(grid);
+        var list = { map: app.keys };
 
-        if(list.length < 1){
-          fn_alert("자료를 선택하세요.");
-          return;
-        }
+        var acdnTitle = this.acdnTitle.value;
+        var acdnSbc = this.acdnSbc.value;
 
-        if(list.length >0){
-            var listData = {
+        if(acdnTitle == '' || area == null || area == undefined){
+          fn_alert('사건명을 입력해주세요.');
+        }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
+          fn_alert('상세내용을 입력해주세요.');
+        }else{
+          var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/pms/pms01/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/pms05RiskPop/maintList.do/"+func+"List",listData,fn_callback);
+            return;
         }
-        return;
     }
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
         }else{
-             if(func == "select"){
-                grid.dataProvider.setRows(data.resultList);
-                grid.gridView.refresh();
-
-                commonPaging(grid, data.resultList[0].tcnt, search);
-            }else if(func == "maint"){
-            	 grid.gridView.refresh();
-            	 fn_alert('정상적으로 저장되었습니다.');
-            }else if(func == "delete"){
-            	 grid.gridView.refresh();
-            	 fn_alert('정상적으로 삭제되었습니다.');
+             if(func == "maint"){
+                fn_alert('정상적으로 저장되었습니다.');
+                close();
             }else{
-                grid.gridView.refresh();
                 fn_alert(data.message);
             }
         }
@@ -111,16 +117,20 @@
 <body>
 <div id="form" class="contentPgm">
   <div class="content_title">위험 상세 작성</div>
+  <div class="ar">
+    <div id="goSave" class="btn_typeA btn_save">저장</div>
+    <div id="popClose" class="btn_typeA btn_close">Close</div>
+  </div>
   <div class="box_Atype wrapper">
     <div class="gap10"></div>
 
     <span class="al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="al mg10 w90">프로젝트번호</span>
-    <input id="projNo" type="text" class="input_Ac textBar w100" placeholder="번호 입력" v-model="keys.projNo" readonly>
+    <input id="projNo" type="text" class="input_Ac textBar w100" v-model="keys.projNo" placeholder="번호 입력" readonly>
     <div class="gap5"></div>
     <span class="al w90">위험ID</span>
-    <input id="rskId" type="text" class="input_Ac textBar w100" placeholder="ID 자동생성" v-model="keys.rskId" readonly>
+    <input id="rskId" type="text" class="input_Ac textBar w100" v-model="keys.rskId" placeholder="자동생성" readonly>
     <span class="al mg10 w90">영역</span>
     <select name="area" id="area" class="ui_selC w100" v-model="keys.area">
       <option value="">선택</option>
@@ -137,45 +147,48 @@
 
     <span class="al w90">우선순위</span>
     <select name="prryRnkg" id="prryRnkg" class="ui_selC w100" v-model="keys.prryRnkg">
-      <!--<option value="">전체</option>-->
+      <option value="">선택</option>
       <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">발생확률</span>
     <select name="occuProb" id="occuProb" class="ui_selC w100" v-model="keys.occuProb">
+      <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">영향도</span>
     <select name="ifluDeg" id="ifluDeg" class="ui_selC w100" v-model="keys.ifluDeg">
+      <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">위험도</span>
-    <select name="rskDeg" id="rskDeg" class="ui_selC w100" v-model="keys.rskDeg">
+    <select name=""rskDeg id="rskDeg" class="ui_selC w100" v-model="keys.rskDeg">
+      <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap20"></div>
 
     <span class="al w90">등록자</span>
-    <input id="creUserId" type="text" class="input_Ac textBar w100" v-model="keys.creUserId" readonly>
+    <input id="creUserId" type="text" class="input_Ac textBar w100" th:value="${#authentication.name}" readonly>
     <span class="al mg10 w90">등록일자</span>
-    <datepicker id="creDtm" class="input_Ac w100" v-model="keys.creDtm"></datepicker>
+    <input id="creDtm" type="text" class="input_Ac textBar w100" v-model="keys.creDtm" readonly>
     <div class="gap5"></div>
     <span class="al w90">사건명</span>
-    <input id="acdnTitle" type="text" class="input_Ac textBar w87p" v-model="keys.acdnTitle" readonly>
+    <input id="acdnTitle" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdnTitle" placeholder="사건명 입력">
     <div class="gap5"></div>
     <div class="tArea">
       <span class="al w90">상세내용</span>
-      <textarea id="acdnSbc" type="text" class="w87p" v-model="keys.acdnSbc" placeholder="내용 입력"></textarea>
+      <textarea id="acdnSbc" type="text" class="w87p" v-model.trim="keys.acdnSbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="al w90">담당자</span>
-    <input id="crgr" type="text" class="input_Ac textBar w100" v-model="keys.crgr" readonly>
+    <input id="crgr" type="text" class="input_Ac textBar w100" v-model.trim="keys.crgr" placeholder="담당자 입력">
     <span class="al mg10 w90">예정일</span>
-    <input id="parrDt" type="text" class="input_Ac textBar w100" placeholder="ID 입력" v-model="keys.parrDt" readonly>
+    <datepicker id="parrDt" class="input_Ac w100" v-model="keys.parrDt"></datepicker>
     <div class="gap5"></div>
     <div class="tArea">
       <span class="al w90">예방계획</span>
-      <textarea id="pvntPln" type="text" class="w87p" v-model="keys.pvntPln" placeholder="내용 입력"></textarea>
+      <textarea id="pvntPln" type="text" class="w87p" v-model.trim="keys.pvntPln" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
@@ -187,14 +200,8 @@
     </select>
     <div class="gap5"></div>
     <span class="al w120">처리공수(M/H)</span>
-    <input id="trtmManh" type="text" class="input_Ac ar textBar w100" placeholder="0" v-model="keys.trtmManh">
+    <input id="trtmManh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtmManh">
     <div class="gap10"></div>
-  </div>
-  <div class="gap10"></div>
-
-  <div class="ar">
-    <div id="goSave" class="btn_typeA btn_save">저장</div>
-    <div id="goClose" class="btn_typeA btn_close">Close</div>
   </div>
   <div class="gap20"></div>
 </div>
