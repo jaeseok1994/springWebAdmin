@@ -6,6 +6,8 @@
   <div th:replace="headerRGrid"></div>
 </head>
 <style>
+  .btnWrap { margin:0; padding:0; width: 940px; }
+  .wrapper { width: 910px; }
   .wrapper span { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
   .wrapper .textBar { padding-left: 0.5em; padding-right: 0.5em; }
   .wrapper .tArea { margin:0; padding: 0; width: 100%; }
@@ -117,13 +119,12 @@
 <body>
 <div id="form" class="contentPgm">
   <div class="content_title">위험 상세 작성</div>
-  <div class="ar">
+  <div class="ar btnWrap">
     <div id="goSave" class="btn_typeA btn_save">저장</div>
     <div id="popClose" class="btn_typeA btn_close">Close</div>
   </div>
   <div class="box_Atype wrapper">
     <div class="gap10"></div>
-
     <span class="al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="al mg10 w90">프로젝트번호</span>
