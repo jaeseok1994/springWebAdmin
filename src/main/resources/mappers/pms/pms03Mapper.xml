@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.pms.pms03">
+
+    <select id="codeList" parameterType="map" resultType="cMap">
+	    select
+		    proj_no code,
+		    proj_nm name
+		from taprjm
+		order by proj_nm
+    </select>
+    
+    <select id="codeList2" parameterType="map" resultType="cMap">
+	    select
+		    dev_mp code,
+		    dev_mp name
+		from tapjmn
+		where proj_no = #{proj_no}
+		order by dev_mp
+    </select>
+	<select id="codeList3" parameterType="map" resultType="cMap">
+		select
+			cd_code code,
+			cd_name name
+		from sys_code
+		where cd_g_code = 'COMP'
+		order by cd_code
+	</select>
+    <select id="selectList" parameterType="map" resultType="cMap">
+	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+	    
+	        select
+			    proj_no,
+			    wbs,
+			    task,
+			    rem,
+			    st_dt,
+			    fn_dt,
+			    importance,
+			    dev_mp,
+			    ouputs,
+			    prgr_rate,
+			    upd_user_id,
+			    (select user_name from SYS_USER where user_id = a.upd_user_id) upd_user_nm,
+			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
+			from tascmn a
+			where proj_no = #{map.proj_no}
+	        order by wbs
+	        		
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    
+    <insert id="maintList" parameterType="map" >
+    {call
+        declare
+        begin
+        
+            merge into tascmn
+		        using dual
+		           on (proj_no = #{proj_no} and wbs = #{wbs})
+		        when matched then
+		        update set
+		               task = #{task}
+		             , rem = #{rem}
+		             , st_dt = to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
+		             , fn_dt = to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
+		             , importance = #{importance}
+		             , dev_mp = #{dev_mp}
+		             , ouputs = #{ouputs}
+		             , prgr_rate = #{prgr_rate}
+		             , upd_user_id = 'admin'
+		             , upd_dtm = systimestamp
+		        when not matched then
+		            insert (proj_no, wbs, task, rem,
+		            		st_dt, fn_dt, 
+		            		importance, dev_mp, ouputs, prgr_rate,
+		            		cre_user_id, cre_dtm, upd_user_id, upd_dtm)
+		            values (#{proj_no},#{wbs},#{task},#{rem},
+		            		to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+		            		to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+		            		#{importance},#{dev_mp},#{ouputs},#{prgr_rate},
+		            		'admin',systimestamp,'admin',systimestamp);
+		    
+        end
+    }
+    </insert>
+    
+    <insert id="deleteList" parameterType="map" >
+        delete from tascmn
+        where proj_no = #{proj_no}
+        and wbs = #{wbs}
+    </insert>
+</mapper>
