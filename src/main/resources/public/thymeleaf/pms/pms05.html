@@ -7,39 +7,41 @@
 </head>
 <script>
     var fields = [
-      {fieldName: "rkisNo",dataType: "text"},
-      {fieldName: "acdnTitle",dataType: "text"},
+      {fieldName: "rkis_no",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
-      {fieldName: "rskIsuId",dataType: "text"},
-      {fieldName: "projNo",dataType: "text"},
-      {fieldName: "prryRnkg",dataType: "text"},
+      {fieldName: "rsk_isu_id",dataType: "text"},
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "prry_rnkg",dataType: "text"},
       {fieldName: "area",dataType: "text"},
-      {fieldName: "dcrmLev",dataType: "text"},
-      {fieldName: "pgsSt",dataType: "text"},
-      {fieldName: "creUserId",dataType: "text"},
-      {fieldName: "creDtm",dataType: "text"}
+      {fieldName: "dcrm_lev",dataType: "text"},
+      {fieldName: "acdn_title",dataType: "text"},
+      {fieldName: "pgs_st",dataType: "text"},
+      {fieldName: "cre_user_id",dataType: "text"},
+      {fieldName: "cre_user_nm",dataType: "text"},
+      {fieldName: "cre_dtm",dataType: "text"}
     ];
 
     var columns = [
-      {name: "rkisNo", fieldName: "rkisNo", type: "data", width: "80", header: "관리대장번호", visible: false },
+      {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
       {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
-      {name: "rskIsuId", fieldName: "rskIsuId", type: "data", width: "120", header: "위험·이슈ID", editable: false },
-      {name: "projNo", fieldName: "projNo", type: "data", width: "100", header: "프로젝트 번호", editable: false },
-      {name: "prryRnkg", fieldName: "prryRnkg", type: "data", width: "80", header: "우선순위", editable: false },
+      {name: "rsk_isu_id", fieldName: "rsk_isu_id", type: "data", width: "120", header: "위험·이슈ID", editable: false },
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
+      {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
       {name: "area", fieldName: "area", type: "data", width: "80", header: "영역", editable: false },
-      {name: "dcrmLev", fieldName: "dcrmLev", type: "data", width: "80", header: "식별단계", editable: false },
-      {name: "acdnTitle", fieldName: "acdnTitle", type: "data", width: "500", header: "사건명", editable: false },
-      {name: "pgsSt", fieldName: "pgsSt", type: "data", width: "100", header: "진행상황", editable: false },
-      {name: "creUserId", fieldName: "creUserId", type: "data", width: "100", header: "등록자", editable: false },
-      {name: "creDtm", fieldName: "creDtm", type: "data", width: "100", header: "등록일자", editable: false }
+      {name: "dcrm_lev", fieldName: "dcrm_lev", type: "data", width: "80", header: "식별단계", editable: false },
+      {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
+      {name: "pgs_st", fieldName: "pgs_st", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "cre_user_id", fieldName: "cre_user_id", type: "data", width: "100", header: "등록자ID", visible: false },
+      {name: "cre_user_nm", fieldName: "cre_user_nm", type: "data", width: "100", header: "등록자", editable: false },
+      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "150", header: "등록일자", editable: false }
     ];
 
     var grid;
 
     var app;
     var today = new Date();
-    var ft = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-01';
-    var st = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+today.getDate();
+    var st = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-01';
+    var fn = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
@@ -52,11 +54,11 @@
                 keys:{
                     scn: '',
                     area: '',
-                    prryRnkg: '01',
-                    dcrmLev: '',
-                    pgsSt: '',
-                    date1: ft,
-                    date2: st
+                    prry_rnkg: '01',
+                    dcrm_lev: '',
+                    pgs_st: '',
+                    date1: '',
+                    date2: fn
                 },
                 methods:{
                 }
@@ -76,23 +78,6 @@
         });
         $("#goDelete").click(function(){
             maintList('delete');
-        });
-
-        $("#goExcel").click(function(){
-        	grid.gridView.exportGrid({
-			    type: "excel",
-			    target: "local",
-			    fileName: "연차 관리.xlsx",
-			    showProgress: true,
-			    progressMessage: "엑셀 Export중입니다.",
-			    indicator: 'visible',
-			    header: 'visible',
-			    footer: 'visible',
-			    compatibility: true,
-			    done: function () {  //내보내기 완료 후 실행되는 함수
-			        // alert("done excel export")
-			    }
-			});
         });
 
         grid = {
@@ -173,10 +158,13 @@
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
 
-                commonPaging(grid, data.resultList[0].tcnt, search);
+                if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, search);
             }else if(func == "maint"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 grid.gridView.refresh();
                 fn_alert(data.message);
@@ -214,12 +202,12 @@
                 </td>
                 <td class="ar">프로젝트 번호</td>
                 <td>
-                    <input id="projNo" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.projNo">
+                    <input id="proj_no" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.proj_no">
                 </td>
                 <td class="ar">우선순위</td>
                 <td>
-                    <select name="prryRnkg" id="prryRnkg" class="ui_sel w80p" v-model="keys.prryRnkg">
-                        <!--<option value="">전체</option>-->
+                    <select name="prry_rnkg" id="prry_rnkg" class="ui_sel w80p" v-model="keys.prry_rnkg">
+                        <option value="">전체</option>
                         <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
@@ -234,26 +222,26 @@
             <tr>
                 <td class="ar">식별단계</td>
                 <td>
-                    <select name="dcrmLev" id="dcrmLev" class="ui_sel w80p" v-model="keys.dcrmLev">
+                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w80p" v-model="keys.dcrm_lev">
                         <option value="">전체</option>
                         <option v-for="list in levList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">위험·이슈ID</td>
                 <td>
-                    <input id="rskIsuid" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rskIsuid">
+                    <input id="rsk_isu_id" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rsk_isu_id">
                 </td>
                 <td class="ar">진행상황</td>
                 <td>
-                    <select name="pgsSt" id="pgsSt" class="ui_sel w80p" v-model="keys.pgsSt">
+                    <select name="pgs_st" id="pgs_st" class="ui_sel w80p" v-model="keys.pgs_st">
                         <option value="">전체</option>
                         <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">등록일자</td>
                 <td>
-                    <datepicker id="date1" class="input_A w40p" v-model="keys.date1"></datepicker> ~
-                    <datepicker id="date2" class="input_A w40p" v-model="keys.date2"></datepicker>
+                    <datepicker id="date1" class="input_A w40p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
+                    <datepicker id="date2" class="input_A w40p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
                 </td>
             </tr>
             </tbody>
@@ -266,7 +254,6 @@
         <div id="goRskAdd" class="btn_typeA btn_save">위험추가</div>
         <div id="goIsuAdd" class="btn_typeA btn_save">이슈추가</div>
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
-        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">

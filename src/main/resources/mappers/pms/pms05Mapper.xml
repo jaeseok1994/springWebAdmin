@@ -7,26 +7,58 @@
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
 		select
-		a.rkis_no as rkisNo,
-		a.acdn_title as acdnTitle,
-		a.scn,
-		decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'') as rskIsuId,
-		a.proj_no as projNo,
-		b.proj_nm as projNm,
-		a.prry_rnkg as prryRnkg,
-		a.area,
-		a.dcrm_lev as dcrmLev,
-		a.pgs_st as pgsSt,
-		a.cre_user_id as creUserId,
-		a.cre_dtm as creDtm
-		from tarkis a, taprjm b
-		where a.proj_no = b.proj_no
-<!--		<if test="map.user_name != '' and map.user_name != null">-->
-<!--			and upper(user_name) like upper('%' || #{map.user_name} || '%')-->
-<!--		</if>-->
-<!--		<if test="map.rbof_id != '' and map.rbof_id != null">-->
-<!--			and rbof_id = #{map.rbof_id}-->
-<!--		</if>-->
+		a.rkis_no,
+		a.acdn_title,
+		(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.scn) as scn,
+		decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'') as rsk_isu_id,
+		a.proj_no,
+		(select x.cd_name from sys_code x where x.cd_g_code = 'PRRY_RNKG' and x.cd_code = a.prry_rnkg) as prry_rnkg,
+		(select x.cd_name from sys_code x where x.cd_g_code = 'AREA' and x.cd_code = a.area) as area,
+		(select x.cd_name from sys_code x where x.cd_g_code = 'DCRM_LEV' and x.cd_code = a.dcrm_lev) as dcrm_lev,
+		(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_st) as pgs_st,
+		a.cre_user_id,
+		(select user_name from SYS_user where user_id = a.cre_user_id) cre_user_nm,
+		to_char(a.cre_dtm,'yyyy-mm-dd hh24:mi:ss') cre_dtm
+		from tarkis a
+		where 1=1
+
+		<if test="map.scn != '' and map.scn != null">
+			and a.scn = #{map.scn}
+		</if>
+		<if test="map.proj_no != '' and map.proj_no != null">
+			and upper(a.proj_no) like upper('%' || #{map.proj_no} || '%')
+		</if>
+		<if test="map.prry_rnkg != '' and map.prry_rnkg != null">
+			and a.prry_rnkg = #{map.prry_rnkg}
+		</if>
+		<if test="map.area != '' and map.area != null">
+			and a.area = #{map.area}
+		</if>
+		<if test="map.dcrm_lev != '' and map.dcrm_lev != null">
+			and a.dcrm_lev = #{map.dcrm_lev}
+		</if>
+		<if test="map.pgs_st != '' and map.pgs_st != null">
+			and a.pgs_st = #{map.pgs_st}
+		</if>
+		<if test="map.rsk_isu_id != '' and map.rsk_isu_id != null">
+			and upper(decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'')) like upper('%' || #{map.rsk_isu_id} || '%')
+		</if>
+
+		<!-- 등록일자 조회조건 -->
+		<if test="map.date1 != '' and map.date1 != null">
+			<if test="map.date2 != '' and map.date2 != null">
+				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and #{map.date2}
+			</if>
+			<if test="map.date2 == '' and map.date2 == null">
+				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and '99999999'
+			</if>
+		</if>
+		<if test="map.date1 == '' and map.date1 == null">
+			<if test="map.date2 != '' and map.date2 != null">
+				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and #{map.date2}
+			</if>
+		</if>
+
 		order by a.rkis_no, a.acdn_title
 
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
@@ -34,7 +66,7 @@
 
 	<delete id="deleteList" parameterType="map">
 		delete from tarkis
-		where rkis_no = #{rkisNo}
+		where rkis_no = #{rkis_no}
 	</delete>
 
 </mapper>

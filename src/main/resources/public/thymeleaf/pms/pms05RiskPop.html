@@ -13,11 +13,12 @@
   .wrapper .tArea { margin:0; padding: 0; width: 100%; }
   .wrapper .tArea span { float: left; width: 90px; height: 100px; margin-right: 6px;}
   .wrapper .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
+  .wrapper .hidden { display: none; }
 </style>
 <script>
       var app;
       var today = new Date();
-      var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+today.getDate();
+      var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
@@ -28,29 +29,38 @@
                 pgsStList:[],
                 mgmtGrdList:[],
                 keys:{
+                    rkis_no: '',
                     scn: '위험',
+                    proj_no: 'PJ001',
+                    rsk_id: 'PJ001RSK001',
                     area: '',
-                    dcrmLev: '',
-                    prryRnkg: '',
-                    occuProb: '',
-                    ifluDeg: '',
-                    rskDeg: '',
-                    pgsSt: 'O',
-                    dcrmDt: setToday,
-                    creDtm: setToday,
-                    parrDt: setToday,
-                    trtmDt: setToday
+                    dcrm_lev: '',
+                    prry_rnkg: '',
+                    occu_prob: '',
+                    iflu_deg: '',
+                    rsk_deg: '',
+                    cre_user_id: 'Admin',
+                    acdn_title: '',
+                    acdn_sbc: '',
+                    crgr: '',
+                    pvnt_pln: '',
+                    pgs_st: 'O',
+                    trtm_manh: '',
+                    dcrm_dt: setToday,
+                    cre_dtm: setToday,
+                    parr_dt: setToday,
+                    trtm_dt: ''
                 },
                 methods:{
                 }
             },
         });
 
-        $("#projNo").click(function(){
+        $("#proj_no").click(function(){
           projPop();
         });
         $("#goSave").click(function(){
-            maintList('maint');
+            maint2List('maint2');
         });
         $("#popClose").click(function(){
             close();
@@ -80,25 +90,23 @@
         var option = "width=400, height=500, top=60, left=400, location=no";
         window.open(url, name, option);
     };
-    function maintList(func,key){
+    function maint2List(func,key){
 
         var searchParam = {};
         searchParam.func = func;
 
-        var list = { map: app.keys };
-
-        var acdnTitle = this.acdnTitle.value;
-        var acdnSbc = this.acdnSbc.value;
+        var acdnTitle = this.acdn_title.value;
+        var acdnSbc = this.acdn_sbc.value;
 
         if(acdnTitle == '' || area == null || area == undefined){
           fn_alert('사건명을 입력해주세요.');
         }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
           fn_alert('상세내용을 입력해주세요.');
         }else{
-          var listData = {
-                  list: list,
+            var jsonData = {
+                  map: app.keys,
             };
-            fn_transaction(func,"/service/pms/pms05RiskPop/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/pms05RiskPop/maint2List.do/"+func+"List",jsonData,fn_callback);
             return;
         }
     }
@@ -107,8 +115,8 @@
             alert(data.error);
         }else{
              if(func == "maint"){
-                fn_alert('정상적으로 저장되었습니다.');
                 close();
+                fn_alert('정상적으로 저장되었습니다.');
             }else{
                 fn_alert(data.message);
             }
@@ -125,83 +133,85 @@
   </div>
   <div class="box_Atype wrapper">
     <div class="gap10"></div>
+    <span class="hidden">관리대장번호</span>
+    <input id="rkis_no" type="text" class="hidden" v-model="keys.rkis_no" readonly>
     <span class="al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="al mg10 w90">프로젝트번호</span>
-    <input id="projNo" type="text" class="input_Ac textBar w100" v-model="keys.projNo" placeholder="번호 입력" readonly>
+    <input id="proj_no" type="text" class="input_Ac textBar w100" v-model="keys.proj_no" placeholder="번호 입력" readonly>
     <div class="gap5"></div>
     <span class="al w90">위험ID</span>
-    <input id="rskId" type="text" class="input_Ac textBar w100" v-model="keys.rskId" placeholder="자동생성" readonly>
+    <input id="rsk_id" type="text" class="input_Ac textBar w100" v-model="keys.rsk_id" placeholder="자동생성" readonly>
     <span class="al mg10 w90">영역</span>
     <select name="area" id="area" class="ui_selC w100" v-model="keys.area">
       <option value="">선택</option>
       <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">식별단계</span>
-    <select name="dcrmLev" id="dcrmLev" class="ui_selC w100" v-model="keys.dcrmLev">
+    <select name="dcrm_lev" id="dcrm_lev" class="ui_selC w100" v-model="keys.dcrm_lev">
       <option value="">선택</option>
       <option v-for="list in levList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">식별일</span>
-    <datepicker id="dcrmDt" class="input_Ac w100" v-model="keys.dcrmDt"></datepicker>
+    <datepicker id="dcrm_dt" class="input_Ac w100" v-model="keys.dcrm_dt"></datepicker>
     <div class="gap20"></div>
 
     <span class="al w90">우선순위</span>
-    <select name="prryRnkg" id="prryRnkg" class="ui_selC w100" v-model="keys.prryRnkg">
+    <select name="prry_rnkg" id="prry_rnkg" class="ui_selC w100" v-model="keys.prry_rnkg">
       <option value="">선택</option>
       <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">발생확률</span>
-    <select name="occuProb" id="occuProb" class="ui_selC w100" v-model="keys.occuProb">
+    <select name="occu_prob" id="occu_prob" class="ui_selC w100" v-model="keys.occu_prob">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">영향도</span>
-    <select name="ifluDeg" id="ifluDeg" class="ui_selC w100" v-model="keys.ifluDeg">
+    <select name="iflu_deg" id="iflu_deg" class="ui_selC w100" v-model="keys.iflu_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="al mg10 w90">위험도</span>
-    <select name=""rskDeg id="rskDeg" class="ui_selC w100" v-model="keys.rskDeg">
+    <select name=""rsk_deg id="rsk_deg" class="ui_selC w100" v-model="keys.rsk_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap20"></div>
 
     <span class="al w90">등록자</span>
-    <input id="creUserId" type="text" class="input_Ac textBar w100" th:value="${#authentication.name}" readonly>
+    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" readonly>
     <span class="al mg10 w90">등록일자</span>
-    <input id="creDtm" type="text" class="input_Ac textBar w100" v-model="keys.creDtm" readonly>
+    <input id="cre_dtm" type="text" class="input_Ac textBar w100" v-model="keys.cre_dtm" readonly>
     <div class="gap5"></div>
     <span class="al w90">사건명</span>
-    <input id="acdnTitle" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdnTitle" placeholder="사건명 입력">
+    <input id="acdn_title" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdn_title" placeholder="사건명 입력">
     <div class="gap5"></div>
     <div class="tArea">
       <span class="al w90">상세내용</span>
-      <textarea id="acdnSbc" type="text" class="w87p" v-model.trim="keys.acdnSbc" placeholder="내용 입력"></textarea>
+      <textarea id="acdn_sbc" type="text" class="w87p" v-model.trim="keys.acdn_sbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="al w90">담당자</span>
     <input id="crgr" type="text" class="input_Ac textBar w100" v-model.trim="keys.crgr" placeholder="담당자 입력">
     <span class="al mg10 w90">예정일</span>
-    <datepicker id="parrDt" class="input_Ac w100" v-model="keys.parrDt"></datepicker>
+    <datepicker id="parr_dt" class="input_Ac w100" v-model="keys.parr_dt"></datepicker>
     <div class="gap5"></div>
     <div class="tArea">
       <span class="al w90">예방계획</span>
-      <textarea id="pvntPln" type="text" class="w87p" v-model.trim="keys.pvntPln" placeholder="내용 입력"></textarea>
+      <textarea id="pvnt_pln" type="text" class="w87p" v-model.trim="keys.pvnt_pln" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="al w120">처리확인일자</span>
-    <datepicker id="trtmDt" class="input_Ac w100" v-model="keys.trtmDt"></datepicker>
+    <datepicker id="trtm_dt" class="input_Ac w100" v-model="keys.trtm_dt" placeholder="____-__-__"></datepicker>
     <span class="al mg10 w90">진행상황</span>
-    <select name="pgsSt" id="pgsSt" class="ui_selC w100" v-model="keys.pgsSt">
+    <select name="pgs_st" id="pgs_st" class="ui_selC w100" v-model="keys.pgs_st">
       <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap5"></div>
     <span class="al w120">처리공수(M/H)</span>
-    <input id="trtmManh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtmManh">
+    <input id="trtm_manh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtm_manh">
     <div class="gap10"></div>
   </div>
   <div class="gap20"></div>
