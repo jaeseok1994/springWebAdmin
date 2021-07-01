@@ -31,22 +31,20 @@
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 	    
 	        select
-			    proj_no,
-			    wbs,
-			    task,
-			    rem,
-			    st_dt,
-			    fn_dt,
-			    importance,
-			    dev_mp,
-			    ouputs,
-			    prgr_rate,
+				proj_no,
+				(select proj_nm from taprjm where proj_no = a.proj_no)proj_nm,
+				title,
+				st_dt,
+				fn_dt,
+				wr_dt,
+				writer,
+				rem,
 			    upd_user_id,
 			    (select user_name from SYS_USER where user_id = a.upd_user_id) upd_user_nm,
 			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
-			from tascmn a
+			from twkafm a
 			where proj_no = #{map.proj_no}
-	        order by wbs
+	        order by wr_dt desc
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>

@@ -8,25 +8,21 @@
 <script>
     var fields = [
       {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
       {fieldName: "title",dataType: "text"},
-      {fieldName: "w_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "app_scn",dataType: "text"},
+      {fieldName: "wr_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
       {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
       {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      //{fieldName: "importance",dataType: "number"},
-      {fieldName: "dev_mp",dataType: "text"},
-      {fieldName: "FIL_SN",dataType: "text"},
-      {fieldName: "prgr_rate",dataType: "number"},
+      {fieldName: "writer",dataType: "text"},
+      {fieldName: "rem",dataType: "text"},
       {fieldName: "upd_user_nm",dataType: "text"},
       {fieldName: "upd_dtm",dataType: "text"}
     ];
     
     var columns = [
-      //{name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트", visible: false},
-      {name: "app_scn", fieldName: "app_scn", type: "data", width: "150", header: "결재양식" ,styleName:"left-column"},
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트"},
-      {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column" },
-      {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column"},
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트번호",editable: false},
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
+      {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
       {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
     	  editor: {
               type: "date",
@@ -48,19 +44,8 @@
             },
             datetimeFormat: "yyyy-MM-dd"
         },
-      //{name: "importance", fieldName: "importance", type: "data", width: "80", header: "가중치"},
-      /*{name: "dev_mp", fieldName: "dev_mp", width: "80", header: "작성자",
-    	  editor: {
-    		 type: "list",
-   		     values: [],
-   		     labels: [],
-   		     displayLabels: "label",
-   		     textReadOnly: true
-          }
-        },*/
-      {name: "dev_mp", fieldName: "dev_mp", type: "data", width: "80", header: "작성자"},
-      {name: "FIL_SN", fieldName: "FIL_SN", type: "data", width: "200", header: "첨부파일"},
-      //{name: "prgr_rate", fieldName: "prgr_rate", type: "data", width: "80", header: "진척율(%)"},
+      {name: "dev_mp", fieldName: "dev_mp", type: "data", width: "80", header: "작성자", editable: false},
+      {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column", editable: false},
       {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
       {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
     ];
@@ -73,12 +58,8 @@
         app = new Vue({
             el:'#form',
             data:{
-                groupList:[],
-                projList:[],
                 keys:{
                 	proj_no:'',
-                    app_scn:'',
-                    group:'*',
                     pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
                     pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
                     pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
@@ -146,18 +127,12 @@
         grid.gridView.onCellClicked = function(g, cell) {
 			
         };
-        
-        //search();
+
 
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
+        getCode();
 
-        fn_codeDataSync({group:"*"},function(list){ // 결재양식 콤보박스
-            app.groupList = list;
-        });
-        fn_codeDataSync({proj_no:""},"selectProjList",function(list){ // 조회조건 프로젝트 콤보박스
-            app.projList = list;
-        });
         /*
      	// 프로젝트 selectbox 세팅 후 자동 조회
      	$('#proj_no').change(function(){
@@ -170,17 +145,6 @@
             	search();
      		}
      	});*/
-     	/*
-     	// 결재양식 selectbox 세팅 후 자동조회
-     	$('#app_scn').change(function(){
-     		var val = $(this).val();
-     		if(val != null && val != '') {
-     			app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-
-            	getCode3(app_scn); // 프로젝트별 담당자 조회 및 세팅
-     		}
-     	});*/
-        //getCode();
     });
 
     function search(){
@@ -231,8 +195,7 @@
             }else if(func == "code"){
             	setCode(data.resultList);
 	        }else if(func == "code2"){
-            	grid.dataProvider.setRows(data.resultList);
-                grid.gridView.refresh();
+
 	        }else if(func == "code3"){
 	            grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
@@ -257,14 +220,10 @@
 
         fn_transaction("code2","/service/pms/pms03/selectList.do/codeList2",jsonData,fn_callback);
     }
-    function getCode3(){
-		var jsonData = {app_scn: $('#app_scn').val()};
 
-        fn_transaction("code3","/service/pms/pms03/selectList.do/codeList3",jsonData,fn_callback);
-    }
 
     $(window).resize(function(){
-        grid.gridView.refresh();
+        //grid.gridView.refresh();
     });
 </script>
 <body>
@@ -280,30 +239,17 @@
             </colgroup>
             <tbody>
             <tr>
-                <td class="ar">프로젝트</td>
+                <td class="ar">프로젝트 명</td>
                 <td>
-                    <!--<select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no">
-
-                    </select>-->
-                    <select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no">
-                        <option value="">선택</option>
-                        <option v-for="list in projList" :value="list.value">{{list.text}}</option>
-                    </select>
+                    <select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></select>
                 </td>
                 <td class="ar">제목</td>
                 <td>
                     <input id="title" type="text" class="input_A w90p"  v-model="keys.title">
                 </td>
-                <td class="ar">결재양식</td>
-                <td>
-                    <select name="app_scn" id="app_scn" class="ui_sel w100p" v-model="keys.app_scn">
-                        <option value="">선택</option>
-                        <option v-for="list in groupList" :value="list.value">{{list.text}}</option>
-                    </select>
-                </td>
                 <td class="ar">기안날짜</td>
                 <td>
-                    <datepicker id="date1" class="input_A w90p" v-model="keys.data1"></datepicker>
+                    <datepicker id="date1" class="input_A w30p" v-model="keys.data1"></datepicker>
                 </td>
                 <td></td>
             </tr>

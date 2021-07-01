@@ -41,9 +41,9 @@
         });
 
         // 조회조건 프로젝트 콤보박스
-        fn_codeDataSync({proj_no:""},"selectProjList",function(list){
-            app.projList = list;
-        });
+       // fn_codeDataSync({proj_no:""},"selectProjList",function(list){
+       //    app.projList = list;
+       // });
 
 
     });
@@ -90,11 +90,8 @@
             </colgroup>
             <tbody>
             <tr>
-                <td class="ar">프로젝트</td>
+                <td class="ar">프로젝트 명</td>
                 <td>
-                    <!--<select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no">
-
-                    </select>-->
                     <select name="proj_no" id="proj_no" class="ui_sel w80p" v-model="keys.proj_no">
                         <option value="">선택</option>
                         <option v-for="list in projList" :value="list.value">{{list.text}}</option>
