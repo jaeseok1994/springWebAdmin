@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>주간업무보고</title>
+    <div th:replace="headerRGrid"></div>
+</head>
+<script>
+    var fields = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "title",dataType: "text"},
+      {fieldName: "wr_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "writer",dataType: "text"},
+      {fieldName: "rem",dataType: "text"},
+      {fieldName: "upd_user_nm",dataType: "text"},
+      {fieldName: "upd_dtm",dataType: "text"}
+    ];
+    
+    var columns = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트번호",editable: false},
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
+      {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
+    	  editor: {
+              type: "date",
+              datetimeFormat: "yyyy-MM-dd"
+          },
+          datetimeFormat: "yyyy-MM-dd"
+    	},
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", 
+    		editor: {
+                type: "date",
+                datetimeFormat: "yyyy-MM-dd"
+            },
+            datetimeFormat: "yyyy-MM-dd"
+        },
+        {name: "w_dt", fieldName: "w_dt", maxLength: 8, width: "100", header: "기안날짜",
+    		editor: {
+                type: "date",
+                datetimeFormat: "yyyy-MM-dd"
+            },
+            datetimeFormat: "yyyy-MM-dd"
+        },
+      {name: "dev_mp", fieldName: "dev_mp", type: "data", width: "80", header: "작성자", editable: false},
+      {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column", editable: false},
+      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
+      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+    ];
+	
+    
+    var grid;
+
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                	proj_no:'',
+                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+        	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
+        		fn_alert("프로젝트를 선택하세요.");
+        		return;
+        	}
+        	
+        	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+        	
+        	getCode2(proj_no); // 프로젝트별 담당자 조회 및 세팅
+        	
+        	search();
+        });
+        $("#goAdd").click(function(){
+        	/*
+        	var proj_no = $('#proj_no').val();
+        	if(proj_no == null || proj_no == ''){
+        		fn_alert("프로젝트를 선택하세요.");
+        		return;
+        	}
+        	var r = grid.dataProvider.addRow(1);
+        	grid.dataProvider.setValue(r,'proj_no',proj_no);
+        	*/
+        	var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms02','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
+        });
+        $("#goSave").click(function(){
+            maintList('maint');
+        });
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+        $("#goExcel").click(function(){
+        	grid.gridView.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: "프로젝트 일정관리.xlsx", 
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        // alert("done excel export")
+			    }
+			});
+        });
+		
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+        }
+
+        createRGrid(grid);
+        
+        grid.gridView.onCellClicked = function(g, cell) {
+			
+        };
+
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+        getCode();
+
+        /*
+     	// 프로젝트 selectbox 세팅 후 자동 조회
+     	$('#proj_no').change(function(){
+     		var val = $(this).val();
+     		if(val != null && val != '') {
+     			app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+            	
+            	getCode2(proj_no); // 프로젝트별 담당자 조회 및 세팅
+            	
+            	search();
+     		}
+     	});*/
+    });
+
+    function search(){
+    	grid.dataProvider.clearRows();
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/pms/pms03/selectList.do/selectList",jsonData,fn_callback);
+    }
+    function maintList(func,key){
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+
+        var list = getCheckedRows(grid);
+
+        if(list.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/pms/pms03/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+            	grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                
+                if(data.resultList.length > 0) commonPaging(app, data.resultList[0].tcnt, search);
+            }else if(func == "maint"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+            	 grid.gridView.refresh();
+            	 fn_alert('정상적으로 삭제되었습니다.');
+            }else if(func == "code"){
+            	setCode(data.resultList);
+	        }else if(func == "code2"){
+
+	        }else if(func == "code3"){
+	            grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+	        }else{
+                grid.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
+    function getCode(){
+    	fn_transaction("code","/service/pms/pms03/selectList.do/codeList",{},fn_callback);
+    }
+    function setCode(resultList) {
+        var str = '<option value="">선택</option>';
+        $.each(resultList,function(k,v){
+            str += '<option value="'+v.code+'">'+v.name+'</option>';
+        });
+        $('#proj_no').html(str);
+    }
+    function getCode2(){
+		var jsonData = {proj_no: $('#proj_no').val()};
+
+        fn_transaction("code2","/service/pms/pms03/selectList.do/codeList2",jsonData,fn_callback);
+    }
+
+
+    $(window).resize(function(){
+        //grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">주간업무보고</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>주간업무보고</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">프로젝트 명</td>
+                <td>
+                    <select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></select>
+                </td>
+                <td class="ar">제목</td>
+                <td>
+                    <input id="title" type="text" class="input_A w90p"  v-model="keys.title">
+                </td>
+                <td class="ar">기안날짜</td>
+                <td>
+                    <datepicker id="date1" class="input_A w30p" v-model="keys.data1"></datepicker>
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">추가</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>
+        <!--<div id="goSave" class="btn_typeA btn_save">저장</div>-->
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+</div>
+</body>
+</html>
