@@ -91,12 +91,34 @@ public class CommonServiceController {
         setMessage(mv,sqlId);
         return mv;
     }
+    @RequestMapping(method = RequestMethod.POST, value = "/maintList2.do/{sqlId}")
+    public ModelAndView maintList2(@PathVariable("group") String group,@PathVariable("pgm") String pgm,@PathVariable("sqlId") String sqlId,  @RequestBody HashMap<String,Object> param  ) {
+
+        LinkedHashMap linkedHashMap = (LinkedHashMap)param.get("test");
+
+        param.put("mapperGroup",group);
+        param.put("mapperPgm",pgm);
+        param.put("mapperSqlId",sqlId);
+
+        int count = 0;
+        //System.out.println(map);
+        initParam(param);
+        count += dao.maint2(param);
+
+        //List<Map<String, Object>> result = dao.selectList(param);
+        ModelAndView mv = new ModelAndView("jsonView");
+
+        mv.addObject("resultCount", count+"");
+        setMessage(mv,sqlId);
+        return mv;
+    }
+
     private void setMessage(ModelAndView mv,String sqlId) {
         if (sqlId.startsWith("select")) {
             mv.addObject("message", "조회되었습니다.");
         } else if (sqlId.startsWith("insert")) {
             mv.addObject("message", "입력이 되었습니다.");
-        } else if (sqlId.startsWith("maint")) {
+        } else if (sqlId.startsWith("maint") || sqlId.startsWith("maint2")) {
             mv.addObject("message", "저장이 되었습니다.");
         } else if (sqlId.startsWith("update")) {
             mv.addObject("message", "수정이 되었습니다.");
