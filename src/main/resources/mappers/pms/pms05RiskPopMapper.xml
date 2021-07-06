@@ -27,7 +27,27 @@
 	<insert id="maintList2" parameterType="map" >
 		{CALL
 			DECLARE
+				V_SEQ VARCHAR2(3) 	   := '';
+				V_RKIS_NO VARCHAR2(20) := '';
+				V_MAX_RSK VARCHAR2(20) := '';
+				V_RSK_NO VARCHAR2(20)  := '';
+
 			BEGIN
+				/* 관리대장번호 생성 */
+				V_RKIS_NO := F_DOCNO('RKIS');
+
+				/* 리스크번호 생성 */
+				BEGIN
+					SELECT MAX(RSK_ID)
+					INTO V_MAX_RSK
+					FROM TARKIS
+					WHERE RSK_ID LIKE PROJ_NO||'RK'||'%'
+					  AND PROJ_NO = #{map.proj_no};
+					V_SEQ := nvl(REPLACE(V_MAX_RSK,#{map.proj_no}||'RK'),'000');
+					V_RSK_NO := #{map.proj_no} || 'RK' || F_CNUM(V_SEQ);
+				END;
+
+				/* 수정 */
 				MERGE INTO TARKIS
 				USING DUAL
 					ON (RKIS_NO = #{map.rkis_no})
@@ -50,9 +70,10 @@
 					, PVNT_PLN = #{map.pvnt_pln}
 					, TRTM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
 					, TRTM_MANH = #{map.trtm_manh}
-					, UPD_USER_ID = #{_loginid_}
+					, UPD_USER_ID = #{_loginId_}
 					, UPD_DTM = SYSDATE
 				WHEN NOT MATCHED THEN
+				/* 신규입력 */
 				INSERT(
 					RKIS_NO, ACDN_TITLE, SCN, PROJ_NO, RSK_ID, PRRY_RNKG,
 					AREA, DCRM_LEV, PGS_ST, OCCU_PROB, IFLU_DEG, RSK_DEG,
@@ -60,13 +81,13 @@
 					DCRM_DT, PARR_DT, TRTM_DT,
 					CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
 				)VALUES(
-					#{map.rkis_no}, #{map.acdn_title}, 'R', #{map.proj_no}, #{map.rsk_id}, #{map.prry_rnkg},
+					V_RKIS_NO, #{map.acdn_title}, 'R', #{map.proj_no}, V_RSK_NO, #{map.prry_rnkg},
 					#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.occu_prob}, #{map.iflu_deg}, #{map.rsk_deg},
 					#{map.acdn_sbc}, #{map.ctms}, #{map.crgr}, #{map.pvnt_pln}, #{map.trtm_manh},
 					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-					#{_loginid_}, SYSDATE, #{_loginid_}, SYSDATE
+					#{_loginId_}, SYSDATE, #{_loginId_}, SYSDATE
 				);
 			END
 		}
