@@ -60,7 +60,7 @@
 					DCRM_DT, PARR_DT, TRTM_DT,
 					CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
 				)VALUES(
-					'rkis004', #{map.acdn_title}, 'R', #{map.proj_no}, #{map.proj_no}+, #{map.prry_rnkg},
+					#{map.rkis_no}, #{map.acdn_title}, 'R', #{map.proj_no}, #{map.rsk_id}, #{map.prry_rnkg},
 					#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.occu_prob}, #{map.iflu_deg}, #{map.rsk_deg},
 					#{map.acdn_sbc}, #{map.ctms}, #{map.crgr}, #{map.pvnt_pln}, #{map.trtm_manh},
 					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
@@ -74,7 +74,7 @@
 
 	<delete id="deleteList" parameterType="map">
 		DELETE FROM TARKIS
-		WHERE RKIS_NO = #{rkis_no}
+		WHERE RKIS_NO = #{map.rkis_no}
 	</delete>
 
 </mapper>

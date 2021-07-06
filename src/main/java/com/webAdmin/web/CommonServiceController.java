@@ -118,7 +118,7 @@ public class CommonServiceController {
             mv.addObject("message", "조회되었습니다.");
         } else if (sqlId.startsWith("insert")) {
             mv.addObject("message", "입력이 되었습니다.");
-        } else if (sqlId.startsWith("maint") || sqlId.startsWith("maint2")) {
+        } else if (sqlId.startsWith("maint")) {
             mv.addObject("message", "저장이 되었습니다.");
         } else if (sqlId.startsWith("update")) {
             mv.addObject("message", "수정이 되었습니다.");
