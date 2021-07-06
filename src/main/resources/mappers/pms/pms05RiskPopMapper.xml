@@ -3,76 +3,78 @@
 
 <mapper namespace="proj.pms.pms05RiskPop">
 
-	<select id="selectList" parameterType="map" resultType="cMap">
+	<select id="projSelectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-
-		select
-		a.*
-
-		from tarkis
-		where rkis_no = #{rkisNo}
-<!--		<if test="map.user_name != '' and map.user_name != null">-->
-<!--			and upper(user_name) like upper('%' || #{map.user_name} || '%')-->
-<!--		</if>-->
-<!--		<if test="map.rbof_id != '' and map.rbof_id != null">-->
-<!--			and rbof_id = #{map.rbof_id}-->
-<!--		</if>-->
+		SELECT
+			PROJ_NO,
+			PROJ_NM,
+			ST_DT,
+			FN_DT,
+			CLIENT
+		FROM TAPRJM A
+		WHERE 1=1
+		<if test="map.p_no != '' and map.p_no != null">
+			AND PROJ_NO LIKE '%' || #{map.p_no} || '%'
+		</if>
+		<if test="map.p_nm != '' and map.p_nm != null">
+			AND PROJ_NM LIKE '%' || #{map.p_nm} || '%'
+		</if>
+		ORDER BY PROJ_NO
 
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
-	<insert id="maint2List" parameterType="map" >
-		{call
-			declare
-			begin
-				merge into tarkis
-				using dual
-					on (rkis_no = #{rkis_no})
-				when matched then
-				update set
-					  acdn_title = #{acdn_title}
-					, scn = #{scn}
-					, proj_no = #{proj_no}
-					, prry_rnkg = #{prry_rnkg}
-					, area = #{area}
-					, dcrm_lev = #{dcrm_lev}
-					, pgs_st = #{pgs_st}
-					, dcrm_dt = to_char(to_date(substr(replace(#{dcrm_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, occu_prob = #{occu_prob}
-					, iflu_deg = #{iflu_deg}
-					, rsk_deg = #{rsk_deg}
-					, acdn_sbc = #{acdn_sbc}
-					, ctms = #{ctms}
-					, crgr = #{crgr}
-					, parr_dt = to_char(to_date(substr(replace(#{parr_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, pvnt_pln = #{pvnt_pln}
-					, trtm_dt = to_char(to_date(substr(replace(#{trtm_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, trtm_manh = #{trtm_manh}
-					, upd_user_id = #{_loginId_}
-					, upd_dtm = systimestamp
-				when not matched then
-				insert(
-					rkis_no, acdn_title, scn, proj_no, rsk_id, prry_rnkg,
-					area, dcrm_lev, pgs_st, occu_prob, iflu_deg, rsk_deg,
-					acdn_sbc, ctms, crgr, pvnt_pln, trtm_manh,
-					dcrm_dt, parr_dt, trtm_dt,
-					cre_user_id, cre_dtm, upd_user_id, upd_dtm
-				)values(
-					'RKIS004',#{acdn_title},#{scn},#{proj_no}, 'PJ001RSK001', #{prry_rnkg},
-					#{area}, #{dcrm_lev}, #{pgs_st}, #{occu_prob}, #{iflu_deg}, #{rsk_deg},
-					#{acdn_sbc}, #{ctms}, #{crgr}, #{pvnt_pln}, #{trtm_manh},
-					to_char(to_date(substr(replace(#{dcrm_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					to_char(to_date(substr(replace(#{parr_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					to_char(to_date(substr(replace(#{trtm_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					#{_loginId_},systimestamp,#{_loginId_},systimestamp
+	<insert id="maintList2" parameterType="map" >
+		{CALL
+			DECLARE
+			BEGIN
+				MERGE INTO TARKIS
+				USING DUAL
+					ON (RKIS_NO = #{map.rkis_no})
+				WHEN MATCHED THEN
+				UPDATE SET
+					  ACDN_TITLE = #{map.acdn_title}
+					, PROJ_NO = #{map.proj_no}
+					, PRRY_RNKG = #{map.prry_rnkg}
+					, AREA = #{map.area}
+					, DCRM_LEV = #{map.dcrm_lev}
+					, PGS_ST = #{map.pgs_st}
+					, DCRM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+					, OCCU_PROB = #{map.occu_prob}
+					, IFLU_DEG = #{map.iflu_deg}
+					, RSK_DEG = #{map.rsk_deg}
+					, ACDN_SBC = #{map.acdn_sbc}
+					, CTMS = #{map.ctms}
+					, CRGR = #{map.crgr}
+					, PARR_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+					, PVNT_PLN = #{map.pvnt_pln}
+					, TRTM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+					, TRTM_MANH = #{map.trtm_manh}
+					, UPD_USER_ID = #{_loginid_}
+					, UPD_DTM = SYSDATE
+				WHEN NOT MATCHED THEN
+				INSERT(
+					RKIS_NO, ACDN_TITLE, SCN, PROJ_NO, RSK_ID, PRRY_RNKG,
+					AREA, DCRM_LEV, PGS_ST, OCCU_PROB, IFLU_DEG, RSK_DEG,
+					ACDN_SBC, CTMS, CRGR, PVNT_PLN, TRTM_MANH,
+					DCRM_DT, PARR_DT, TRTM_DT,
+					CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
+				)VALUES(
+					'rkis004', #{map.acdn_title}, 'R', #{map.proj_no}, #{map.proj_no}+, #{map.prry_rnkg},
+					#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.occu_prob}, #{map.iflu_deg}, #{map.rsk_deg},
+					#{map.acdn_sbc}, #{map.ctms}, #{map.crgr}, #{map.pvnt_pln}, #{map.trtm_manh},
+					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+					#{_loginid_}, SYSDATE, #{_loginid_}, SYSDATE
 				);
-			end
+			END
 		}
 	</insert>
 
 	<delete id="deleteList" parameterType="map">
-		delete from tarkis
-		where rkis_no = #{rkisNo}
+		DELETE FROM TARKIS
+		WHERE RKIS_NO = #{rkis_no}
 	</delete>
 
 </mapper>

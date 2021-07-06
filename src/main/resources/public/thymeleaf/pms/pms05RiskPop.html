@@ -6,36 +6,61 @@
   <div th:replace="headerRGrid"></div>
 </head>
 <style>
-  .btnWrap { margin:0; padding:0; width: 940px; }
-  .wrapper { width: 910px; }
-  .wrapper span { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
-  .wrapper .textBar { padding-left: 0.5em; padding-right: 0.5em; }
-  .wrapper .tArea { margin:0; padding: 0; width: 100%; }
-  .wrapper .tArea span { float: left; width: 90px; height: 100px; margin-right: 6px;}
-  .wrapper .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
-  .wrapper .hidden { display: none; }
+    /* 버튼 */
+    .btnWrap { margin:0; padding:0; width: 940px; }
+    /* 모달 */
+    .modal_wrap { display: none; position: fixed; top:0; left:0; margin:0; padding:0; width: 100%; height: 100%; background-color:rgba(0,0,0,0.4); overflow: auto; z-index: 1; }
+    .modal_wrap .modal_content { background-color: #fefefe; margin: 5% auto; padding: 10px; border: 1px solid #888; width: 50%; }
+    #realgrid { height: 300px; }
+    /* 작성란 */
+    .wrapper { width: 910px; }
+    .wrapper span { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
+    .wrapper .textBar { padding-left: 0.5em; padding-right: 0.5em; }
+    .wrapper .tArea { margin:0; padding: 0; width: 100%; }
+    .wrapper .tArea span { float: left; width: 90px; height: 100px; margin-right: 6px;}
+    .wrapper .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
+    .wrapper .hidden { display: none; }
 </style>
 <script>
-      var app;
-      var today = new Date();
-      var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
+    var fields = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "client",dataType: "text"}
+    ];
+
+    var columns = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호", editable: false },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column", editable: false },
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처", styleName:"left-column", editable: false}
+    ];
+
+    var grid;
+    var app;
+    var today = new Date();
+    var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
+
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
             data:{
+                // 콤보 리스트
                 areaList:[],
                 rnkgList:[],
                 levList:[],
                 pgsStList:[],
                 mgmtGrdList:[],
-                keys:{
+                keys:{   // 작성란 key
                     rkis_no: '',
                     scn: '위험',
-                    proj_no: 'PJ001',
-                    rsk_id: 'PJ001RSK001',
+                    proj_no: '',
+                    rsk_id: '',
                     area: '',
                     dcrm_lev: '',
-                    prry_rnkg: '',
+                    prry_rnkg: '01',
                     occu_prob: '',
                     iflu_deg: '',
                     rsk_deg: '',
@@ -51,16 +76,29 @@
                     parr_dt: setToday,
                     trtm_dt: ''
                 },
+                keys2:{ // 프로젝트 번호 조회 key
+                  p_no: '',
+                  p_nm: ''
+                },
                 methods:{
                 }
             },
         });
 
+        // 클릭 이벤트
         $("#proj_no").click(function(){
-          projPop();
+          $("#modal_pop").show();
+          projSearch();
         });
+        $("#modalSelect").click(function(){
+          projSearch();
+        });
+        $("#modalClose").click(function(){
+          $("#modal_pop").hide();
+        });
+
         $("#goSave").click(function(){
-            maint2List('maint2');
+            maintList2('maint');
         });
         $("#popClose").click(function(){
             close();
@@ -83,14 +121,53 @@
             app.mgmtGrdList = list;  // 진행상황
         });
 
+        // 그리드 생성
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:100, // 페이지당 표시할 데이터 건수
+        }
+
+        createRGrid(grid);
+        grid.gridView.displayOptions.fitStyle = "even";
+        grid.gridView.setCheckBar({ visible: false });
+
+        // 더블클릭 이벤트
+        grid.gridView.onCellDblClicked = function (gridBase, clickData) {
+          // console.log(clickData.itemIndex);
+          // console.log(clickData.column);
+          app.keys.proj_no = grid.dataProvider.getValue(clickData.itemIndex,0);
+          projSearch_off();
+        }
+
+        projSearch();
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+
     });
-    function projPop(){
-        var url    = "/service/pms/pms01/selectForm.do";
-        var name   = "projPop";
-        var option = "width=400, height=500, top=60, left=400, location=no";
-        window.open(url, name, option);
+
+    // 프로젝트 번호 조회
+    function projSearch(){
+        grid.dataProvider.clearRows();
+        app.keys2.pagenum = grid.pagenum;
+
+        var jsonData = {
+                map: app.keys2,
+        };
+
+        fn_transaction("proj_select","/service/pms/pms05RiskPop/selectList.do/projSelectList",jsonData,fn_callback);
     };
-    function maint2List(func,key){
+
+    // 모달 팝업 OFF
+    function projSearch_off(){
+        $("#modal_pop").hide();
+    };
+
+    // 저장
+    function maintList2(func,key){
 
         var searchParam = {};
         searchParam.func = func;
@@ -98,7 +175,9 @@
         var acdnTitle = this.acdn_title.value;
         var acdnSbc = this.acdn_sbc.value;
 
-        if(acdnTitle == '' || area == null || area == undefined){
+        if(proj_no == '' || proj_no == null || proj_no == undefined){
+          fn_alert('프로젝트 번호를 입력해주세요.');
+        }else if(acdnTitle == '' || area == null || area == undefined){
           fn_alert('사건명을 입력해주세요.');
         }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
           fn_alert('상세내용을 입력해주세요.');
@@ -106,16 +185,25 @@
             var jsonData = {
                   map: app.keys,
             };
-            fn_transaction(func,"/service/pms/pms05RiskPop/maint2List.do/"+func+"List",jsonData,fn_callback);
+            fn_transaction(func,"/service/pms/pms05RiskPop/maintList2.do/"+func+"List2",jsonData,fn_callback);
             return;
         }
     }
+
+    // 콜백
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
         }else{
-             if(func == "maint"){
-                close();
+            if(func == "select"){
+
+            }else if(func == "proj_select"){
+              grid.dataProvider.setRows(data.resultList);
+              grid.gridView.refresh();
+
+              if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
+            }else if(func == "maint"){
+                //close();
                 fn_alert('정상적으로 저장되었습니다.');
             }else{
                 fn_alert(data.message);
@@ -127,10 +215,55 @@
 <body>
 <div id="form" class="contentPgm">
   <div class="content_title">위험 상세 작성</div>
+  <!-- Modal 팝업 -->
+  <div id="modal_pop" class="modal_wrap">
+    <div class="modal_content">
+      <div class="ac content_title">프로젝트 번호 조회</div>
+      <div class="gap10"></div>
+      <div class="box_Atype">
+        <table class="tbl_base">
+          <caption>프로젝트 번호 조회</caption>
+          <colgroup>
+            <col style="width:22%;"/>
+            <col style="width:25%;"/>
+            <col style="width:20%;"/>
+            <col style="width:25%;"/>
+          </colgroup>
+          <tbody>
+          <tr>
+            <td class="ar f14">프로젝트번호</td>
+            <td>
+              <input id="p_no" type="text" class="input_Ac w100p" placeholder="번호 입력"  v-model="keys2.p_no">
+            </td>
+            <td class="ar f14">프로젝트명</td>
+            <td>
+              <input id="p_nm" type="text" class="input_Ac w100p" placeholder="명칭 입력"  v-model="keys2.p_nm">
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="gap5"></div>
+      <!-- Modal 버튼 -->
+      <div class="ar">
+        <div id="modalSelect" class="btn_typeA btn_search">조회</div>
+        <div id="modalClose" class="btn_typeA btn_close">Close</div>
+      </div>
+      <div class="gap10"></div>
+      <!-- realgrid  -->
+      <div style="width:100%; height:auto; overflow: hidden;">
+        <div id="realgrid"></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+      </div>
+      <div class="gap10"></div>
+    </div>
+  </div>
+  <!-- 버튼 -->
   <div class="ar btnWrap">
     <div id="goSave" class="btn_typeA btn_save">저장</div>
     <div id="popClose" class="btn_typeA btn_close">Close</div>
   </div>
+  <!-- 작성란 -->
   <div class="box_Atype wrapper">
     <div class="gap10"></div>
     <span class="hidden">관리대장번호</span>
