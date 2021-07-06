@@ -1,5 +1,6 @@
 package com.webAdmin.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webAdmin.dao.CommonMybatisDao;
 import com.webAdmin.security.domain.model.SecurityUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -28,8 +28,24 @@ public class CommonServiceController {
     /* http://localhost:8080/service/system/authMenu/selectForm.do
      */
     @RequestMapping(method = RequestMethod.GET, value = "/selectForm.do")
-    public String list(@PathVariable("group") String group, @PathVariable("pgm") String pgm, Model model){
+    public String list(@RequestParam Map<String, String> map, @PathVariable("group") String group, @PathVariable("pgm") String pgm, ModelMap model) throws IOException {
         //model.addAttribute("list",userService.list());
+        model.addAttribute("group",group);
+
+        Map<String, Object> para = null;
+        String param = String.valueOf((map.get("param")));
+
+        param = param.replaceAll("&quot","\"");
+
+        try{
+            para = new ObjectMapper().readValue(param, HashMap.class);
+        }catch (Exception e ){
+
+            throw new IOException("appData JSON Parae 예외 발생");
+        }
+
+
+        model.addAttribute("para",para);
         return "/"+group+"/"+pgm+"";
     }
     @RequestMapping(method = RequestMethod.POST, value = "/selectList.do/{sqlId}")

@@ -7,6 +7,7 @@
 </head>
 <script>
     var fields = [
+      {fieldName: "affr_no",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "proj_nm",dataType: "text"},
       {fieldName: "title",dataType: "text"},
@@ -20,7 +21,8 @@
     ];
     
     var columns = [
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트번호",editable: false},
+      {name: "affr_no", fieldName: "affr_no", type: "data", width: "80", header: "문서번호",editable: false},
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "90", header: "프로젝트번호",editable: false},
       {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
       {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
       {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
@@ -81,6 +83,7 @@
         	
         	search();
         });
+
         $("#goAdd").click(function(){
         	/*
         	var proj_no = $('#proj_no').val();
@@ -91,8 +94,10 @@
         	var r = grid.dataProvider.addRow(1);
         	grid.dataProvider.setValue(r,'proj_no',proj_no);
         	*/
-        	var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms02','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
+        	//var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms03_popup','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
+        	popup_open();
         });
+
         $("#goSave").click(function(){
             maintList('maint');
         });
@@ -125,7 +130,13 @@
         createRGrid(grid);
         
         grid.gridView.onCellClicked = function(g, cell) {
-			
+			 cell.itemIndex
+            //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
+            var title = grid.gridView.getValue(cell.itemIndex,"title");
+            var AF_NO = grid.gridView.getValue(cell.itemIndex,"affr_no");
+            console.log("제목:::"+title);
+            console.log("문서번호:::"+AF_NO);
+            popup_open(AF_NO);
         };
 
 
@@ -146,7 +157,19 @@
      		}
      	});*/
     });
+    function popup_open(AF_NO){
 
+        var jsonData = {
+            AFNO:AF_NO,
+            map:app.keys,
+        };
+        var TEST =   encodeURIComponent(JSON.stringify(jsonData));
+        var url    = "/service/pms/pms03_popup/selectForm.do";
+        var name   = "pms03_popup";
+        var option = "top=10, left=100, width=1500, height=800 location=no";
+        window.open(url + "?param=" + TEST, name, option);
+
+    }
     function search(){
     	grid.dataProvider.clearRows();
 

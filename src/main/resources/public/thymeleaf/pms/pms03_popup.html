@@ -9,10 +9,13 @@
 /* 테이블 셀 높이*/
 .ACell {width:40px;height:10px;background:#BDBDBD;}
 .BCell {width:100px;height:50px;font-size:15px;}
-.CCell {width:40px;height:10px;background:#BDBDBD;}
+.CCell {width:100px;height:10px;background:#BDBDBD;}
+.textarea { height:400px; width:98%; !important; }
 </style>
 <script>
      var app;
+
+
      var today = new Date();
      var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+today.getDate();
     $(document.body).ready(function(){
@@ -21,6 +24,7 @@
             data:{
                 projList:[],
                 keys:{
+                    affr_no: '',
                     proj_no: '',
                     title: '',
                     writer: 'admin',
@@ -39,25 +43,29 @@
                 }
             },
         });
-
-        // 조회조건 프로젝트 콤보박스
-       // fn_codeDataSync({proj_no:""},"selectProjList",function(list){
-       //    app.projList = list;
-       // });
-
+        $("#goSave").click(function(){
+             if(app.keys.affr_no == ""){
+                console.log("affr_no is Null");
+                console.log("console:"+app.keys.affr_no);
+               maintList('insert');
+             }else{
+                console.log("affr_no is Not Null");
+                console.log("affr_no:::"+app.keys.affr_no);
+             //maintList('update');
+             }
+        });
 
     });
+
     function maintList(func,key){
 
         var searchParam = {};
         searchParam.func = func;
 
-        var list = { map: app.keys };
-
-        var listData = {
-                  list: list,
+        var jsonData = {
+                  map: app.keys,
             };
-            fn_transaction(func,"/service/pms/pms03_popup/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/pms03_popup/maintList2.do/"+func+"List",jsonData,fn_callback);
             return;
 
     }
@@ -68,12 +76,24 @@
              if(func == "maint"){
                 fn_alert('정상적으로 저장되었습니다.');
                 close();
+            }else if(func == "code"){
+                setCode(data.resultList);
             }else{
                 fn_alert(data.message);
+                close();
             }
         }
     }
-
+    function getCode(){
+    	fn_transaction("code","/service/pms/pms03_popup/selectList.do/codeList",{},fn_callback);
+    }
+     function setCode(resultList) {
+        var str = '<option value="">선택</option>';
+        $.each(resultList,function(k,v){
+            str += '<option value="'+v.code+'">'+v.name+'</option>';
+        });
+        $('#proj_no').html(str);
+    }
 </script>
 <body>
 <div id="form" class="contentPgm">
@@ -92,10 +112,11 @@
             <tr>
                 <td class="ar">프로젝트 명</td>
                 <td>
-                    <select name="proj_no" id="proj_no" class="ui_sel w80p" v-model="keys.proj_no">
+                    <!--<select name="proj_no" id="proj_no" class="ui_sel w80p" v-model="keys.proj_no">
                         <option value="">선택</option>
                         <option v-for="list in projList" :value="list.value">{{list.text}}</option>
-                    </select>
+                    </select>-->
+                    <select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></select>
                 </td>
                 <td class="ar">제목</td>
                 <td>
@@ -138,16 +159,18 @@
                 <tr>
                     <td colspan="8" style="padding:5px;">
                         <!--<input id="data1" type="text" class="input_TE w100p">-->
-                        <textarea name="twk_ars" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;"></textarea>
+                        <!--<textarea id="acdnSbc" v-model="key.twk_ars" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;" ></textarea>-->
+                        <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
                     </td>
 
                     <td colspan="2" style="padding:5px;">
-                        <textarea name="nxw_pln" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;" ></textarea>
+                        <!--<textarea id="acdnSbc" v-model="key.nxw_pln" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;" ></textarea>-->
+                        <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
                     </td>
                 </tr>
                 <tr>
                     <th class="CCell" colspan="8">진척률</th>
-                    <th class="ACell" rowspan="3">비고</th><td rowspan="3"><textarea name="text_E" rows="30" cols="100" style="width:99%;height:110px;font-size:15px; resize: none;"></textarea></td>
+                    <th class="ACell" rowspan="3">비고</th><td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
                 </tr>
                 <tr>
                     <th class="CCell">금주계획</th><td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
