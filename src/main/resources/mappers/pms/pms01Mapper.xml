@@ -6,96 +6,100 @@
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 	    
-	        select
-			    proj_no,
-			    proj_nm,
-			    st_dt,
-			    fn_dt,
-			    (select
-				f_pvtcol(cursor(
-				    select dev_mp
-				      from tapjmn
-				     where proj_no = a.proj_no
-				),',') dev_mps
-				from dual) dev_mps,
-			    client,
-			    rem,
-			    upd_user_id,
-			    (select user_name from SYS_user where user_id = a.upd_user_id) upd_user_nm,
-			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
-			from taprjm a
-			where 1=1
+	        SELECT
+			    PROJ_NO,
+			    PROJ_NM,
+			    ST_DT,
+			    FN_DT,
+			    (SELECT
+				F_PVTCOL(CURSOR(
+				    SELECT DEV_MP
+				      FROM TAPJMN
+				     WHERE PROJ_NO = A.PROJ_NO
+				),',') DEV_MPS
+				FROM DUAL) DEV_MPS,
+			    CLIENT,
+			    REM,
+			    UPD_USER_ID,
+			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.UPD_USER_ID) UPD_USER_NM,
+			    TO_CHAR(UPD_DTM,'YYYY-MM-DD HH24:MI:SS') UPD_DTM
+			FROM TAPRJM A
+			WHERE 1=1
 	        <if test="map.proj_no != '' and map.proj_no != null">
-	           and proj_no like '%' || #{map.proj_no} || '%'
+	           AND PROJ_NO LIKE '%' || #{map.proj_no} || '%'
 	        </if>
 	        <if test="map.proj_nm != '' and map.proj_nm != null">
-	           and proj_nm like '%' || #{map.proj_nm} || '%'
+	           AND PROJ_NM LIKE '%' || #{map.proj_nm} || '%'
 	        </if>
 	        <if test="map.dev_mp != '' and map.dev_mp != null">
-	           and exists (
-	           		select 1
-	           		from tapjmn
-	           		where proj_no = a.proj_no
-	           		and dev_mp like '%' || #{map.dev_mp} || '%'
+	           AND EXISTS (
+	           		SELECT 1
+	           		FROM TAPJMN
+	           		WHERE PROJ_NO = A.PROJ_NO
+	           		AND DEV_MP LIKE '%' || #{map.dev_mp} || '%'
 	           )
 	        </if>
-	        order by proj_no
+	        ORDER BY PROJ_NO
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
     
     <insert id="maintList" parameterType="map" >
-    {call
-        declare
-        begin
-            merge into taprjm a
-		        using dual
-		           on (a.proj_no = #{proj_no})
-		        when matched then
-		        update set
-		               a.proj_nm = #{proj_nm}
-		             , a.st_dt = to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , a.fn_dt = to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , a.client = #{client}
-		             , a.rem = #{rem}
-		             , a.upd_user_id = 'admin'
-		             , a.upd_dtm = systimestamp
-		        when not matched then
-		            insert (a.proj_no, a.proj_nm, 
-		            		a.st_dt, a.fn_dt, 
-		            		a.client, a.rem, a.cre_user_id, a.cre_dtm, a.upd_user_id, a.upd_dtm)
-		            values (#{proj_no},#{proj_nm},
-		            		to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		#{client},#{rem},'admin',systimestamp,'admin',systimestamp);
+    {CALL
+        DECLARE
+			V_PROJ_NO VARCHAR2(20) := '';
+        BEGIN
+			/* 프로젝트번호 생성 */
+			V_PROJ_NO := F_DOCNO('PJ');
+
+            MERGE INTO TAPRJM A
+		        USING DUAL
+		           ON (A.PROJ_NO = #{proj_no})
+		        WHEN MATCHED THEN
+		        UPDATE SET
+		               A.PROJ_NM = #{proj_nm}
+		             , A.ST_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , A.FN_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , A.CLIENT = #{client}
+		             , A.REM = #{rem}
+		             , A.UPD_USER_ID = #{_loginId_}
+		             , A.UPD_DTM = SYSDATE
+		        WHEN NOT MATCHED THEN
+		            INSERT (A.PROJ_NO, A.PROJ_NM,
+		            		A.ST_DT, A.FN_DT,
+		            		A.CLIENT, A.REM, A.CRE_USER_ID, A.CRE_DTM, A.UPD_USER_ID, A.UPD_DTM)
+		            VALUES (V_PROJ_NO,#{proj_nm},
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		#{client},#{rem},#{_loginId_},SYSDATE,#{_loginId_},SYSDATE);
 		    
-		    delete from tapjmn
-		    where proj_no = #{proj_no};
+		    DELETE FROM TAPJMN
+		    WHERE PROJ_NO = #{proj_no};
 		    
-		    insert into tapjmn (
-		    	proj_no,
-		    	dev_mp,
-		    	rem,
-		    	cre_user_id,
-				cre_dtm,
-				upd_user_id,
-				upd_dtm
+		    INSERT INTO TAPJMN (
+		    	PROJ_NO,
+		    	DEV_MP,
+		    	REM,
+		    	CRE_USER_ID,
+				CRE_DTM,
+				UPD_USER_ID,
+				UPD_DTM
 		    )
-		    select 
-		    	#{proj_no},
-		    	column_value,
+		    SELECT
+				V_PROJ_NO,
+		    	COLUMN_VALUE,
 		    	'',
-		    	'admin',
-		    	systimestamp,
-		    	'admin',
-		    	systimestamp
-		    from table(f_pvtrow(#{dev_mps},','));
-        end
+				#{_loginId_},
+				SYSDATE,
+				#{_loginId_},
+				SYSDATE
+		    FROM TABLE(F_PVTROW(#{dev_mps},','));
+        END
     }
     </insert>
     
     <insert id="deleteList" parameterType="map" >
-        delete from taprjm
-        where proj_no = #{proj_no}
+        DELETE FROM TAPRJM
+        WHERE PROJ_NO = #{proj_no}
     </insert>
 </mapper>

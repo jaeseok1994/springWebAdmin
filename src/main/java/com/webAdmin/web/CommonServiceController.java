@@ -107,8 +107,8 @@ public class CommonServiceController {
         setMessage(mv,sqlId);
         return mv;
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/maintList2.do/{sqlId}")
-    public ModelAndView maintList2(@PathVariable("group") String group,@PathVariable("pgm") String pgm,@PathVariable("sqlId") String sqlId,  @RequestBody HashMap<String,Object> param  ) {
+    @RequestMapping(method = RequestMethod.POST, value = "/maintOne.do/{sqlId}")
+    public ModelAndView maintOne(@PathVariable("group") String group,@PathVariable("pgm") String pgm,@PathVariable("sqlId") String sqlId,  @RequestBody HashMap<String,Object> param  ) {
 
         LinkedHashMap linkedHashMap = (LinkedHashMap)param.get("test");
 
@@ -119,7 +119,7 @@ public class CommonServiceController {
         int count = 0;
         //System.out.println(map);
         initParam(param);
-        count += dao.maint2(param);
+        count += dao.maintOne(param);
 
         //List<Map<String, Object>> result = dao.selectList(param);
         ModelAndView mv = new ModelAndView("jsonView");

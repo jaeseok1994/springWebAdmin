@@ -30,6 +30,7 @@ function resizeHeight () {
 
 //modal, vue alert, confirm ,select2 //vue 라이버러리 필요
 var app_alert ;
+var app_confirm;
 $(document.body).ready(function () {
     try{
         if(!Vue) return;
@@ -131,7 +132,7 @@ $(document.body).ready(function () {
                         No\
                     </button>\
                     &nbsp;\
-                    <button class="modal-default-button btn btn-primary" @click="showModal = false">\
+                    <button class="btn_typeA btn_search" @click="showModal = false">\
                         Close\
                     </button>\
                 </h4>\
@@ -181,6 +182,64 @@ $(document.body).ready(function () {
         }
     })
 
+    var vue_confirm_temp = '    \
+        <div class="container" id="vuemodalconfirm"> \
+            <modal-user-confirm v-if="showModal" @close="showModal = false">\
+                <h3 slot="header">{{headText}}</h3>\
+                <h4 slot="body">{{message}}</h4>\
+                <h5 slot="footer">\
+                    <button class="btn_typeA btn_search" @click="callBack(\'Y\')">\
+                        Yes\
+                    </button>\
+                    <button class="btn_typeA btn_search" @click="callBack(\'N\')">\
+                        No\
+                    </button>\
+                </h4>\
+            </modal-user-confirm>\
+        </div>';
+
+    Vue.component('modal-user-confirm', {
+        template: ' \
+        <transition name="modal">\
+            <div class="modal-mask">\
+                <div class="modal-wrapper">\
+                    <div class="modal-container"> \
+                        <div class="modal-header">\
+                            <slot name="header">\
+                                default header\
+                            </slot>\
+                        </div> \
+                        <div class="modal-body">\
+                            <slot name="body">\
+                                default body\
+                            </slot>\
+                        </div> \
+                        <div class="modal-footer">\
+                            <slot name="footer"> \
+                                <button class="modal-default-button" @click="$emit(\'close\')">\
+                                    Close\
+                                </button>\
+                            </slot>\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>\
+        </transition> '
+    });
+
+
+    $(document.body).append(vue_confirm_temp);
+    app_confirm = new Vue({
+        el: '#vuemodalconfirm',
+        data: {
+            showModal: false,
+            headText: "확인",
+            message: "확인하시겠습니까?",
+            showModalConfirm:'',
+            rtnValue:'',
+            callBack:fn_confirm_close
+        }
+    })
 
 
     /*달력*/
@@ -260,13 +319,41 @@ function fn_alert(msg,time){
     }
     setTimeout(reset,2000);
 }
-function fn_confirm(msg,callback){
-    return confirm(msg);
+
+
+/* 사용예 async, await 필수
+async function fn_update(){
+    var rtn = await fn_confirm("진행하시겠습니까?");
+    console.log(rtn);
+}
+*/
+function fn_confirm_close(arg){
+    app_confirm.rtnValue = arg;
+    app_confirm.showModal = false;
+}
+function fn_confirm(msg){
+    app_confirm.message = msg;
+    return new Promise(
+        resole => {
+            app_confirm.showModal = true;
+            var id = setInterval(function(){
+                        if(!app_confirm.showModal){
+                            resole(app_confirm.rtnValue);
+                            clearInterval(id);
+                            return;
+                        }
+            },400);
+        }
+    );
+}
+
+//function fn_confirm(msg,callback){
+  //  return confirm(msg);
     // app_alert.message=msg;
     // app_alert.showModalConfirm=true;
     // app_alert.showModal=true;
     // app_alert.confirmCallBack = callback;
-}
+//}
 
 
 //vue 사용없이 ex) fn_setSelect2("#dept",{regn:'2'},"selectDeptList"); param.dept = $('#dept').val();
@@ -363,6 +450,8 @@ $(document.body).ready(function () {
     })
 });
 
+
+
 /* 동적 콤보 inner팝업 호출) 예)
             fn_getCodePopup({comp:'1'},'selectDeptList',
                 function(data){
@@ -377,3 +466,4 @@ function fn_getCodePopup(param,url,callBack,title){
     app_code_popup.showModal=true;
     app_code_popup.callBack = callBack;
 }
+

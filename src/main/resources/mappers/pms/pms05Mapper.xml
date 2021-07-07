@@ -6,67 +6,67 @@
 	<select id="selectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
-		select
-		a.rkis_no,
-		a.acdn_title,
-		(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.scn) as scn,
-		decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'') as rsk_isu_id,
-		a.proj_no,
-		(select x.cd_name from sys_code x where x.cd_g_code = 'PRRY_RNKG' and x.cd_code = a.prry_rnkg) as prry_rnkg,
-		(select x.cd_name from sys_code x where x.cd_g_code = 'AREA' and x.cd_code = a.area) as area,
-		(select x.cd_name from sys_code x where x.cd_g_code = 'DCRM_LEV' and x.cd_code = a.dcrm_lev) as dcrm_lev,
-		(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_st) as pgs_st,
-		a.cre_user_id,
-		(select user_name from SYS_user where user_id = a.cre_user_id) cre_user_nm,
-		to_char(a.cre_dtm,'yyyy-mm-dd hh24:mi:ss') cre_dtm
-		from tarkis a
-		where 1=1
+		SELECT
+		A.RKIS_NO,
+		A.ACDN_TITLE,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN,
+		DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID,
+		A.PROJ_NO,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PRRY_RNKG' AND X.CD_CODE = A.PRRY_RNKG) AS PRRY_RNKG,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'AREA' AND X.CD_CODE = A.AREA) AS AREA,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'DCRM_LEV' AND X.CD_CODE = A.DCRM_LEV) AS DCRM_LEV,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST,
+		A.CRE_USER_ID,
+		(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM,
+		TO_CHAR(A.CRE_DTM,'YYYY-MM-DD HH24:MI:SS') CRE_DTM
+		FROM TARKIS A
+		WHERE 1=1
 
 		<if test="map.scn != '' and map.scn != null">
-			and a.scn = #{map.scn}
+			AND A.SCN = #{map.scn}
 		</if>
 		<if test="map.proj_no != '' and map.proj_no != null">
-			and upper(a.proj_no) like upper('%' || #{map.proj_no} || '%')
+			AND UPPER(A.PROJ_NO) LIKE UPPER('%' || #{map.proj_no} || '%')
 		</if>
 		<if test="map.prry_rnkg != '' and map.prry_rnkg != null">
-			and a.prry_rnkg = #{map.prry_rnkg}
+			AND A.PRRY_RNKG = #{map.prry_rnkg}
 		</if>
 		<if test="map.area != '' and map.area != null">
-			and a.area = #{map.area}
+			AND A.AREA = #{map.area}
 		</if>
 		<if test="map.dcrm_lev != '' and map.dcrm_lev != null">
-			and a.dcrm_lev = #{map.dcrm_lev}
+			AND A.DCRM_LEV = #{map.dcrm_lev}
 		</if>
 		<if test="map.pgs_st != '' and map.pgs_st != null">
-			and a.pgs_st = #{map.pgs_st}
+			AND A.PGS_ST = #{map.pgs_st}
 		</if>
 		<if test="map.rsk_isu_id != '' and map.rsk_isu_id != null">
-			and upper(decode(a.scn,'R',a.rsk_id,'I',a.isu_id,'')) like upper('%' || #{map.rsk_isu_id} || '%')
+			AND UPPER(DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'')) LIKE UPPER('%' || #{map.rsk_isu_id} || '%')
 		</if>
 
 		<!-- 등록일자 조회조건 -->
 		<if test="map.date1 != '' and map.date1 != null">
 			<if test="map.date2 != '' and map.date2 != null">
-				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and #{map.date2}
+				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
 			</if>
 			<if test="map.date2 == '' and map.date2 == null">
-				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and '99999999'
+				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND '99999999'
 			</if>
 		</if>
 		<if test="map.date1 == '' and map.date1 == null">
 			<if test="map.date2 != '' and map.date2 != null">
-				and to_char(a.cre_dtm,'yyyy-mm-dd') between #{map.date1} and #{map.date2}
+				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
 			</if>
 		</if>
 
-		order by a.rkis_no, a.acdn_title
+		ORDER BY A.RKIS_NO, A.ACDN_TITLE
 
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
 	<delete id="deleteList" parameterType="map">
-		delete from tarkis
-		where rkis_no = #{rkis_no}
+		DELETE FROM TARKIS
+		WHERE RKIS_NO = #{rkis_no}
 	</delete>
 
 </mapper>

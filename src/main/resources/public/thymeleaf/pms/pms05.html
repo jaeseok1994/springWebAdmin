@@ -91,6 +91,14 @@
         createRGrid(grid);
         grid.gridView.displayOptions.fitStyle = "even";
 
+        // 더블클릭 이벤트
+        grid.gridView.onCellDblClicked = function (gridBase, clickData) {
+          // console.log(clickData.itemIndex);
+          // console.log(clickData.column);
+          var rkis = grid.dataProvider.getValue(clickData.itemIndex,0);
+          goRskSearch(rkis);
+        }
+
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
 
@@ -115,7 +123,13 @@
     });
     function goRskAdd(){
         var url    = "/service/pms/pms05RiskPop/selectForm.do";
-        var name   = "riskPop";
+        var name   = "riskAdd";
+        var option = "width=980, height=650, top=50, left=200, location=no";
+        window.open(url, name, option);
+    }
+    function goRskSearch(r){
+        var url    = "/service/pms/pms05RiskPop/selectForm.do";
+        var name   = "riskSearch";
         var option = "width=980, height=650, top=50, left=200, location=no";
         window.open(url, name, option);
     }
