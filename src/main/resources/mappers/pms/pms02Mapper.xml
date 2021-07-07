@@ -4,84 +4,84 @@
 <mapper namespace="proj.pms.pms02">
 
     <select id="codeList" parameterType="map" resultType="cMap">
-	    select
-		    proj_no code,
-		    proj_nm name
-		from taprjm
-		order by proj_nm
+	    SELECT
+		    PROJ_NO CODE,
+		    PROJ_NM NAME
+		FROM TAPRJM
+		ORDER BY PROJ_NM
     </select>
     
     <select id="codeList2" parameterType="map" resultType="cMap">
-	    select
-		    dev_mp code,
-		    dev_mp name
-		from tapjmn
-		where proj_no = #{proj_no}
-		order by dev_mp
+	    SELECT
+		    DEV_MP CODE,
+		    DEV_MP NAME
+		FROM TAPJMN
+		WHERE PROJ_NO = #{proj_no}
+		ORDER BY DEV_MP
     </select>
     
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 	    
-	        select
-			    proj_no,
-			    wbs,
-			    task,
-			    rem,
-			    st_dt,
-			    fn_dt,
-			    importance,
-			    dev_mp,
-			    ouputs,
-			    prgr_rate,
-			    upd_user_id,
-			    (select user_name from SYS_USER where user_id = a.upd_user_id) upd_user_nm,
-			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
-			from tascmn a
-			where proj_no = #{map.proj_no}
-	        order by wbs
+	        SELECT
+			    PROJ_NO,
+			    WBS,
+			    TASK,
+			    REM,
+			    ST_DT,
+			    FN_DT,
+			    IMPORTANCE,
+			    DEV_MP,
+			    OUPUTS,
+			    PRGR_RATE,
+			    UPD_USER_ID,
+			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.UPD_USER_ID) UPD_USER_NM,
+			    TO_CHAR(UPD_DTM,'YYYY-MM-DD HH24:MI:SS') UPD_DTM
+			FROM TASCMN A
+			WHERE PROJ_NO = #{map.proj_no}
+	        ORDER BY WBS
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
     
     <insert id="maintList" parameterType="map" >
-    {call
-        declare
-        begin
-        
-            merge into tascmn
-		        using dual
-		           on (proj_no = #{proj_no} and wbs = #{wbs})
-		        when matched then
-		        update set
-		               task = #{task}
-		             , rem = #{rem}
-		             , st_dt = to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , fn_dt = to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , importance = #{importance}
-		             , dev_mp = #{dev_mp}
-		             , ouputs = #{ouputs}
-		             , prgr_rate = #{prgr_rate}
-		             , upd_user_id = 'admin'
-		             , upd_dtm = systimestamp
-		        when not matched then
-		            insert (proj_no, wbs, task, rem,
-		            		st_dt, fn_dt, 
-		            		importance, dev_mp, ouputs, prgr_rate,
-		            		cre_user_id, cre_dtm, upd_user_id, upd_dtm)
+    {CALL
+        DECLARE
+        BEGIN
+
+            MERGE INTO TASCMN
+		        USING DUAL
+		           ON (PROJ_NO = #{proj_no} AND WBS = #{wbs})
+		        WHEN MATCHED THEN
+		        UPDATE SET
+		               TASK = #{task}
+		             , REM = #{rem}
+		             , ST_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , FN_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , IMPORTANCE = #{importance}
+		             , DEV_MP = #{dev_mp}
+		             , OUPUTS = #{ouputs}
+		             , PRGR_RATE = #{prgr_rate}
+		             , UPD_USER_ID = #{_loginId_}
+		             , UPD_DTM = SYSDATE
+		        WHEN NOT MATCHED THEN
+		            INSERT (PROJ_NO, WBS, TASK, REM,
+		            		ST_DT, FN_DT,
+		            		IMPORTANCE, DEV_MP, OUPUTS, PRGR_RATE,
+		            		CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM)
 		            values (#{proj_no},#{wbs},#{task},#{rem},
-		            		to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 		            		#{importance},#{dev_mp},#{ouputs},#{prgr_rate},
-		            		'admin',systimestamp,'admin',systimestamp);
+							#{_loginId_},SYSDATE,#{_loginId_},SYSDATE);
 		    
-        end
+        END
     }
     </insert>
     
     <insert id="deleteList" parameterType="map" >
-        delete from tascmn
-        where proj_no = #{proj_no}
-        and wbs = #{wbs}
+        DELETE FROM TASCMN
+        WHERE PROJ_NO = #{proj_no}
+        AND WBS = #{wbs}
     </insert>
 </mapper>
