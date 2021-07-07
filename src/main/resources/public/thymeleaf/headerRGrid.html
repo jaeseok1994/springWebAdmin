@@ -106,7 +106,7 @@ function getCheckedRows(g){
     return list;
 }
 function getCommonPara(){
-    var rtn =  document.getElementById("para").textContent;
+    var rtn = getModelValue("param").replace(/$quot;/g,'"');
     var jsObj = $.parseJSON(rtn);
     return jsObj;
 }
@@ -135,4 +135,5 @@ function getModelValue(arg){
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
 <![endif]-->
-<div id=para th:text="${para}" style="display: none;"></div>
+<div id=param th:text="${param.param}" style="display: none;"></div>
+<div id=para th:text="${para.AFNO}" style="display: none;"></div>
