@@ -8,11 +8,7 @@ logging:
   level:
     root: info
     audit: off
-    jdbc.connection: off
-    jdbc.resultsettable: off
-    jdbc.resultset: off
-    jdbc.audit: off
-    jdbc.sqlonly: off
+    jdbc: off
     com.webAdmin: debug
     jdbc.sqltiming: info
     org:
