@@ -6,8 +6,15 @@
 
 logging:
   level:
-    root: debug
+    root: info
+    audit: off
+    jdbc.connection: off
+    jdbc.resultsettable: off
+    jdbc.resultset: off
+    jdbc.audit: off
+    jdbc.sqlonly: off
     com.webAdmin: debug
+    jdbc.sqltiming: info
     org:
       springframework: error
       apache:
@@ -32,8 +39,8 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-      url: jdbc:oracle:thin:@upcns.iptime.org:25003:orcl
-      driver-class-name: oracle.jdbc.OracleDriver
+      url: jdbc:log4jdbc:oracle:thin:@upcns.iptime.org:25003:orcl
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
       username: DEMOADMIN
       password: DEMOADMIN
   thymeleaf:
