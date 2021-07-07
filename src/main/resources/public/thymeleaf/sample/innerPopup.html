@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>사용자 확인창 샘플</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+    </div>
+</head>
+<script type="text/javascript">
+
+</script>
+<script>
+
+    var vue_innerpopup_temp = '    \
+        <div class="container" id="vueinnerpopup"> \
+            <div class="modal-mask" v-if="showModal" @close="showModal = false">\
+                <div class="modal-wrapper">\
+                    <div class="modal-container" :style="{width:width,height:height}"> \
+                        <div class="modal-header">\
+                            {{headText}}\
+                            <button class="modal-default-button" @click="defaultCallBack()">Close</button>\
+                        </div> \
+                        <div class="modal-body" style="height:99%">\
+                            <iframe :src="url" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>\
+                        </div> \
+                    </div>\
+                </div>\
+            </div>\
+        </div>';
+
+
+
+    var grid;
+    var grid2;
+    
+    var app;
+    var app_innerpopup;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                    domn_nm:'',
+                    pid:'',
+                },
+                methods:{
+                }
+            },
+        });
+        $(document.body).append(vue_innerpopup_temp);
+
+        app_innerpopup = new Vue({
+            el: '#vueinnerpopup',
+            data: {
+                showModal: false,
+                headText: "Inner Popup",
+                width:'800px',
+                height:'700px',
+                url:'',
+                rtnValue:'',
+                callBack:null,
+                defaultCallBack:fn_popup_close
+            }
+        })
+
+        $("#goSelect").click(function(){
+            search();
+        });
+
+
+    });
+
+    function fn_callback_popup(arg){
+        console.log(arg);
+        app.keys.domn_nm = arg.domn_nm;
+    }
+    function fn_popup_close(arg){
+        app_innerpopup.rtnValue = arg;
+        app_innerpopup.showModal = false;
+        if(app_innerpopup.callBack) app_innerpopup.callBack(arg);
+    }
+    function fn_inner_popup_open(arg){
+
+        var jstring = encodeURIComponent(JSON.stringify(arg.map));
+        app_innerpopup.url = arg.url + "?param=" + jstring;
+        app_innerpopup.callBack = arg.callBack;
+        app_innerpopup.showModal = true;
+    }
+    function fn_popup(){
+        var arg = {
+            map:app.keys,
+            url : "/service/sample/innerPopup2/selectForm.do",
+            callBack:fn_callback_popup
+        }
+        fn_inner_popup_open(arg);
+    }
+    var pid ;
+
+    function search(){
+        fn_popup();
+    }
+
+
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                 commonPaging(grid, data.resultList[0].tcnt, search);
+                /* 페이징 처리시 필수 */
+                
+            }else if(func == "select2"){
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+                 commonPaging(grid2, data.resultList[0].tcnt, search2);
+                /* 페이징 처리시 필수 */
+
+            }
+        }
+    }
+    $(window).resize(function(){
+        //grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">사용자 확인창 샘플</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>사용자 확인창 샘플</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">보내는 파라</td>
+                <td>
+                    <input id="domn_nm" type="text" class="input_A w90p"  v-model="keys.domn_nm">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">팝업</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 60%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div id="commonPaging" class="commonPaging" ></div>
+        </div>
+        <div style=" width: 39%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            <div class="commonPaging" id="commonPaging2" style="height:20px; "></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

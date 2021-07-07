@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>사용자 확인창 샘플</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+    </div>
+</head>
+<script type="text/javascript">
+
+</script>
+<script>
+
+
+
+    var grid;
+    var grid2;
+    
+    var app;
+    var app_confirm;
+    $(document.body).ready(function(){
+
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                    domn_nm:'',
+                    pid:'',
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSelect").click(function(){
+            search();
+        });
+        var paramObj = getCommonPara();
+        app.keys.domn_nm = paramObj.domn_nm;
+    });
+
+    var pid ;
+
+    function search(){
+        var rtnValue = {
+            value:1,
+            value2:2,
+            map:app.keys
+        }
+        parent.fn_popup_close(app.keys);
+    }
+
+
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                 commonPaging(grid, data.resultList[0].tcnt, search);
+                /* 페이징 처리시 필수 */
+                
+            }else if(func == "select2"){
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+                 commonPaging(grid2, data.resultList[0].tcnt, search2);
+                /* 페이징 처리시 필수 */
+
+            }
+        }
+    }
+    $(window).resize(function(){
+        //grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">innerPopup 내부</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>innerPopup 내부</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">돌려주는 파라</td>
+                <td>
+                    <input id="domn_nm" type="text" class="input_A w90p"  v-model="keys.domn_nm">
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">리턴</div>
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div style=" width: 60%;float:left;  ">
+            <div id="realgrid"  ></div>
+            <div id="commonPaging" class="commonPaging" ></div>
+        </div>
+        <div style=" width: 39%;float:right;  ">
+            <div id="realgrid2"  ></div>
+            <div class="commonPaging" id="commonPaging2" style="height:20px; "></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
