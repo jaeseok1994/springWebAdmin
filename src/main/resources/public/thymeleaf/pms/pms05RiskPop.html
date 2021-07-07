@@ -6,20 +6,8 @@
   <div th:replace="headerRGrid"></div>
 </head>
 <style>
-    /* 버튼 */
-    .btnWrap { margin:0; padding:0; width: 940px; }
-    /* 모달 */
-    .modal_wrap { display: none; position: fixed; top:0; left:0; margin:0; padding:0; width: 100%; height: 100%; background-color:rgba(0,0,0,0.4); overflow: auto; z-index: 1; }
-    .modal_wrap .modal_content { background-color: #fefefe; margin: 5% auto; padding: 10px; border: 1px solid #888; width: 50%; }
-    #realgrid { height: 300px; }
-    /* 작성란 */
-    .wrapper { width: 910px; }
-    .wrapper .spanT { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
-    .wrapper .textBar { padding-left: 0.5em; padding-right: 0.5em; }
-    .wrapper .tArea { margin:0; padding: 0; width: 100%; }
-    .wrapper .tArea .spanT { float: left; width: 90px; height: 100px; margin-right: 6px;}
-    .wrapper .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
-    .wrapper .hidden { display: none; }
+
+
 </style>
 <script>
     var fields = [
@@ -98,7 +86,7 @@
         });
 
         $("#goSave").click(function(){
-            maintList2('maint');
+            maintOne('maint');
         });
         $("#popClose").click(function(){
             close();
@@ -167,7 +155,7 @@
     };
 
     // 저장
-    function maintList2(func,key){
+    function maintOne(func,key){
 
         var searchParam = {};
         searchParam.func = func;
@@ -186,7 +174,7 @@
             var jsonData = {
                   map: app.keys,
             };
-            fn_transaction(func,"/service/pms/pms05RiskPop/maintList2.do/"+func+"List2",jsonData,fn_callback);
+            fn_transaction(func,"/service/pms/pms05RiskPop/maintOne.do/"+func+"One",jsonData,fn_callback);
             return;
         }
     }
@@ -265,7 +253,7 @@
     <div id="popClose" class="btn_typeA btn_close">Close</div>
   </div>
   <!-- 작성란 -->
-  <div class="box_Atype wrapper">
+  <div class="box_Atype popWrap">
     <div class="gap10"></div>
     <span class="spanT hidden">관리대장번호</span>
     <input id="rkis_no" type="text" class="hidden" v-model="keys.rkis_no" readonly>

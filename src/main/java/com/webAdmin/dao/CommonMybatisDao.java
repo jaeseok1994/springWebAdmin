@@ -41,7 +41,7 @@ public class CommonMybatisDao {
         int result = sqlSession.update(NAMESPACE + group + "." + pgm + "." + sqlId,map);
         return result;
     }
-    public int maint2(HashMap<String, Object> param) {
+    public int maintOne(HashMap<String, Object> param) {
         String group = (String)param.get("mapperGroup");
         String pgm = (String)param.get("mapperPgm");
         String sqlId = (String)param.get("mapperSqlId");

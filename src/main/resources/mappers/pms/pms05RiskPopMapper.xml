@@ -24,7 +24,7 @@
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
-	<insert id="maintList2" parameterType="map" >
+	<insert id="maintOne" parameterType="map" >
 		{CALL
 			DECLARE
 				V_SEQ VARCHAR2(3) 	   := '';

@@ -518,3 +518,23 @@ a.tc_sky {color:#02acc5 !important;}
 
 .btn_close {background:#fff url(/images/close_ico.png) 20px center no-repeat; padding: 0 15px 0 45px; box-sizing:border-box;}
 .btn_close:hover {background:#446DDF url(/images/close_ico_off.png) 20px center no-repeat; padding: 0 15px 0 45px; box-sizing:border-box;}
+
+
+
+/* 팝업 UI */
+.popWrap { width: 910px; min-height: 100%; position: relative; overflow: hidden; }
+.btnWrap { margin:0; padding:0; width: 940px; }
+.popWrap .spanT { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
+.popWrap .textBar { padding-left: 0.5em; padding-right: 0.5em; }
+.popWrap .tArea { margin:0; padding: 0; width: 100%; }
+.popWrap .tArea .spanT { float: left; width: 90px; height: 100px; margin-right: 6px;}
+.popWrap .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
+.popWrap .hidden { display: none; }
+
+/* 모달 팝업 */
+.modal_wrap { display: none; position: fixed; top:0; left:0; margin:0; padding:0; width: 100%; height: 100%; background-color:rgba(0,0,0,0.4); overflow: auto; z-index: 1; }
+.modal_wrap .modal_content { background-color: #fefefe; margin: 5% auto; padding: 10px; border: 1px solid #888; width: 50%; }
+.modal_wrap .modal_content #realgrid { height: 300px; }
+
+
+
