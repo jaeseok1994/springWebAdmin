@@ -121,8 +121,13 @@
 
         fn_transaction("select","/service/pms/pms01/selectList.do/selectList",jsonData,fn_callback);
     }
-    function maintList(func,key){
+    async function maintList(func,key){
         grid.gridView.commit(true);
+
+        var rtn = await fn_confirm("진행하시겠습니까?");
+        console.log(rtn);
+
+        return ;
 
         var searchParam = {};
         searchParam.func = func;
