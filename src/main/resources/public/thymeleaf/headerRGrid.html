@@ -105,6 +105,15 @@ function getCheckedRows(g){
     //alert(JSON.stringify(list));
     return list;
 }
+function getCommonPara(){
+    var rtn =  document.getElementById("para").textContent;
+    var jsObj = $.parseJSON(rtn);
+    return jsObj;
+}
+function getModelValue(arg){
+    var rtn =  document.getElementById(arg).textContent;
+    return rtn ;
+}
 </script>
 <!-- Bootstrap 3.3.6 -->
 <!--<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>-->
@@ -126,5 +135,4 @@ function getCheckedRows(g){
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 <!--[if lt IE 9]>
 <![endif]-->
-
-<div th:text ="${para}"></div>
+<div id=para th:text="${para}" style="display: none;"></div>
