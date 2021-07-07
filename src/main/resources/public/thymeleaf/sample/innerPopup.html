@@ -11,7 +11,7 @@
 
 </script>
 <script>
-
+/*
     var vue_innerpopup_temp = '    \
         <div class="container" id="vueinnerpopup"> \
             <div class="modal-mask" v-if="showModal" @close="showModal = false">\
@@ -29,7 +29,7 @@
             </div>\
         </div>';
 
-
+*/
 
     var grid;
     var grid2;
@@ -48,21 +48,21 @@
                 }
             },
         });
-        $(document.body).append(vue_innerpopup_temp);
-
-        app_innerpopup = new Vue({
-            el: '#vueinnerpopup',
-            data: {
-                showModal: false,
-                headText: "Inner Popup",
-                width:'800px',
-                height:'700px',
-                url:'',
-                rtnValue:'',
-                callBack:null,
-                defaultCallBack:fn_popup_close
-            }
-        })
+        // $(document.body).append(vue_innerpopup_temp);
+        //
+        // app_innerpopup = new Vue({
+        //     el: '#vueinnerpopup',
+        //     data: {
+        //         showModal: false,
+        //         headText: "Inner Popup",
+        //         width:'800px',
+        //         height:'700px',
+        //         url:'',
+        //         rtnValue:'',
+        //         callBack:null,
+        //         defaultCallBack:fn_popup_close
+        //     }
+        // })
 
         $("#goSelect").click(function(){
             search();
@@ -75,18 +75,19 @@
         console.log(arg);
         app.keys.domn_nm = arg.domn_nm;
     }
-    function fn_popup_close(arg){
-        app_innerpopup.rtnValue = arg;
-        app_innerpopup.showModal = false;
-        if(app_innerpopup.callBack) app_innerpopup.callBack(arg);
-    }
-    function fn_inner_popup_open(arg){
 
-        var jstring = encodeURIComponent(JSON.stringify(arg.map));
-        app_innerpopup.url = arg.url + "?param=" + jstring;
-        app_innerpopup.callBack = arg.callBack;
-        app_innerpopup.showModal = true;
-    }
+    // function fn_popup_close(arg){
+    //     app_innerpopup.rtnValue = arg;
+    //     app_innerpopup.showModal = false;
+    //     if(app_innerpopup.callBack) app_innerpopup.callBack(arg);
+    // }
+    // function fn_popup_open(arg){
+    //
+    //     var jstring = encodeURIComponent(JSON.stringify(arg.map));
+    //     app_innerpopup.url = arg.url + "?param=" + jstring;
+    //     app_innerpopup.callBack = arg.callBack;
+    //     app_innerpopup.showModal = true;
+    // }
     function fn_popup(){
         var arg = {
             map:app.keys,
