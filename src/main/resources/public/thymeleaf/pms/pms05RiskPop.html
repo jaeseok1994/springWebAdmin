@@ -2,14 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
-  <title>위험 상세 작성</title>
+  <title>위험관리대장</title>
   <div th:replace="headerRGrid"></div>
 </head>
-<style>
-
-
-</style>
 <script>
+    /**** 리얼그리드 필드 선언 ****/
     var fields = [
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "proj_nm",dataType: "text"},
@@ -18,6 +15,7 @@
       {fieldName: "client",dataType: "text"}
     ];
 
+    /**** 리얼그리드 컬럼 선언 ****/
     var columns = [
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호", editable: false },
       {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column", editable: false },
@@ -26,22 +24,27 @@
       {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처", styleName:"left-column", editable: false}
     ];
 
+    /**** 변수 선언 ****/
     var grid;
     var app;
+    var para = getCommonPara();
     var today = new Date();
     var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
 
     $(document.body).ready(function(){
+        /**** Vue 선언 ****/
         app = new Vue({
             el:'#form',
             data:{
                 // 콤보 리스트
-                areaList:[],
-                rnkgList:[],
-                levList:[],
-                pgsStList:[],
-                mgmtGrdList:[],
-                keys:{   // 작성란 key
+                areaList:[], rnkgList:[], levList:[], pgsStList:[], mgmtGrdList:[],
+                // 상단 요소
+                top:{
+                  title: '',
+                  pop_name: para.popName
+                },
+                // 작성란 key
+                keys:{
                     rkis_no: '',
                     scn: '위험',
                     proj_no: '',
@@ -52,7 +55,7 @@
                     occu_prob: '',
                     iflu_deg: '',
                     rsk_deg: '',
-                    cre_user_id: 'Admin',
+                    cre_user_id: '',
                     acdn_title: '',
                     acdn_sbc: '',
                     crgr: '',
@@ -64,7 +67,8 @@
                     parr_dt: setToday,
                     trtm_dt: ''
                 },
-                keys2:{ // 프로젝트 번호 조회 key
+                // 프로젝트 번호 조회 key
+                keys2:{
                   p_no: '',
                   p_nm: ''
                 },
@@ -73,56 +77,87 @@
             },
         });
 
-        // 클릭 이벤트
+        /**** 조회,수정 화면 전환 ****/
+        if(app.top.pop_name != 'add'){
+          app.top.title = '위험상세 조회';
+        }else{
+          app.top.title = '위험상세 작성';
+        }
+
+        /**** 클릭 이벤트 ****/
+        //조회
+        $("#goSelect").click(function(){
+        	search();
+        });
+        //수정
+        $("#goModify").click(function(){
+            app.top.pop_name = 'add';
+        });
+        //저장
+        $("#goSave").click(function(){
+            maintOne('maint');
+        });
+        //삭제
+        $("#goDelete").click(function(){
+            maintOne('delete');
+        });
+        //팝업창 Close
+        $("#popClose").click(function(){
+            close();
+        });
+        //프로젝트 번호 입력버튼
         $("#proj_no").click(function(){
           $("#modal_pop").show();
           projSearch();
+          setResizeHeightObjs("realgrid");
+          grid.gridView.refresh();
         });
+        //모달:프로젝트 번호 조회 버튼
         $("#modalSelect").click(function(){
           projSearch();
         });
+        //모달창 Close
         $("#modalClose").click(function(){
           $("#modal_pop").hide();
         });
 
-        $("#goSave").click(function(){
-            maintOne('maint');
-        });
-        $("#popClose").click(function(){
-            close();
-        });
-
-        // 콤보박스 코드 데이터
+        /**** 콤보박스 코드 데이터 ****/
+        //우선순위
         fn_codeDataSync({group:"PRRY_RNKG"},function(list){
-            app.rnkgList = list;    // 우선순위
+            app.rnkgList = list;
         });
+        // 영역
         fn_codeDataSync({group:"AREA"},function(list){
-            app.areaList = list;    // 영역
+            app.areaList = list;
         });
+        // 식별단계
         fn_codeDataSync({group:"DCRM_LEV"},function(list){
-            app.levList = list;     // 식별단계
+            app.levList = list;
         });
+        // 진행상황
         fn_codeDataSync({group:"PGS_ST"},function(list){
-            app.pgsStList = list;  // 진행상황
+            app.pgsStList = list;
         });
+        // 관리등급
         fn_codeDataSync({group:"MGMT_GRD"},function(list){
-            app.mgmtGrdList = list;  // 진행상황
+            app.mgmtGrdList = list;
         });
 
-        // 그리드 생성
+        /**** 그리드 생성 ****/
         grid = {
             id:"realgrid",
             fields:fields,
             columns:columns,
             pagenum:1, // 현재 페이지 번호
-            pagerows:100, // 페이지당 표시할 데이터 건수
+            pagerows:50, // 페이지당 표시할 데이터 건수
         }
 
         createRGrid(grid);
-        grid.gridView.displayOptions.fitStyle = "even";
-        grid.gridView.setCheckBar({ visible: false });
+        // 그리드 레이아웃 속성
+        grid.gridView.displayOptions.fitStyle = "even"; //컬럼 자동 폭맞춤
+        grid.gridView.setCheckBar({ visible: false });  //체크바 비활성화
 
-        // 더블클릭 이벤트
+        /**** ROW 더블클릭 이벤트 ****/
         grid.gridView.onCellDblClicked = function (gridBase, clickData) {
           // console.log(clickData.itemIndex);
           // console.log(clickData.column);
@@ -130,31 +165,30 @@
           projSearch_off();
         }
 
-        projSearch();
-
-        setResizeHeightObjs("realgrid");
-        grid.gridView.refresh();
-
+        search();
     });
 
-    // 프로젝트 번호 조회
+    /**** 작성글 조회 ****/
+    function search(){
+        var jsonData = { map: para };
+        fn_transaction("select","/service/pms/pms05RiskPop/selectList.do/selectList",jsonData,fn_callback);
+    }
+
+    /**** 모달:프로젝트 번호 조회 ****/
     function projSearch(){
         grid.dataProvider.clearRows();
         app.keys2.pagenum = grid.pagenum;
 
-        var jsonData = {
-                map: app.keys2,
-        };
-
+        var jsonData = { map: app.keys2 };
         fn_transaction("proj_select","/service/pms/pms05RiskPop/selectList.do/projSelectList",jsonData,fn_callback);
     };
 
-    // 모달 팝업 OFF
+    /**** 모달 팝업 OFF ****/
     function projSearch_off(){
         $("#modal_pop").hide();
     };
 
-    // 저장
+    /**** 저장 & 삭제 ****/
     function maintOne(func,key){
 
         var searchParam = {};
@@ -179,21 +213,46 @@
         }
     }
 
-    // 콜백
+    /**** 콜백 ****/
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
         }else{
-            if(func == "select"){
+            if(func == "select"){             // 조회 콜백
+                app.$set(app.keys, 'rkis_no', data.resultList[0].RKIS_NO);
+                app.$set(app.keys, 'proj_no', data.resultList[0].PROJ_NO);
+                app.$set(app.keys, 'rsk_id', data.resultList[0].RSK_ID);
+                app.$set(app.keys, 'area', data.resultList[0].AREA);
+                app.$set(app.keys, 'dcrm_lev', data.resultList[0].DCRM_LEV);
+                app.$set(app.keys, 'prry_rnkg', data.resultList[0].PRRY_RNKG);
+                app.$set(app.keys, 'occu_prob', data.resultList[0].OCCU_PROB);
+                app.$set(app.keys, 'iflu_deg', data.resultList[0].IFLU_DEG);
+                app.$set(app.keys, 'rsk_deg', data.resultList[0].RSK_DEG);
+                app.$set(app.keys, 'cre_user_id', data.resultList[0].CRE_USER_ID);
+                app.$set(app.keys, 'acdn_title', data.resultList[0].ACDN_TITLE);
+                app.$set(app.keys, 'acdn_sbc', data.resultList[0].ACDN_SBC);
 
-            }else if(func == "proj_select"){
-              grid.dataProvider.setRows(data.resultList);
-              grid.gridView.refresh();
+                app.$set(app.keys, 'crgr', data.resultList[0].CRGR);
+                app.$set(app.keys, 'pvnt_pln', data.resultList[0].PVNT_PLN);
+                app.$set(app.keys, 'pgs_st', data.resultList[0].PGS_ST);
+                app.$set(app.keys, 'trtm_manh', data.resultList[0].TRTM_MANH);
+                app.$set(app.keys, 'dcrm_dt', data.resultList[0].DCRM_DT);
+                app.$set(app.keys, 'cre_dtm', data.resultList[0].CRE_DTM);
+                app.$set(app.keys, 'parr_dt', data.resultList[0].PARR_DT);
+                app.$set(app.keys, 'trtm_dt', data.resultList[0].TRTM_DT);
+
+                app.$el.ariaReadOnly;
+            }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
+                grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
 
               if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
-            }else if(func == "maint"){
+            }else if(func == "maint"){        // 저장 콜백
                 parent.grid.gridView.refresh();
                 fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){       // 삭제 콜백
+            	parent.grid.gridView.refresh();
+            	fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 fn_alert(data.message);
             }
@@ -203,7 +262,7 @@
 </script>
 <body>
 <div id="form" class="contentPgm">
-  <div class="content_title">위험 상세 작성</div>
+  <div class="content_title">{{ top.title }}</div>
   <!-- Modal 팝업 -->
   <div id="modal_pop" class="modal_wrap">
     <div class="modal_content">
@@ -240,7 +299,7 @@
       </div>
       <div class="gap10"></div>
       <!-- realgrid  -->
-      <div style="width:100%; height:auto; overflow: hidden;">
+      <div class="realgrid_wrap">
         <div id="realgrid"></div>
         <div id="commonPaging" class="commonPaging" ></div>
       </div>
@@ -249,7 +308,16 @@
   </div>
   <!-- 버튼 -->
   <div class="ar btnWrap">
-    <div id="goSave" class="btn_typeA btn_save">저장</div>
+    <template v-if="top.pop_name != 'add'">
+      <!-- 조회화면 버튼 -->
+      <div id="goSelect" class="btn_typeA btn_search">조회</div>
+      <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+      <div id="goModify" class="btn_typeA btn_save">수정</div>
+    </template>
+    <template v-else>
+      <!-- 작성화면 버튼 -->
+      <div id="goSave" class="btn_typeA btn_save">저장</div>
+    </template>
     <div id="popClose" class="btn_typeA btn_close">Close</div>
   </div>
   <!-- 작성란 -->
@@ -301,7 +369,7 @@
     <div class="gap20"></div>
 
     <span class="spanT al w90">등록자</span>
-    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" readonly>
+    <input id="cre_user_id" type="text" class="input_Ac textBar w100" th:value="${#authentication.name}" readonly>
     <span class="spanT al mg10 w90">등록일자</span>
     <input id="cre_dtm" type="text" class="input_Ac textBar w100" v-model="keys.cre_dtm" readonly>
     <div class="gap5"></div>
