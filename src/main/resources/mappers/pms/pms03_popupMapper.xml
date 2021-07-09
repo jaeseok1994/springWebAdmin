@@ -1,78 +1,161 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="proj.pms.pms03popup">
+<mapper namespace="proj.pms.pms03_popup">
 
-	<select id="selectList" parameterType="map" resultType="cMap">
+	<select id="IssueSearch" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		SELECT
+			A.RKIS_NO,
+			A.ACDN_TITLE,
+			(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN,
+			DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID,
+			A.PROJ_NO,
+			(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST,
+			NVL((SELECT 1 FROM DUAL WHERE EXISTS( SELECT RKIS_NO FROM TAAFRK WHERE RKIS_NO = A.RKIS_NO)),0)chk
+		FROM TARKIS A
+		WHERE 1=1
+		<if test="proj_no != '' and proj_no != null">
+			AND PROJ_NO LIKE '%' || #{proj_no} || '%'
+		</if>
+		ORDER BY CHK DESC, A.RKIS_NO
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+	<select id="selectOne" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+
+		SELECT
+			affr_no,
+			proj_no,
+			title,
+			substr(wr_dt,0,4)||'-'||substr(wr_dt,5,2)||'-'||substr(wr_dt,7,2) wr_dt,
+			substr(st_dt,0,4)||'-'||substr(st_dt,5,2)||'-'||substr(st_dt,7,2) st_dt,
+			substr(fn_dt,0,4)||'-'||substr(fn_dt,5,2)||'-'||substr(fn_dt,7,2) fn_dt,
+			writer,
+			twk_ars,
+			nxw_pln,
+			twk_pln_rate,
+			twk_ars_rate,
+			acum_pln_rate,
+			acum_ars_rate,
+			REM
+		from twkafm a
+		where affr_no = #{map.affr_no}
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+	<select id="IssueList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
 		select
-		a.*
+			affr_no,
+			rkis_no,
+			proj_no,
+			rsk_isu_id,
+			(select acdn_title from tarkis where rkis_no = a.rkis_no) acdn_title,
+			(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_st) as pgs_st,
+			(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.scn) as scn,
+			NVL((SELECT 1 FROM DUAL WHERE EXISTS( SELECT RKIS_NO FROM TAAFRK WHERE RKIS_NO = A.RKIS_NO)),0)chk
+		from (select a.*,b.scn,b.pgs_st from taafrk a, tarkis b where a.rkis_no = b.rkis_no)a
+		where a.affr_no = #{affr_no}
 
-		from tarkis
-		where rkis_no = #{rkisNo}
-<!--		<if test="map.user_name != '' and map.user_name != null">-->
-<!--			and upper(user_name) like upper('%' || #{map.user_name} || '%')-->
-<!--		</if>-->
-<!--		<if test="map.rbof_id != '' and map.rbof_id != null">-->
-<!--			and rbof_id = #{map.rbof_id}-->
-<!--		</if>-->
-
+		order by rkis_no
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
+	<insert id="insertList" parameterType="map" >
+		<![CDATA[
+		DECLARE
+            USER_EXCEPTION EXCEPTION;
+            V_ERR_MSG VARCHAR(2000);
+			V_DOC_NO VARCHAR(20);
 
-	<insert id="maintList" parameterType="map" >
-		{call
-			declare
-			begin
-				merge into tarkis
-				using dual
-					on (rkis_no = #{rkisNo})
-				when matched then
-				update set
-					  acdn_title = #{acdnTitle}
-					, scn = #{scn}
-					, proj_no = #{projNo}
-					, prry_rnkg = #{prryRnkg}
-					, area = #{area}
-					, dcrm_lev = #{dcrmLev}
-					, pgs_st = #{pgsSt}
-					, dcrm_dt = to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, occu_prob = #{occuProb}
-					, iflu_deg = #{ifluDeg}
-					, rsk_deg = #{rskDeg}
-					, acdn_sbc = #{acdnSbc}
-					, ctms = #{ctms}
-					, crgr = #{crgr}
-					, parr_dt = to_char(to_date(substr(replace(#{parrDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, pvnt_pln = #{pvntPln}
-					, trtm_dt = to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-					, trtm_manh = #{trtmManh}
-					, upd_user_id = 'admin'
-					, upd_dtm = systimestamp
-				when not matched then
-				insert(
-					rkis_no, acdn_title, scn, proj_no, rsk_id, prry_rnkg,
-					area, dcrm_lev, pgs_st, occu_prob, iflu_deg, rsk_deg,
-					acdn_sbc, ctms, crgr, pvnt_pln, trtm_manh,
-					dcrm_dt, parr_dt, trtm_dt
-					cre_user_id, cre_dtm, upd_user_id, upd_dtm
-				)values(
-					#{rkisNo},#{acdnTitle},#{scn},#{projNo}, 'PJ001RSK001', #{prryRnkg},
-					#{area}, #{dcrmLev}, #{pgsSt}, #{occuProb}, #{ifluDeg}, #{rskDeg},
-					#{acdnSbc}, #{ctms}, #{crgr}, #{pvntPln},
-					to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					to_char(to_date(substr(replace(#{parrDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					to_char(to_date(substr(replace(#{dcrmDt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-					'admin',systimestamp,'admin',systimestamp
-				);
-			end
-		}
+        BEGIN
+		V_DOC_NO := F_DOCNO('AF');
+		insert into twkafm (
+			affr_no,proj_no,title,
+			wr_dt,
+			st_dt,
+			fn_dt,
+			writer,twk_ars,nxw_pln,
+			twk_pln_rate,twk_ars_rate,acum_pln_rate,acum_ars_rate,rem,
+			cre_user_id, cre_dtm, upd_user_id, upd_dtm
+		)values(
+			V_DOC_NO,#{map.proj_no},#{map.title},
+			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.wr_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.st_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fn_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+			#{map.writer}, #{map.twk_ars}, #{map.nxw_pln},
+			#{map.twk_pln_rate},#{map.twk_ars_rate},#{map.acum_pln_rate},#{map.acum_ars_rate}, #{map.rem},
+			#{_loginId_},systimestamp,#{_loginId_},systimestamp
+		);
+
+
+		INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,rsk_isu_id,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
+			SELECT V_DOC_NO,
+					rkis_no,
+					proj_no,
+					rsk_id,
+					#{_loginId_},
+					systimestamp,
+					#{_loginId_},
+					systimestamp
+		from TARKIS
+		WHERE PROJ_NO = #{map.proj_no}
+		AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0
+		;
+
+        EXCEPTION
+        WHEN USER_EXCEPTION THEN
+            RAISE_APPLICATION_ERROR(-20001,V_ERR_MSG);
+        END;
+     ]]>
 	</insert>
 
 	<delete id="deleteList" parameterType="map">
 		delete from tarkis
 		where rkis_no = #{rkisNo}
 	</delete>
+	<update id="updateList" parameterType="map">
+		DECLARE
+		USER_EXCEPTION EXCEPTION;
+		V_ERR_MSG VARCHAR(2000);
+		V_DOC_NO VARCHAR(20);
 
+		BEGIN
+			update twkafm set
+				title = #{map.title}
+				, proj_no = #{map.proj_no}
+				, wr_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.wr_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+				, st_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.st_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+				, fn_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fn_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+				, writer = #{_loginId_}
+				, twk_ars = #{map.twk_ars}
+				, nxw_pln = #{map.nxw_pln}
+				, twk_pln_rate = #{map.twk_pln_rate}
+				, twk_ars_rate = #{map.twk_ars_rate}
+				, acum_pln_rate = #{map.acum_pln_rate}
+				, acum_ars_rate = #{map.acum_ars_rate}
+				, rem = #{map.rem}
+				, upd_user_id = #{_loginId_}
+				, upd_dtm = systimestamp
+			where affr_no = #{map.affr_no};
+
+			DELETE FROM TAAFRK
+			WHERE affr_no = #{map.affr_no};
+
+			INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,rsk_isu_id,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
+				SELECT #{map.affr_no},
+						rkis_no,
+						proj_no,
+						rsk_id,
+						#{_loginId_},
+						systimestamp,
+						#{_loginId_},
+						systimestamp
+			from TARKIS
+			WHERE PROJ_NO = #{map.proj_no}
+			AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0
+			;
+
+		END;
+	</update>
 </mapper>

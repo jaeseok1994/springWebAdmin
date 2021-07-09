@@ -25,28 +25,19 @@
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "90", header: "프로젝트번호",editable: false},
       {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
       {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",
-    	  editor: {
-              type: "date",
-              datetimeFormat: "yyyy-MM-dd"
-          },
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",editable: false,
+
           datetimeFormat: "yyyy-MM-dd"
     	},
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", 
-    		editor: {
-                type: "date",
-                datetimeFormat: "yyyy-MM-dd"
-            },
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",editable: false,
+
             datetimeFormat: "yyyy-MM-dd"
         },
-        {name: "w_dt", fieldName: "w_dt", maxLength: 8, width: "100", header: "기안날짜",
-    		editor: {
-                type: "date",
-                datetimeFormat: "yyyy-MM-dd"
-            },
+        {name: "wr_dt", fieldName: "wr_dt", maxLength: 8, width: "100", header: "기안날짜",editable: false,
+
             datetimeFormat: "yyyy-MM-dd"
         },
-      {name: "dev_mp", fieldName: "dev_mp", type: "data", width: "80", header: "작성자", editable: false},
+      {name: "writer", fieldName: "writer", type: "data", width: "80", header: "작성자", editable: false},
       {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column", editable: false},
       {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
       {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
@@ -61,7 +52,7 @@
             el:'#form',
             data:{
                 keys:{
-                	proj_no:'',
+                	proj_no:'PJ001',
                     pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
                     pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
                     pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
@@ -71,6 +62,7 @@
             },
         });
 
+        // 버튼클릭 이벤트
         $("#goSelect").click(function(){
         	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
         		fn_alert("프로젝트를 선택하세요.");
@@ -78,9 +70,7 @@
         	}
         	
         	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-        	
-        	getCode2(proj_no); // 프로젝트별 담당자 조회 및 세팅
-        	
+
         	search();
         });
 
@@ -95,12 +85,11 @@
         	grid.dataProvider.setValue(r,'proj_no',proj_no);
         	*/
         	//var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms03_popup','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
-        	popup_open();
+
+        	popup_open(null);
         });
 
-        $("#goSave").click(function(){
-            maintList('maint');
-        });
+
         $("#goDelete").click(function(){
             maintList('delete');
         });
@@ -120,7 +109,9 @@
 			    }
 			});
         });
-		
+		$("#proj_no").click(function(){
+
+        });
         grid = {
             id:"realgrid",
             fields:fields,
@@ -128,21 +119,21 @@
         }
 
         createRGrid(grid);
-        
-        grid.gridView.onCellClicked = function(g, cell) {
-			 cell.itemIndex
-            //var row = grid.dataProvider.getJsonRow(cell.itemIndex);
-            var title = grid.gridView.getValue(cell.itemIndex,"title");
-            var AF_NO = grid.gridView.getValue(cell.itemIndex,"affr_no");
-            console.log("제목:::"+title);
-            console.log("문서번호:::"+AF_NO);
-            popup_open(AF_NO);
-        };
 
+        // 그리드 더블클릭 이벤트
+        grid.gridView.onCellDblClicked = function (g, clickData) {
+          var column = clickData.column;
+           console.log(column);
+            var AF_NO = grid.gridView.getValue(clickData.itemIndex,"affr_no");
+            if(column = 'title'){ // 제목 cell 클릭 시 팝업창 열림 기능
+                popup_open(AF_NO);
+                console.log(column);
+            }
+        };
 
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
-        getCode();
+
 
         /*
      	// 프로젝트 selectbox 세팅 후 자동 조회
@@ -150,24 +141,33 @@
      		var val = $(this).val();
      		if(val != null && val != '') {
      			app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-            	
-            	getCode2(proj_no); // 프로젝트별 담당자 조회 및 세팅
+
             	
             	search();
      		}
      	});*/
     });
+    // 팝업창 열기 기능(문서번호가 넘겨줌)
     function popup_open(AF_NO){
-
+        //console.log("AF_NO:::"+AF_NO);
         var jsonData = {
             AFNO:AF_NO,
-            map:app.keys,
         };
         var TEST =   encodeURIComponent(JSON.stringify(jsonData));
         var url    = "/service/pms/pms03_popup/selectForm.do";
         var name   = "pms03_popup";
         var option = "top=10, left=100, width=1500, height=800 location=no";
         window.open(url + "?param=" + TEST, name, option);
+        //window.open(url, name, option);
+
+        /*
+        var param = {
+            url:url,
+            width:700,
+            title:700,
+        };
+        innorPopOpen(param);
+        */
 
     }
     function search(){
@@ -215,34 +215,13 @@
             }else if(func == "delete"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 삭제되었습니다.');
-            }else if(func == "code"){
-            	setCode(data.resultList);
-	        }else if(func == "code2"){
-
-	        }else if(func == "code3"){
-	            grid.dataProvider.setRows(data.resultList);
-                grid.gridView.refresh();
-	        }else{
+            }else{
                 grid.gridView.refresh();
                 fn_alert(data.message);
             }
         }
     }
-    function getCode(){
-    	fn_transaction("code","/service/pms/pms03/selectList.do/codeList",{},fn_callback);
-    }
-    function setCode(resultList) {
-        var str = '<option value="">선택</option>';
-        $.each(resultList,function(k,v){
-            str += '<option value="'+v.code+'">'+v.name+'</option>';
-        });
-        $('#proj_no').html(str);
-    }
-    function getCode2(){
-		var jsonData = {proj_no: $('#proj_no').val()};
 
-        fn_transaction("code2","/service/pms/pms03/selectList.do/codeList2",jsonData,fn_callback);
-    }
 
 
     $(window).resize(function(){
@@ -264,7 +243,8 @@
             <tr>
                 <td class="ar">프로젝트 명</td>
                 <td>
-                    <select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></select>
+                    <!--<select name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></select>-->
+                    <input id="proj_no" type="text" class="input_A w90p"  v-model="keys.proj_no">
                 </td>
                 <td class="ar">제목</td>
                 <td>

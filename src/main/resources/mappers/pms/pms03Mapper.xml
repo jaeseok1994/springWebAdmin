@@ -3,34 +3,11 @@
 
 <mapper namespace="proj.pms.pms03">
 
-    <select id="codeList" parameterType="map" resultType="cMap">
-	    select
-		    proj_no code,
-		    proj_nm name
-		from taprjm
-		order by proj_nm
-    </select>
-    
-    <select id="codeList2" parameterType="map" resultType="cMap">
-	    select
-		    dev_mp code,
-		    dev_mp name
-		from tapjmn
-		where proj_no = #{proj_no}
-		order by dev_mp
-    </select>
-	<select id="codeList3" parameterType="map" resultType="cMap">
-		select
-			cd_code code,
-			cd_name name
-		from sys_code
-		where cd_g_code = 'COMP'
-		order by cd_code
-	</select>
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 	    
 	        select
+				affr_no,
 				proj_no,
 				(select proj_nm from taprjm where proj_no = a.proj_no)proj_nm,
 				title,
@@ -48,45 +25,22 @@
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
-    
-    <insert id="maintList" parameterType="map" >
-    {call
-        declare
-        begin
-        
-            merge into tascmn
-		        using dual
-		           on (proj_no = #{proj_no} and wbs = #{wbs})
-		        when matched then
-		        update set
-		               task = #{task}
-		             , rem = #{rem}
-		             , st_dt = to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , fn_dt = to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd')
-		             , importance = #{importance}
-		             , dev_mp = #{dev_mp}
-		             , ouputs = #{ouputs}
-		             , prgr_rate = #{prgr_rate}
-		             , upd_user_id = 'admin'
-		             , upd_dtm = systimestamp
-		        when not matched then
-		            insert (proj_no, wbs, task, rem,
-		            		st_dt, fn_dt, 
-		            		importance, dev_mp, ouputs, prgr_rate,
-		            		cre_user_id, cre_dtm, upd_user_id, upd_dtm)
-		            values (#{proj_no},#{wbs},#{task},#{rem},
-		            		to_char(to_date(substr(replace(#{st_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		to_char(to_date(substr(replace(#{fn_dt},'-'),1,8),'yyyymmdd')+1,'yyyymmdd'),
-		            		#{importance},#{dev_mp},#{ouputs},#{prgr_rate},
-		            		'admin',systimestamp,'admin',systimestamp);
-		    
-        end
-    }
-    </insert>
-    
+
     <insert id="deleteList" parameterType="map" >
-        delete from tascmn
-        where proj_no = #{proj_no}
-        and wbs = #{wbs}
-    </insert>
+		DECLARE
+		USER_EXCEPTION EXCEPTION;
+		V_ERR_MSG VARCHAR(2000);
+		V_DOC_NO VARCHAR(20);
+
+		BEGIN
+
+			delete from twkafm
+			where affr_no = #{affr_no};
+
+			delete from taafrk
+			where affr_no = #{affr_no};
+
+		END;
+
+	</insert>
 </mapper>
