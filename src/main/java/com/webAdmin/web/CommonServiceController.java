@@ -52,12 +52,26 @@ public class CommonServiceController {
 
 
         model.addAttribute("para",para);
+
         SecurityUser user = getSecurityUser();
         String loginId = "";
+        String role = "";
         if(user != null){
             loginId = user.getUid();
+            role = user.getAuthorities().toString();
         }
         model.addAttribute("loginId",loginId);
+        model.addAttribute("roles",role);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String userId = "";
+        if(auth != null){
+            Object o = auth.getAuthorities();
+            if(o instanceof SecurityUser){
+                //return user;
+            }
+        }
         return group+"/"+pgm+"";
     }
     @RequestMapping(method = RequestMethod.POST, value = "/selectList.do/{sqlId}")
