@@ -3,6 +3,7 @@ package com.webAdmin.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webAdmin.dao.CommonMybatisDao;
 import com.webAdmin.security.domain.model.SecurityUser;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,8 +11,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
 
@@ -25,6 +29,8 @@ public class CommonServiceController {
     @Autowired
     private CommonMybatisDao dao;
 
+    /* http://localhost:8080/service/system/authMenu/selectForm.do
+     */
     /* http://localhost:8080/service/system/authMenu/selectForm.do
      */
     @RequestMapping(method = RequestMethod.GET, value = "/selectForm.do")
@@ -46,7 +52,27 @@ public class CommonServiceController {
 
 
         model.addAttribute("para",para);
-        return "/"+group+"/"+pgm+"";
+
+        SecurityUser user = getSecurityUser();
+        String loginId = "";
+        String role = "";
+        if(user != null){
+            loginId = user.getUid();
+            role = user.getAuthorities().toString();
+        }
+        model.addAttribute("loginId",loginId);
+        model.addAttribute("roles",role);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String userId = "";
+        if(auth != null){
+            Object o = auth.getAuthorities();
+            if(o instanceof SecurityUser){
+                //return user;
+            }
+        }
+        return group+"/"+pgm+"";
     }
     @RequestMapping(method = RequestMethod.POST, value = "/selectList.do/{sqlId}")
     public ModelAndView list(@PathVariable("group") String group,@PathVariable("pgm") String pgm,@PathVariable("sqlId") String sqlId,  @RequestBody HashMap<String,Object> param  ) {
@@ -96,6 +122,7 @@ public class CommonServiceController {
 
         int count = 0;
         for(Map map:list){
+            map.put("map",param.get("map"));
             //System.out.println(map);
             initParam(map);
             count += dao.maint(param,map);
@@ -128,6 +155,64 @@ public class CommonServiceController {
         setMessage(mv,sqlId);
         return mv;
     }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/maintfileUpload.do/{sqlId}")
+    public ModelAndView maintfileUpload(MultipartHttpServletRequest req, @PathVariable("group") String group, @PathVariable("pgm") String pgm, @PathVariable("sqlId") String sqlId, @RequestBody HashMap<String,Object> param  ) throws IOException {
+//MultipartHttpServletRequest
+        String htmlCodedMapData = null;
+        HashMap<String,Object> para = new  HashMap<String,Object>();
+
+        initParam(param);
+
+        try{
+            htmlCodedMapData = StringEscapeUtils.unescapeHtml4(req.getParameter("mapData"));
+        }catch (Exception e){
+            // Logger.errop("JSON string HTML code convert to Character 예외 발생");
+            throw new RuntimeException("JSON string HTML code convert to Character 예외 발생");
+        }
+        Map<String, Object> map = new HashMap();
+        try {
+            //Logger.debug("ExcelController : htmlCodeMapData -" + htmlCodedMapData);
+            map = new ObjectMapper().readValue(htmlCodedMapData,HashMap.class);
+        }catch (Exception e){
+            // Logger.errop("mapData JSON Parse 예외 발생");
+            throw new RuntimeException("mapData JSON Parse 예외 발생");
+        }
+        MultipartFile insertFile = null;
+
+        String ext = "";
+        Iterator fileIter = req.getFileNames();
+        if(fileIter != null && fileIter.hasNext()){
+            String paramName = (String) fileIter.next();
+            List mFiles = req.getFiles(paramName);
+            if(mFiles != null && mFiles.size() >0){
+                insertFile = (MultipartFile) mFiles.get(0);
+                String filename = insertFile.getOriginalFilename();
+                int filelength  =filename.length();
+                int fileval = filename.lastIndexOf('.');
+                String exfile = filename.substring(fileval+1,filelength);
+                byte[] byt = insertFile.getBytes();
+                if(filename != "".toString()){
+                    map.put("filedata",byt);
+                    map.put("filename",filename);
+                }
+            }
+        }
+
+        param.put("mapperGroup",group);
+        param.put("mapperPgm",pgm);
+        param.put("mapperSqlId",sqlId);
+        param.put("map",map);
+        int count = 0;
+
+        //count += dao.maint2(param);
+
+        ModelAndView mv = new ModelAndView("jsonView");
+        mv.addObject("resultCount", count+"");
+        setMessage(mv,sqlId);
+        return mv;
+    }
+
 
     private void setMessage(ModelAndView mv,String sqlId) {
         if (sqlId.startsWith("select")) {

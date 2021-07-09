@@ -9,6 +9,7 @@
     var fields = [
       {fieldName: "rkis_no",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
+      {fieldName: "scn_nm",dataType: "text"},
       {fieldName: "rsk_isu_id",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "prry_rnkg",dataType: "text"},
@@ -23,7 +24,8 @@
 
     var columns = [
       {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
-      {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
+      {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분ID", visible: false },
+      {name: "scn_nm", fieldName: "scn_nm", type: "data", width: "80", header: "구분", editable: false },
       {name: "rsk_isu_id", fieldName: "rsk_isu_id", type: "data", width: "120", header: "위험·이슈ID", editable: false },
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
       {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
@@ -37,7 +39,6 @@
     ];
 
     var grid;
-
     var app;
     var today = new Date();
     var st = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-01';
@@ -46,11 +47,7 @@
         app = new Vue({
             el:'#form',
             data:{
-                scnList:[],
-                areaList:[],
-                rnkgList:[],
-                levList:[],
-                pgsStList:[],
+                scnList:[], areaList:[], rnkgList:[], levList:[], pgsStList:[],
                 keys:{
                     scn: '',
                     area: '',
@@ -95,8 +92,9 @@
         grid.gridView.onCellDblClicked = function (gridBase, clickData) {
           // console.log(clickData.itemIndex);
           // console.log(clickData.column);
-          var rkis = grid.dataProvider.getValue(clickData.itemIndex,0);
-          goRskSearch(rkis);
+          var scn = grid.dataProvider.getValue(clickData.itemIndex,1);
+          var rkisNo = grid.dataProvider.getValue(clickData.itemIndex,0);
+          goRskSearch(scn,rkisNo);
         }
 
         setResizeHeightObjs("realgrid");
@@ -121,18 +119,42 @@
 
         search();
     });
+    /**** 위험추가 팝업 ****/
     function goRskAdd(){
-        var url    = "/service/pms/pms05RiskPop/selectForm.do";
-        var name   = "riskAdd";
-        var option = "width=980, height=650, top=50, left=200, location=no";
-        window.open(url, name, option);
+        var arg = {
+            map: { popName:"add", },
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
+        };
+        fn_inner_popup_open(arg);
     }
-    function goRskSearch(r){
-        var url    = "/service/pms/pms05RiskPop/selectForm.do";
-        var name   = "riskSearch";
-        var option = "width=980, height=650, top=50, left=200, location=no";
-        window.open(url, name, option);
+    /**** 위험조회 팝업 ****/
+    function goRskSearch(scn,key){
+        if(scn == 'R'){
+            var url    = "/service/pms/pms05RiskPop/selectForm.do";
+        }else if(scn == 'I'){
+            var url    = "/service/pms/pms05IsuPop/selectForm.do";
+        }else{
+            fn_alert('오류가 발생하였습니다.');
+        }
+
+        var arg = {
+            map: { popName: 'search', rkisNo: key },
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
+        };
+        fn_inner_popup_open(arg);
     }
+
+    function fn_popup(){
+        var arg = {
+            popName: 'add',
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
+        }
+        fn_inner_popup_open(arg);
+    }
+
     function search(){
         grid.dataProvider.clearRows();
         app.keys.pagenum = grid.pagenum;
@@ -164,6 +186,12 @@
         }
         return;
     }
+    /**** inner popup 콜백 ****/
+    function fn_callback_popup(arg){
+        console.log(arg);
+        //app.keys.domn_nm = arg.domn_nm;
+    }
+    /**** 콜백 ****/
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
@@ -185,6 +213,7 @@
             }
         }
     }
+
     $(window).resize(function(){
         grid.gridView.refresh();
     });

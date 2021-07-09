@@ -31,6 +31,8 @@ function resizeHeight () {
 //modal, vue alert, confirm ,select2 //vue 라이버러리 필요
 var app_alert ;
 var app_confirm;
+var app_innerpopup;
+
 $(document.body).ready(function () {
     try{
         if(!Vue) return;
@@ -169,8 +171,6 @@ $(document.body).ready(function () {
     })
 
 
-
-    //$(vue_temp).appendTo('#appTest1');
     $(document.body).append(vue_temp);
     app_alert = new Vue({
         el: '#vuemodalalert',
@@ -240,6 +240,41 @@ $(document.body).ready(function () {
             callBack:fn_confirm_close
         }
     })
+
+
+
+    var vue_innerpopup_temp = '    \
+        <div class="container" id="vueinnerpopup"> \
+            <div class="modal-mask" v-if="showModal" @close="showModal = false">\
+                <div class="modal-wrapper">\
+                    <div class="modal-container" :style="{width:width,height:height}"> \
+                        <div class="modal-header">\
+                            {{headText}}\
+                            <button class="modal-default-button" @click="defaultCallBack()">Close</button>\
+                        </div> \
+                        <div class="modal-body" style="height:99%">\
+                            <iframe :src="url" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>\
+                        </div> \
+                    </div>\
+                </div>\
+            </div>\
+        </div>';
+
+    $(document.body).append(vue_innerpopup_temp);
+    app_innerpopup = new Vue({
+        el: '#vueinnerpopup',
+        data: {
+            showModal: false,
+            headText: "Inner Popup",
+            width:'800px',
+            height:'700px',
+            url:'',
+            rtnValue:'',
+            callBack:null,
+            defaultCallBack:fn_popup_close
+        }
+    });
+
 
 
     /*달력*/
@@ -345,6 +380,19 @@ function fn_confirm(msg){
             },400);
         }
     );
+}
+
+function fn_popup_close(arg){
+    app_innerpopup.rtnValue = arg;
+    app_innerpopup.showModal = false;
+    if(app_innerpopup.callBack) app_innerpopup.callBack(arg);
+}
+function fn_inner_popup_open(arg){
+
+    var jstring = encodeURIComponent(JSON.stringify(arg.map));
+    app_innerpopup.url = arg.url + "?param=" + jstring;
+    app_innerpopup.callBack = arg.callBack;
+    app_innerpopup.showModal = true;
 }
 
 //function fn_confirm(msg,callback){

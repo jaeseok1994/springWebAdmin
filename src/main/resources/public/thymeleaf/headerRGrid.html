@@ -114,6 +114,12 @@ function getModelValue(arg){
     var rtn =  document.getElementById(arg).textContent;
     return rtn ;
 }
+function getLoginId(arg){
+    return getModelValue("loginId") ;
+}
+function getRols(arg){
+    return getModelValue("roles") ;
+}
 </script>
 <!-- Bootstrap 3.3.6 -->
 <!--<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>-->
@@ -136,3 +142,5 @@ function getModelValue(arg){
 <!--[if lt IE 9]>
 <![endif]-->
 <div id=param th:text="${param.param}" style="display: none;"></div>
+<div id=loginId th:text="${loginId}" style="display: none;"></div>
+<div id=roles th:text="${roles}" style="display: none;"></div>
