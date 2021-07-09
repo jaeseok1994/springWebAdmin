@@ -52,6 +52,12 @@ public class CommonServiceController {
 
 
         model.addAttribute("para",para);
+        SecurityUser user = getSecurityUser();
+        String loginId = "";
+        if(user != null){
+            loginId = user.getUid();
+        }
+        model.addAttribute("loginId",loginId);
         return group+"/"+pgm+"";
     }
     @RequestMapping(method = RequestMethod.POST, value = "/selectList.do/{sqlId}")

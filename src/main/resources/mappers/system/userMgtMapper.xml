@@ -87,9 +87,14 @@
             USER_EXCEPTION EXCEPTION;
             V_ERR_MSG VARCHAR(2000);
         BEGIN
+
             DELETE FROM SYS_USER
              WHERE USER_ID = #{userid}
             ;
+            IF SQL%ROWCOUNT = 0 THEN
+                V_ERR_MSG := '삭제할 자료가 없습니다.';
+                RAISE USER_EXCEPTION
+            END IF;
 
             DELETE FROM SYS_USER_ROLE
              WHERE USER_ID = #{userid}

@@ -522,8 +522,8 @@ a.tc_sky {color:#02acc5 !important;}
 
 
 /* 팝업 UI */
-.popWrap { width: 910px; min-height: 100%; position: relative; overflow: hidden; }
-.btnWrap { margin:0; padding:0; width: 940px; }
+.popWrap { min-height: 100%; position: relative; overflow: hidden; }
+.btnWrap { margin:0; padding:0; }
 .popWrap .spanT { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
 .popWrap .textBar { padding-left: 0.5em; padding-right: 0.5em; }
 .popWrap .tArea { margin:0; padding: 0; width: 100%; }
