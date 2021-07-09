@@ -27,8 +27,8 @@
     /**** 변수 선언 ****/
     var grid;
     var app;
-    var para = getCommonPara();
-    var today = new Date();
+    var paramObj = getCommonPara();
+    var today    = new Date();
     var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
 
     $(document.body).ready(function(){
@@ -41,8 +41,9 @@
                 // 상단 요소
                 top:{
                   title: '',
-                  pop_name: para.popName
+                  pop_name: paramObj.popName
                 },
+                isMine:false,
                 // 작성란 key
                 keys:{
                     rkis_no: '',
@@ -77,18 +78,7 @@
             },
         });
 
-        /**** 조회,수정 화면 전환 ****/
-        if(app.top.pop_name != 'add'){
-          app.top.title = '위험상세 조회';
-        }else{
-          app.top.title = '위험상세 작성';
-        }
-
         /**** 클릭 이벤트 ****/
-        //조회
-        $("#goSelect").click(function(){
-        	search();
-        });
         //수정
         $("#goModify").click(function(){
             app.top.pop_name = 'add';
@@ -165,12 +155,18 @@
           projSearch_off();
         }
 
-        search();
+        /**** 조회,수정 화면 전환 ****/
+        if(app.top.pop_name == 'search'){
+          app.top.title = '위험상세 조회';
+          search();
+        }else{
+          app.top.title = '위험상세 작성';
+        }
     });
 
     /**** 작성글 조회 ****/
     function search(){
-        var jsonData = { map: para };
+        var jsonData = { map: paramObj };
         fn_transaction("select","/service/pms/pms05RiskPop/selectList.do/selectList",jsonData,fn_callback);
     }
 
@@ -219,29 +215,28 @@
             alert(data.error);
         }else{
             if(func == "select"){             // 조회 콜백
-                app.$set(app.keys, 'rkis_no', data.resultList[0].RKIS_NO);
-                app.$set(app.keys, 'proj_no', data.resultList[0].PROJ_NO);
-                app.$set(app.keys, 'rsk_id', data.resultList[0].RSK_ID);
-                app.$set(app.keys, 'area', data.resultList[0].AREA);
-                app.$set(app.keys, 'dcrm_lev', data.resultList[0].DCRM_LEV);
-                app.$set(app.keys, 'prry_rnkg', data.resultList[0].PRRY_RNKG);
-                app.$set(app.keys, 'occu_prob', data.resultList[0].OCCU_PROB);
-                app.$set(app.keys, 'iflu_deg', data.resultList[0].IFLU_DEG);
-                app.$set(app.keys, 'rsk_deg', data.resultList[0].RSK_DEG);
-                app.$set(app.keys, 'cre_user_id', data.resultList[0].CRE_USER_ID);
-                app.$set(app.keys, 'acdn_title', data.resultList[0].ACDN_TITLE);
-                app.$set(app.keys, 'acdn_sbc', data.resultList[0].ACDN_SBC);
+                app.keys.rkis_no = data.resultList[0].RKIS_NO;
+                app.keys.proj_no = data.resultList[0].PROJ_NO;
+                app.keys.rsk_id = data.resultList[0].RSK_ID;
+                app.keys.area = data.resultList[0].AREA;
+                app.keys.dcrm_lev = data.resultList[0].DCRM_LEV;
+                app.keys.prry_rnkg = data.resultList[0].PRRY_RNKG;
+                app.keys.occu_prob = data.resultList[0].OCCU_PROB;
+                app.keys.iflu_deg = data.resultList[0].IFLU_DEG;
+                app.keys.rsk_deg = data.resultList[0].RSK_DEG;
+                app.keys.cre_user_id = data.resultList[0].CRE_USER_ID;
+                app.keys.acdn_title = data.resultList[0].ACDN_TITLE;
+                app.keys.acdn_sbc = data.resultList[0].ACDN_SBC;
+                app.keys.crgr = data.resultList[0].CRGR;
+                app.keys.pvnt_pln = data.resultList[0].PVNT_PLN;
+                app.keys.pgs_st = data.resultList[0].PGS_ST;
+                app.keys.trtm_manh = data.resultList[0].TRTM_MANH;
+                app.keys.dcrm_dt = data.resultList[0].DCRM_DT;
+                app.keys.cre_dtm = data.resultList[0].CRE_DTM;
+                app.keys.parr_dt = data.resultList[0].PARR_DT;
+                app.keys.trtm_dt = data.resultList[0].TRTM_DT;
+                app.isMine = getLoginId() == data.resultList[0].CRE_USER_ID;
 
-                app.$set(app.keys, 'crgr', data.resultList[0].CRGR);
-                app.$set(app.keys, 'pvnt_pln', data.resultList[0].PVNT_PLN);
-                app.$set(app.keys, 'pgs_st', data.resultList[0].PGS_ST);
-                app.$set(app.keys, 'trtm_manh', data.resultList[0].TRTM_MANH);
-                app.$set(app.keys, 'dcrm_dt', data.resultList[0].DCRM_DT);
-                app.$set(app.keys, 'cre_dtm', data.resultList[0].CRE_DTM);
-                app.$set(app.keys, 'parr_dt', data.resultList[0].PARR_DT);
-                app.$set(app.keys, 'trtm_dt', data.resultList[0].TRTM_DT);
-
-                app.$el.ariaReadOnly;
             }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
@@ -308,17 +303,17 @@
   </div>
   <!-- 버튼 -->
   <div class="ar btnWrap">
-    <template v-if="top.pop_name != 'add'">
-      <!-- 조회화면 버튼 -->
-      <div id="goSelect" class="btn_typeA btn_search">조회</div>
-      <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
-      <div id="goModify" class="btn_typeA btn_save">수정</div>
-    </template>
-    <template v-else>
-      <!-- 작성화면 버튼 -->
+    <!-- 조회화면 버튼 -->
+    <template th:if="${para.popName} == 'add'">
       <div id="goSave" class="btn_typeA btn_save">저장</div>
     </template>
-    <div id="popClose" class="btn_typeA btn_close">Close</div>
+    <!-- 작성화면 버튼 -->
+    <template th:if="${para.popName} != 'add'">
+      <template v-if="isMine">
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <div id="goModify" class="btn_typeA btn_save">수정</div>
+      </template>
+    </template>
   </div>
   <!-- 작성란 -->
   <div class="box_Atype popWrap">
@@ -369,7 +364,7 @@
     <div class="gap20"></div>
 
     <span class="spanT al w90">등록자</span>
-    <input id="cre_user_id" type="text" class="input_Ac textBar w100" th:value="${#authentication.name}" readonly>
+    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" readonly>
     <span class="spanT al mg10 w90">등록일자</span>
     <input id="cre_dtm" type="text" class="input_Ac textBar w100" v-model="keys.cre_dtm" readonly>
     <div class="gap5"></div>

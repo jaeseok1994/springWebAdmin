@@ -57,14 +57,26 @@
 	<insert id="maintOne" parameterType="map" >
 		{CALL
 			DECLARE
+				PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
 				V_SEQ VARCHAR2(3) 	   := '';
 				V_RKIS_NO VARCHAR2(20) := '';
 				V_MAX_RSK VARCHAR2(20) := '';
 				V_RSK_NO VARCHAR2(20)  := '';
+				V_USER VARCHAR2(20)  := '';
 
 			BEGIN
 				/* 관리대장번호 생성 */
 				V_RKIS_NO := F_DOCNO('RKIS');
+
+				SELECT CRE_USER_ID
+				INTO V_USER
+				FROM TARKIS
+				WHERE RKIS_NO = #{map.rkis_no}
+
+				IF #{_loginId_} != V_USER THEN
+					V_ERR_MSG := '삭제할 자료가 없습니다.';
+					RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
+				END IF;
 
 				/* 리스크번호 생성 */
 				BEGIN
@@ -119,7 +131,7 @@
 					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 					#{_loginId_}, SYSDATE, #{_loginId_}, SYSDATE
 				);
-			END
+			END;
 		}
 	</insert>
 

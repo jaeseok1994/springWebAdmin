@@ -47,11 +47,7 @@
         app = new Vue({
             el:'#form',
             data:{
-                scnList:[],
-                areaList:[],
-                rnkgList:[],
-                levList:[],
-                pgsStList:[],
+                scnList:[], areaList:[], rnkgList:[], levList:[], pgsStList:[],
                 keys:{
                     scn: '',
                     area: '',
@@ -123,19 +119,17 @@
 
         search();
     });
+    /**** 위험추가 팝업 ****/
     function goRskAdd(){
-        var jsonData = {
-            popName: 'add'
+        var arg = {
+            map: { popName:"add", },
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
         };
-        var data   = encodeURIComponent(JSON.stringify(jsonData));
-        var url    = "/service/pms/pms05RiskPop/selectForm.do";
-        var name   = "riskAdd";
-        var option = "width=980, height=650, top=50, left=200, location=no";
-        window.open(url + "?param=" + data, name, option);
+        fn_inner_popup_open(arg);
     }
+    /**** 위험조회 팝업 ****/
     function goRskSearch(scn,key){
-        var jsonData = { popName: 'search', rkisNo: key };
-
         if(scn == 'R'){
             var url    = "/service/pms/pms05RiskPop/selectForm.do";
         }else if(scn == 'I'){
@@ -144,11 +138,23 @@
             fn_alert('오류가 발생하였습니다.');
         }
 
-        var data   = encodeURIComponent(JSON.stringify(jsonData));
-        var name   = "riskSearch";
-        var option = "width=980, height=650, top=50, left=200, location=no";
-        window.open(url + "?param=" + data, name, option);
+        var arg = {
+            map: { popName: 'search', rkisNo: key },
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
+        };
+        fn_inner_popup_open(arg);
     }
+
+    function fn_popup(){
+        var arg = {
+            popName: 'add',
+            url: "/service/pms/pms05RiskPop/selectForm.do",
+            callBack: fn_callback_popup
+        }
+        fn_inner_popup_open(arg);
+    }
+
     function search(){
         grid.dataProvider.clearRows();
         app.keys.pagenum = grid.pagenum;
@@ -180,6 +186,12 @@
         }
         return;
     }
+    /**** inner popup 콜백 ****/
+    function fn_callback_popup(arg){
+        console.log(arg);
+        //app.keys.domn_nm = arg.domn_nm;
+    }
+    /**** 콜백 ****/
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
@@ -201,6 +213,7 @@
             }
         }
     }
+
     $(window).resize(function(){
         grid.gridView.refresh();
     });
