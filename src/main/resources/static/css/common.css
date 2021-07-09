@@ -530,11 +530,13 @@ a.tc_sky {color:#02acc5 !important;}
 .popWrap .tArea .spanT { float: left; width: 90px; height: 100px; margin-right: 6px;}
 .popWrap .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
 .popWrap .hidden { display: none; }
+.hidden { display: none; }
 
 /* 모달 팝업 */
 .modal_wrap { display: none; position: fixed; top:0; left:0; margin:0; padding:0; width: 100%; height: 100%; background-color:rgba(0,0,0,0.4); overflow: auto; z-index: 1; }
 .modal_wrap .modal_content { background-color: #fefefe; margin: 5% auto; padding: 10px; border: 1px solid #888; width: 50%; }
-.modal_wrap .modal_content #realgrid { height: 300px; }
+.modal_wrap .modal_content .realgrid_wrap { width:100%; height:auto; overflow: hidden; }
+.modal_wrap .modal_content .realgrid_wrap #realgrid { height: 300px !important; }
 
 
 

@@ -3,6 +3,36 @@
 
 <mapper namespace="proj.pms.pms05RiskPop">
 
+	<select id="selectList" parameterType="map" resultType="map">
+
+		SELECT
+			RKIS_NO,
+			ACDN_TITLE,
+			SCN,
+			PROJ_NO,
+			RSK_ID,
+			PRRY_RNKG,
+			AREA,
+			DCRM_LEV,
+			PGS_ST,
+			TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT,
+			OCCU_PROB,
+			IFLU_DEG,
+			RSK_DEG,
+			ACDN_SBC,
+			CRGR,
+			TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT,
+			PVNT_PLN,
+			TO_CHAR(TO_DATE(A.TRTM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') TRTM_DT,
+			TRTM_MANH,
+			CRE_USER_ID,
+			(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM,
+			TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
+		FROM TARKIS A
+		WHERE RKIS_NO = #{map.rkisNo}
+
+	</select>
+
 	<select id="projSelectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 		SELECT

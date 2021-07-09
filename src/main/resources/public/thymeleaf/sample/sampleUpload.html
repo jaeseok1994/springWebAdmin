@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+    <title>파일첨부</title>
+    <div th:replace="headerRGrid"></div>
+    <div th:remove="all">
+    </div>
+</head>
+<style>
+    .btn-file{
+        position : relative;
+        overflow: hidden;
+    }
+    .txt-file{
+        margin-top:5px;
+    }
+    .btn-file input[type=file]{
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height:100%;
+        font-size :1em;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block
+    }
+
+</style>
+<script type="text/javascript">
+
+</script>
+<script>
+    
+    var app;
+    $(document.body).ready(function(){
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                    pid:'',
+                    file:'',
+                    file2:'',
+                },
+                methods:{
+                }
+            },
+        });
+
+        $("#goSave").click(function(){
+            fileUpload('maint');
+        });
+
+    });
+
+
+    var pid ;
+
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "maint"){
+                
+            }
+        }
+    }
+
+    function fn_filechange(f){
+        app.keys.file = $('#file-upload-name').text($('#fileUpload').val());
+    }
+
+    function fn_filechange2(f){
+        app.keys.file2 = $('#file-upload-name2').text($('#fileUpload2').val());
+    }
+
+    function fileUpload(func){
+        var param = app.keys;
+
+        var formData = new FormData($("#fileuploadForm")[0]);
+        formData.append("mapData",JSON.stringify(param));
+
+        $.ajax({
+            enctype: 'multipart/form-data',
+            type : 'POST',
+            url : '/service/sample/sampleUpload/maintfileUpload.do/' + func + 'List',
+            processData : false,
+            contenType  : false,
+            cache : false,
+            data : formData,
+            map : param,
+            success : function(data) {
+                console.log(data);
+                fn_alert(data.message);
+                if(data.error != null){
+                    fn_alert(data.error.message);
+                }
+            },
+            error: function(e){
+                console.log(e);
+                var rtn = $.parseJSON(e.responseText);
+                fn_alert(rtn.error.message);
+            }
+        });
+    }
+
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">파일첨부예제</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>파일첨부예제</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:200px;"/>
+                <col style="width:200px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+                <form id="fileuploadForm" name="fileuploadForm" method="POST" enctype="multipart/form-data">
+                    <tr>
+                        <td>
+                            파일 명
+                        </td>
+                        <td>
+                            <span class="txt-file" id="file-upload-name"></span>
+                        </td>
+                        <td>
+                            <span class="btn btn_primary btn-file">
+                                파일선택 <input name="fileUpload" id="fileUpload" type="file" onchange="fn_filechange(this)">
+                            </span>
+
+                        </td>
+                        <td>
+                            <span class="btn btn-primary btn-file">
+                                <div name="fileDown" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
+                            </span></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            파일 명
+                        </td>
+                        <td>
+                            <span class="txt-file" id="file-upload-name2"></span>
+                        </td>
+                        <td>
+                            <span class="btn btn_primary btn-file">
+                                파일선택 <input name="fileUpload" id="fileUpload2" type="file" onchange="fn_filechange2(this)">
+                            </span>
+
+                        </td>
+                        <td>
+                            <span class="btn btn-primary btn-file">
+                                <div name="fileDown" id="fileDown2" onclick="fn_filecheck('filecheck')"> 다운로드</div>
+                            </span>
+                        </td>
+                        <td></td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
+    </div>
+    <div class="gap10"></div>
+</div>
+</body>
+</html>
