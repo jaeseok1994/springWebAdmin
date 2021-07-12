@@ -25,7 +25,26 @@
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
+	<select id="projSelectList" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		SELECT
+		PROJ_NO,
+		PROJ_NM,
+		ST_DT,
+		FN_DT,
+		CLIENT
+		FROM TAPRJM A
+		WHERE 1=1
+		<if test="map.p_no != '' and map.p_no != null">
+			AND PROJ_NO LIKE '%' || #{map.p_no} || '%'
+		</if>
+		<if test="map.p_nm != '' and map.p_nm != null">
+			AND PROJ_NM LIKE '%' || #{map.p_nm} || '%'
+		</if>
+		ORDER BY PROJ_NO
 
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
     <insert id="deleteList" parameterType="map" >
 		DECLARE
 		USER_EXCEPTION EXCEPTION;
