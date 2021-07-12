@@ -143,15 +143,10 @@
 
 
         // 파라미터값 가져옴
-        //var para = [[${param.param}]];
-        //var param =  document.getElementById("param").textContent;
-        //var arr = param.split("=");
-        //var new_text = arr[1].replace("}","");
         var para = getCommonPara();
-        //console.log(para.AFNO);
-
-        if(para.AFNO != null){ // 문서번호로 조회 후 값 세팅
-            app.keys.affr_no = para.AFNO;
+        console.log(para);
+        if(para.param != null){ // 문서번호로 조회 후 값 세팅
+            app.keys.affr_no = para.param.afno;
             //console.log("affr_no:::"+app.keys.affr_no);
             console.log("Not Null");
             if(app.keys.affr_no != null){
@@ -160,10 +155,12 @@
         }else{ // 문서번호가 없으면 기본값 세팅
             console.log("NULL");
 
-            var user = document.getElementById("user").textContent;
+            //var user = document.getElementById("user").textContent;
+            var UserId = getLoginId();
+            console.log(UserId);
             //console.log(user);
 
-            app.keys.writer = user;
+            app.keys.writer = UserId;
             app.keys.wr_dt = setToday;
             app.keys.st_dt = setToday;
             app.keys.fn_dt = setToday;
