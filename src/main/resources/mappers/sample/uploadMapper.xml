@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.CommonFile.upload">
+
+
+    <select id="selectList" parameterType="map"  resultType="cMap">
+        SELECT F_FILSN('FILNO') FIL_SN FROM DUAL
+    </select>
+
+    <update id="maintList" parameterType="map">
+	    DECLARE
+        V_FILENOS NUMBER;
+        USER_EXCEPTION EXCEPTION;
+        V_ERR_MSG VARCHAR(2000);
+
+            BEGIN
+
+                SELECT NVL(MAX(ATTC_FIL_NOS),0)
+                INTO V_FILENOS
+                FROM ATTC_FIL
+                WHERE ATTC_FIL_SN = #{FIL_SN};
+
+
+                INSERT INTO ATTC_FIL(ATTC_FIL_SN, ATTC_FIL_NOS, ATTC_FIL_NM, FIL_DATA, VBG_CRE_DTM, VBG_CRGR_ID)
+                VALUES(#{FIL_SN},V_FILENOS +1 ,#{map.filename}, #{map.filedata},SYSDATE,  #{_loginId_} );
+
+                IF SQL%ROWCOUNT = 0THEN
+                    V_ERR_MSG := '저장할 자료가 없습니다.';
+                    RAISE USER_EXCEPTION;
+                END IF;
+                EXCEPTION
+                WHEN USER_EXCEPTION THEN
+                RAISE_APPLICATION_ERROR(-20001,V_ERR_MSG);
+        END;
+    </update>
+    
+</mapper>

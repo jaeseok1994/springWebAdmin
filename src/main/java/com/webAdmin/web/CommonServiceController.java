@@ -156,64 +156,6 @@ public class CommonServiceController {
         return mv;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/maintfileUpload.do/{sqlId}")
-    public ModelAndView maintfileUpload(MultipartHttpServletRequest req, @PathVariable("group") String group, @PathVariable("pgm") String pgm, @PathVariable("sqlId") String sqlId, @RequestBody HashMap<String,Object> param  ) throws IOException {
-//MultipartHttpServletRequest
-        String htmlCodedMapData = null;
-        HashMap<String,Object> para = new  HashMap<String,Object>();
-
-        initParam(param);
-
-        try{
-            htmlCodedMapData = StringEscapeUtils.unescapeHtml4(req.getParameter("mapData"));
-        }catch (Exception e){
-            // Logger.errop("JSON string HTML code convert to Character 예외 발생");
-            throw new RuntimeException("JSON string HTML code convert to Character 예외 발생");
-        }
-        Map<String, Object> map = new HashMap();
-        try {
-            //Logger.debug("ExcelController : htmlCodeMapData -" + htmlCodedMapData);
-            map = new ObjectMapper().readValue(htmlCodedMapData,HashMap.class);
-        }catch (Exception e){
-            // Logger.errop("mapData JSON Parse 예외 발생");
-            throw new RuntimeException("mapData JSON Parse 예외 발생");
-        }
-        MultipartFile insertFile = null;
-
-        String ext = "";
-        Iterator fileIter = req.getFileNames();
-        if(fileIter != null && fileIter.hasNext()){
-            String paramName = (String) fileIter.next();
-            List mFiles = req.getFiles(paramName);
-            if(mFiles != null && mFiles.size() >0){
-                insertFile = (MultipartFile) mFiles.get(0);
-                String filename = insertFile.getOriginalFilename();
-                int filelength  =filename.length();
-                int fileval = filename.lastIndexOf('.');
-                String exfile = filename.substring(fileval+1,filelength);
-                byte[] byt = insertFile.getBytes();
-                if(filename != "".toString()){
-                    map.put("filedata",byt);
-                    map.put("filename",filename);
-                }
-            }
-        }
-
-        param.put("mapperGroup",group);
-        param.put("mapperPgm",pgm);
-        param.put("mapperSqlId",sqlId);
-        param.put("map",map);
-        int count = 0;
-
-        //count += dao.maint2(param);
-
-        ModelAndView mv = new ModelAndView("jsonView");
-        mv.addObject("resultCount", count+"");
-        setMessage(mv,sqlId);
-        return mv;
-    }
-
-
     private void setMessage(ModelAndView mv,String sqlId) {
         if (sqlId.startsWith("select")) {
             mv.addObject("message", "조회되었습니다.");
