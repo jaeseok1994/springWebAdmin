@@ -6,6 +6,7 @@
     <div th:replace="headerRGrid"></div>
 </head>
 <script>
+    /****** 주간업무내역 그리드 필드 선언 ******/
     var fields = [
       {fieldName: "affr_no",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
@@ -19,7 +20,7 @@
       {fieldName: "upd_user_nm",dataType: "text"},
       {fieldName: "upd_dtm",dataType: "text"}
     ];
-    
+    /****** 주간업무내역 그리드 컬럼 선언 ******/
     var columns = [
       {name: "affr_no", fieldName: "affr_no", type: "data", width: "80", header: "문서번호",editable: false},
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "90", header: "프로젝트번호",editable: false},
@@ -42,27 +43,52 @@
       {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
       {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
     ];
-	
-    
-    var grid;
+     /**** modal 그리드 필드 선언 ****/
+	var fields2 = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "client",dataType: "text"}
+    ];
 
+    /**** modal 그리드 컬럼 선언 ****/
+    var columns2 = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호", editable: false },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column", editable: false },
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처", styleName:"left-column", editable: false}
+    ];
+    /****** 전역변수 선언 ******/
+    var grid;
+    var grid2;
     var app;
+
+    /****** 폼 로딩함수 ******/
     $(document.body).ready(function(){
+        /****** Vue 선언 ******/
         app = new Vue({
             el:'#form',
             data:{
                 keys:{
-                	proj_no:'PJ001',
+                	proj_no:'',
                     pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
                     pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
-                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                    pagecnt:10, 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                    afno:'',
+                },
+                /**** 프로젝트명 조회 key ****/
+                keys2:{
+                  p_no: '',
+                  p_nm: ''
                 },
                 methods:{
                 }
             },
         });
 
-        // 버튼클릭 이벤트
+        /****** 버튼클릭 이벤트 ******/
         $("#goSelect").click(function(){
         	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
         		fn_alert("프로젝트를 선택하세요.");
@@ -109,67 +135,106 @@
 			    }
 			});
         });
-		$("#proj_no").click(function(){
 
+
+        /****** 조회조건 클릭 이벤트 ******/
+		$("#proj_no").click(function(){
+          $("#modal_pop").show();
+          projSearch();
+          setResizeHeightObjs("realgrid2");
+          grid.gridView.refresh();
         });
+
+        /****** 그리드 생성 ******/
         grid = {
             id:"realgrid",
             fields:fields,
             columns:columns,
         }
-
+        /****** modal 그리드 popup 생성 ******/
+        grid2 = {
+            id:"realgrid2",
+            fields:fields2,
+            columns:columns2,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:50, // 페이지당 표시할 데이터 건수
+        }
         createRGrid(grid);
+        createRGrid(grid2);
 
-        // 그리드 더블클릭 이벤트
+       /**** modal 그리드 레이아웃 속성 ****/
+        grid2.gridView.displayOptions.fitStyle = "even"; //컬럼 자동 폭맞춤
+        grid2.gridView.setCheckBar({ visible: false });  //체크바 비활성화
+
+       /****** 그리드 더블클릭 이벤트 ******/
         grid.gridView.onCellDblClicked = function (g, clickData) {
           var column = clickData.column;
            console.log(column);
             var AF_NO = grid.gridView.getValue(clickData.itemIndex,"affr_no");
             if(column = 'title'){ // 제목 cell 클릭 시 팝업창 열림 기능
                 popup_open(AF_NO);
-                console.log(column);
+                //console.log(column);
             }
         };
 
+        /****** modal close 버튼 클릭 이벤트 ******/
+        $("#modalClose").click(function(){
+          $("#modal_pop").hide();
+        });
+
+        /**** modal ROW 더블클릭 이벤트 ****/
+        grid2.gridView.onCellDblClicked = function (gridBase, clickData) {
+          // console.log(clickData.itemIndex);
+          // console.log(clickData.column);
+          app.keys2.p_no = grid2.dataProvider.getValue(clickData.itemIndex,0);
+          projSearch_off();
+        }
+
         setResizeHeightObjs("realgrid");
+        setResizeHeightObjs("realgrid2");
         grid.gridView.refresh();
+        grid2.gridView.refresh();
 
 
-        /*
-     	// 프로젝트 selectbox 세팅 후 자동 조회
+
+     	/****** 프로젝트명  세팅 후 자동 조회 ******/
      	$('#proj_no').change(function(){
      		var val = $(this).val();
      		if(val != null && val != '') {
-     			app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-
+     			app.keys2.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+                projSearch();
             	
-            	search();
+
      		}
-     	});*/
+     	});
     });
-    // 팝업창 열기 기능(문서번호가 넘겨줌)
+
+    /****** 팝업창 열기 기능(문서번호가 넘겨줌) ******/
     function popup_open(AF_NO){
-        //console.log("AF_NO:::"+AF_NO);
+        app.keys.afno = AF_NO;
         var jsonData = {
-            AFNO:AF_NO,
+            url:'/service/pms/pms03_popup/selectForm.do',
+            name:'pms03_popup',
+            map : app.keys,
         };
-        var TEST =   encodeURIComponent(JSON.stringify(jsonData));
-        var url    = "/service/pms/pms03_popup/selectForm.do";
-        var name   = "pms03_popup";
-        var option = "top=10, left=100, width=1500, height=800 location=no";
-        window.open(url + "?param=" + TEST, name, option);
-        //window.open(url, name, option);
-
-        /*
-        var param = {
-            url:url,
-            width:700,
-            title:700,
-        };
-        innorPopOpen(param);
-        */
-
+        fn_popup_open(jsonData);
     }
+
+    /**** 모달:프로젝트 번호 조회 ****/
+    function projSearch(){
+        grid2.dataProvider.clearRows();
+        app.keys2.pagenum = grid2.pagenum;
+
+        var jsonData = { map: app.keys2 };
+        fn_transaction("proj_select","/service/pms/pms03/selectList.do/projSelectList",jsonData,fn_callback);
+    };
+
+    /**** 모달 팝업 OFF ****/
+    function projSearch_off(){
+        $("#modal_pop").hide();
+    };
+
+    /****** 주간업무내역 조회 기능******/
     function search(){
     	grid.dataProvider.clearRows();
 
@@ -179,6 +244,8 @@
 
         fn_transaction("select","/service/pms/pms03/selectList.do/selectList",jsonData,fn_callback);
     }
+
+    /****** 삭제 및 저장 기능 ******/
     function maintList(func,key){
         grid.gridView.commit(true);
 
@@ -200,6 +267,8 @@
         }
         return;
     }
+
+    /****** callback 문 ******/
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
@@ -215,6 +284,11 @@
             }else if(func == "delete"){
             	 grid.gridView.refresh();
             	 fn_alert('정상적으로 삭제되었습니다.');
+            }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+
+              if(data.resultList.length > 0) commonPaging2(grid2, data.resultList[0].tcnt, projSearch);
             }else{
                 grid.gridView.refresh();
                 fn_alert(data.message);
@@ -272,6 +346,49 @@
     <div style="width: 100%;height: auto;overflow: hidden;">
         <div id="realgrid"  ></div>
         <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+    <!-- Modal 팝업 -->
+    <div id="modal_pop" class="modal_wrap">
+        <div class="modal_content">
+            <div class="ac content_title">프로젝트 번호 조회</div>
+            <div class="gap10"></div>
+            <div class="box_Atype">
+                <table class="tbl_base">
+                    <caption>프로젝트 번호 조회</caption>
+                    <colgroup>
+                        <col style="width:22%;"/>
+                        <col style="width:25%;"/>
+                        <col style="width:20%;"/>
+                        <col style="width:25%;"/>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="ar f14">프로젝트번호</td>
+                        <td>
+                            <input id="p_no" type="text" class="input_Ac w100p" placeholder="번호 입력"  v-model="keys2.p_no">
+                        </td>
+                        <td class="ar f14">프로젝트명</td>
+                        <td>
+                            <input id="p_nm" type="text" class="input_Ac w100p" placeholder="명칭 입력"  v-model="keys2.p_nm">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="gap5"></div>
+            <!-- Modal 버튼 -->
+            <div class="ar">
+                <div id="modalSelect" class="btn_typeA btn_search">조회</div>
+                <div id="modalClose" class="btn_typeA btn_close">Close</div>
+            </div>
+            <div class="gap10"></div>
+            <!-- realgrid  -->
+            <div class="realgrid_wrap">
+                <div id="realgrid2"></div>
+                <div id="commonPaging2" class="commonPaging" ></div>
+            </div>
+            <div class="gap10"></div>
+        </div>
     </div>
 </div>
 </body>
