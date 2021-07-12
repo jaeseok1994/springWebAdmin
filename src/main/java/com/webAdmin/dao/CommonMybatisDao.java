@@ -48,4 +48,11 @@ public class CommonMybatisDao {
         int result = sqlSession.update(NAMESPACE + group + "." + pgm + "." + sqlId,param);
         return result;
     }
+    public int fileupload(HashMap<String, Object> param) {
+        String group = (String)param.get("mapperGroup");
+        String pgm = (String)param.get("mapperPgm");
+        String sqlId = (String)param.get("mapperSqlId");
+        int result = sqlSession.update(NAMESPACE + group + "." + pgm + "." + sqlId,param);
+        return result;
+    }
 }
