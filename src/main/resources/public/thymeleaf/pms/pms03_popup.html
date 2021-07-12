@@ -71,6 +71,8 @@
                     acum_pln_rate: '',
                     acum_ars_rate: '',
                     rem: '',
+                    filno:'',
+                    fil_nm:'',
                 },
                 keys2:{     // 위험 및 이슈사항 column
                    rkis_no: '',
@@ -98,6 +100,10 @@
 
              }
         });
+        $("#gofileSave").click(function(){
+            fileUpload('maint');
+        });
+
         $("#popClose").click(function(){
              close();
         });
@@ -143,9 +149,14 @@
 
 
         // 파라미터값 가져옴
+        //var para = [[${param.param}]];
+        //var param =  document.getElementById("param").textContent;
+        //var arr = param.split("=");
+        //var new_text = arr[1].replace("}","");
         var para = getCommonPara();
-        console.log(para);
-        if(para.param != null){ // 문서번호로 조회 후 값 세팅
+        //console.log(para.AFNO);
+
+        if(para.param.afno != null){ // 문서번호로 조회 후 값 세팅
             app.keys.affr_no = para.param.afno;
             //console.log("affr_no:::"+app.keys.affr_no);
             console.log("Not Null");
@@ -155,12 +166,10 @@
         }else{ // 문서번호가 없으면 기본값 세팅
             console.log("NULL");
 
-            //var user = document.getElementById("user").textContent;
-            var UserId = getLoginId();
-            console.log(UserId);
+            var user = document.getElementById("user").textContent;
             //console.log(user);
 
-            app.keys.writer = UserId;
+            app.keys.writer = user;
             app.keys.wr_dt = setToday;
             app.keys.st_dt = setToday;
             app.keys.fn_dt = setToday;
@@ -243,7 +252,10 @@
                 app.keys.twk_ars_rate = data.resultList[0].twk_ars_rate;
                 app.keys.acum_pln_rate = data.resultList[0].acum_pln_rate;
                 app.keys.acum_ars_rate = data.resultList[0].acum_ars_rate;
+                app.keys.filno = data.resultList[0].attc_filno;
                 app.keys.rem = data.resultList[0].rem;
+                $('#file-upload-name').text(data.resultList[0].fil_nm);
+                console.log(app.keys);
                 IssueListSearch();
             }else if(func == "IssueSearch"){
                 grid.dataProvider.setRows(data.resultList);
@@ -264,6 +276,42 @@
         }
     }
 
+    function fn_filechange(f){
+        app.keys.file = $('#file-upload-name').text($('#fileUpload').val());
+    }
+
+    function fileUpload(func){
+        var param = app.keys;
+
+        var formData = new FormData($("#fileuploadForm")[0]);
+        formData.append("mapData",JSON.stringify(param));
+        console.log(formData);
+
+        $.ajax({
+            enctype: 'multipart/form-data',
+            type : 'POST',
+            url : '/service/commonFile/upload/maintfileUpload.do/' + func + 'List',
+            processData : false,
+            contentType  : false,
+            cache : false,
+            data : formData,
+            map : param,
+            success : function(data) {
+                console.log(data.FIL_SN0);
+                app.keys.filno = data.FIL_SN0;
+               // fn_alert(data.message);
+                if(data.error != null){
+                    fn_alert(data.error.message);
+                }
+            },
+            error: function(e){
+                console.log(e);
+                // var rtn = $.parseJSON(e.responseText);
+                //fn_alert(rtn.error.message);
+            }
+        });
+    }
+
 </script>
 <body>
 <div id="user" th:text="${#authentication.name}" style="display: none;"/>
@@ -273,11 +321,17 @@
         <table class="tbl_base">
             <caption>주간업무보고 등록</caption>
             <colgroup>
-                <col style="width:100px;"/>
+                <col style="width:120px;"/>
                 <col style="width:150px;"/>
-                <col style="width:100px;"/>
+                <col style="width:80px;"/>
                 <col style="width:150px;"/>
-
+                <col style="width:80px;"/>
+                <col style="width:220px;"/>
+                <col style="width:80px;"/>
+                <col style="width:400px;"/>
+                <col style="width:80px;"/>
+                <col style="width:150px;"/>
+                <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
@@ -295,17 +349,19 @@
                 </td>
                 <td class="ar">기안날짜</td>
                 <td>
-                    <datepicker id="wr_dt" class="input_A w60p" v-model="keys.wr_dt"></datepicker>
+                    <datepicker id="wr_dt" class="input_A w100p" v-model="keys.wr_dt"></datepicker>
                 </td>
                 <td class="ar">기간</td>
                 <td>
-                    <datepicker id="st_dt" class="input_A w40p" v-model="keys.st_dt"></datepicker>~
-                    <datepicker id="fn_dt" class="input_A w40p" v-model="keys.fn_dt"></datepicker>
+                    <datepicker id="st_dt" class="input_A w45p" v-model="keys.st_dt"></datepicker>
+                        ~
+                    <datepicker id="fn_dt" class="input_A w45p" v-model="keys.fn_dt"></datepicker>
                 </td>
                 <td class="ar">작성자</td>
                 <td>
-                    <input id="writer" type="text" class="input_A w60p" v-model="keys.writer" readonly>
+                    <input id="writer" type="text" class="input_A w90p" v-model="keys.writer" readonly>
                 </td>
+                <td></td>
             </tr>
             </tbody>
         </table>
@@ -313,49 +369,64 @@
     <div class="gap5"></div>
 
     <div class="ar">
-        <!--<div id="goSelect" class="btn_typeA btn_search">조회</div>
-        <div id="goAdd" class="btn_typeA btn_save">추가</div>
-        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
-        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>-->
         <div id="goSave" class="btn_typeA btn_save">저장</div>
         <div id="popClose" class="btn_typeA btn_close">Close</div>
     </div>
     <div class="content_title">주간업무</div>
         <div class="box_Atype">
-            <table class="tbl_base" border="1">
-                <tr>
-                    <th colspan="8" style="height:40px;background-color:#BDBDBD;">금주실적</th>
-                    <th colspan="2" style="height:40px;background-color:#BDBDBD;">차주계획</th>
-                </tr>
-                <tr>
-                    <td colspan="8" style="padding:5px;">
-                        <!--<input id="data1" type="text" class="input_TE w100p">-->
-                        <!--<textarea id="acdnSbc" v-model="key.twk_ars" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;" ></textarea>-->
-                        <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
-                    </td>
+            <form id="fileuploadForm" name="fileuploadForm" method="POST">
+                <table class="tbl_base" border="1">
+                    <tr>
+                        <th colspan="8" style="height:40px;background-color:#BDBDBD;">금주실적</th>
+                        <th colspan="2" style="height:40px;background-color:#BDBDBD;">차주계획</th>
+                    </tr>
+                    <tr>
+                        <td colspan="8" style="padding:5px;">
+                            <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
+                        </td>
 
-                    <td colspan="2" style="padding:5px;">
-                        <!--<textarea id="acdnSbc" v-model="key.nxw_pln" rows="30" cols="100" style="width:99%;height:400px;font-size:18px; resize: none;" ></textarea>-->
-                        <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="CCell" colspan="8">진척률</th>
-                    <th class="ACell" rowspan="3">비고</th><td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
-                </tr>
-                <tr>
-                    <th class="CCell">금주계획</th><td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
-                    <th class="CCell">금주실적</th><td><input id="twk_ars_rate" type="text" class="input_A BCell" v-model="keys.twk_ars_rate"></td>
-                    <th class="CCell">누적계획</th><td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
-                    <th class="CCell">누적실적</th><td><input id="acum_ars_rate" type="text" class="input_A BCell" v-model="keys.acum_ars_rate"></td>
-                </tr>
-                <tr>
-                    <th class="ACell">첨부파일</th>
-                    <td colspan="9">
-                        <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
-                    </td>
-                </tr>
-            </table>
+                        <td colspan="2" style="padding:5px;">
+                            <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="CCell" colspan="8">진척률</th>
+                        <th class="ACell" rowspan="3">비고</th>
+                        <td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <th class="CCell">금주계획</th>
+                        <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
+                        <th class="CCell">금주실적</th>
+                        <td><input id="twk_ars_rate" type="text" class="input_A BCell" v-model="keys.twk_ars_rate"></td>
+                        <th class="CCell">누적계획</th>
+                        <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
+                        <th class="CCell">누적실적</th>
+                        <td><input id="acum_ars_rate" type="text" class="input_A BCell" v-model="keys.acum_ars_rate"></td>
+                    </tr>
+                    <tr>
+                        <th class="ACell">첨부파일</th>
+                        <td colspan="2">
+                            <span class="txt-file" id="file-upload-name"></span>
+                            <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
+                        </td>
+                        <td colspan="2">
+                            <span class="btn btn_primary btn-file">
+                                <input name="fileUpload" id="fileUpload" type="file" onchange="fn_filechange(this)">
+                            </span>
+                        </td>
+                        <td colspan="1">
+                            <span class="btn btn-primary btn-file">
+                                <div name="fileDown" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
+                            </span>
+                        </td>
+                        <td colspan="2">
+                            <div id="gofileSave" class="btn_typeA btn_save">파일저장</div>
+                        </td>
+
+                    </tr>
+                </table>
+            </form>
         </div>
     <div class="gap10"></div>
     <div class="content_title">위험 및 이슈현황</div>

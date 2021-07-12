@@ -23,6 +23,7 @@
 	</select>
 	<select id="selectOne" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+
 		SELECT
 			affr_no,
 			proj_no,
@@ -37,6 +38,8 @@
 			twk_ars_rate,
 			acum_pln_rate,
 			acum_ars_rate,
+			(select attc_fil_nm from attc_fil b where b.attc_fil_sn = a.attc_filno) fil_nm,
+			attc_filno,
 			REM
 		from twkafm a
 		where affr_no = #{map.affr_no}
@@ -74,16 +77,16 @@
 			wr_dt,
 			st_dt,
 			fn_dt,
-			writer,twk_ars,nxw_pln,
-			twk_pln_rate,twk_ars_rate,acum_pln_rate,acum_ars_rate,rem,
+			writer,twk_ars,nxw_pln,twk_pln_rate,twk_ars_rate,
+			acum_pln_rate,acum_ars_rate,rem,attc_filno,
 			cre_user_id, cre_dtm, upd_user_id, upd_dtm
 		)values(
 			V_DOC_NO,#{map.proj_no},#{map.title},
 			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.wr_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
 			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.st_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
 			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fn_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			#{map.writer}, #{map.twk_ars}, #{map.nxw_pln},
-			#{map.twk_pln_rate},#{map.twk_ars_rate},#{map.acum_pln_rate},#{map.acum_ars_rate}, #{map.rem},
+			#{map.writer}, #{map.twk_ars}, #{map.nxw_pln},#{map.twk_pln_rate},#{map.twk_ars_rate},
+			#{map.acum_pln_rate},#{map.acum_ars_rate}, #{map.rem},#{map.filno },
 			#{_loginId_},systimestamp,#{_loginId_},systimestamp
 		);
 
@@ -133,6 +136,7 @@
 				, twk_ars_rate = #{map.twk_ars_rate}
 				, acum_pln_rate = #{map.acum_pln_rate}
 				, acum_ars_rate = #{map.acum_ars_rate}
+				, attc_filno = #{map.filno }
 				, rem = #{map.rem}
 				, upd_user_id = #{_loginId_}
 				, upd_dtm = systimestamp
