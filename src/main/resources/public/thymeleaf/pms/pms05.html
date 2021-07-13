@@ -71,7 +71,7 @@
             goRskAdd();
         });
         $("#goIsuAdd").click(function(){
-            maintList('maint');
+            goIsuAdd();
         });
         $("#goDelete").click(function(){
             maintList('delete');
@@ -128,7 +128,16 @@
         };
         fn_inner_popup_open(arg);
     }
-    /**** 위험조회 팝업 ****/
+    /**** 이슈추가 팝업 ****/
+    function goIsuAdd(){
+        var arg = {
+            map: { popName:"add", },
+            url: "/service/pms/pms05IsuPop/selectForm.do",
+            callBack: fn_callback_popup
+        };
+        fn_inner_popup_open(arg);
+    }
+    /**** 위험,이슈조회 팝업 ****/
     function goRskSearch(scn,key){
         if(scn == 'R'){
             var url    = "/service/pms/pms05RiskPop/selectForm.do";
@@ -165,6 +174,12 @@
 
         fn_transaction("select","/service/pms/pms05/selectList.do/selectList",jsonData,fn_callback);
     }
+    // 확인창(수정필요)
+    async function fn_update(){
+        var rtn = await fn_confirm("진행하시겠습니까?");
+        //console.log(rtn);
+        //fn_alert(rtn);
+    }
     function maintList(func,key){
         grid.gridView.commit(true);
 
@@ -174,10 +189,9 @@
         var list = getCheckedRows(grid);
 
         if(list.length < 1){
-          fn_alert("자료를 선택하세요.");
-          return;
+            fn_alert("자료를 선택하세요.");
+            return;
         }
-
         if(list.length >0){
             var listData = {
                   list: list,
@@ -186,11 +200,13 @@
         }
         return;
     }
+
     /**** inner popup 콜백 ****/
     function fn_callback_popup(arg){
         console.log(arg);
         //app.keys.domn_nm = arg.domn_nm;
     }
+
     /**** 콜백 ****/
     function fn_callback(func,data,status){
         if(data.error){
@@ -225,38 +241,39 @@
         <table class="tbl_base">
             <caption>위험 및 이슈 관리대장</caption>
             <colgroup>
-                <col style="width:50px;"/>
-                <col style="width:90px;"/>
-                <col style="width:60px;"/>
-                <col style="width:100px;"/>
-                <col style="width:50px;"/>
-                <col style="width:90px;"/>
-                <col style="width:50px;"/>
+                <col style="width:120px;"/>
                 <col style="width:150px;"/>
+                <col style="width:180px;"/>
+                <col style="width:250px;"/>
+                <col style="width:120px;"/>
+                <col style="width:150px;"/>
+                <col style="width:120px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
                 <td class="ar">구분</td>
                 <td>
-                    <select name="scn" id="scn" class="ui_sel w80p" v-model="keys.scn">
+                    <select name="scn" id="scn" class="ui_sel w90p" v-model="keys.scn">
                         <option value="">전체</option>
                         <option v-for="list in scnList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">프로젝트 번호</td>
                 <td>
-                    <input id="proj_no" type="text" class="input_A w80p" placeholder="번호 입력"  v-model="keys.proj_no">
+                    <input id="proj_no" type="text" class="input_A w90p" placeholder="번호 입력"  v-model="keys.proj_no">
                 </td>
                 <td class="ar">우선순위</td>
                 <td>
-                    <select name="prry_rnkg" id="prry_rnkg" class="ui_sel w80p" v-model="keys.prry_rnkg">
+                    <select name="prry_rnkg" id="prry_rnkg" class="ui_sel w90p" v-model="keys.prry_rnkg">
                         <option value="">전체</option>
                         <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">영역</td>
                 <td>
-                    <select name="area" id="area" class="ui_sel w40p" v-model="keys.area">
+                    <select name="area" id="area" class="ui_sel w45p" v-model="keys.area">
                         <option value="">전체</option>
                         <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
                     </select>
@@ -265,27 +282,28 @@
             <tr>
                 <td class="ar">식별단계</td>
                 <td>
-                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w80p" v-model="keys.dcrm_lev">
+                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w90p" v-model="keys.dcrm_lev">
                         <option value="">전체</option>
                         <option v-for="list in levList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">위험·이슈ID</td>
                 <td>
-                    <input id="rsk_isu_id" type="text" class="input_A w80p" placeholder="ID 입력" v-model="keys.rsk_isu_id">
+                    <input id="rsk_isu_id" type="text" class="input_A w90p" placeholder="ID 입력" v-model="keys.rsk_isu_id">
                 </td>
                 <td class="ar">진행상황</td>
                 <td>
-                    <select name="pgs_st" id="pgs_st" class="ui_sel w80p" v-model="keys.pgs_st">
+                    <select name="pgs_st" id="pgs_st" class="ui_sel w90p" v-model="keys.pgs_st">
                         <option value="">전체</option>
                         <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">등록일자</td>
                 <td>
-                    <datepicker id="date1" class="input_A w40p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
-                    <datepicker id="date2" class="input_A w40p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
+                    <datepicker id="date1" class="input_A w45p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
+                    <datepicker id="date2" class="input_A w45p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
                 </td>
+                <td></td>
             </tr>
             </tbody>
         </table>

@@ -285,6 +285,8 @@
                 <col style="width:150px;"/>
                 <col style="width:300px;"/>
                 <col style="width:150px;"/>
+                <col style="width:150px;"/>
+                <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
@@ -294,7 +296,7 @@
                 </td>
                 <td class="ar">직책</td>
                 <td>
-                    <select name="rbof_id" id="rbof_id" class="ui_sel w30p" v-model="keys.rbof_id">
+                    <select name="rbof_id" id="rbof_id" class="ui_sel w90p" v-model="keys.rbof_id">
                         <option value="">전체</option>
                         <option v-for="list in rbofList" :value="list.value">{{list.text}}</option>
                     </select>

@@ -6,41 +6,41 @@
 	<select id="selectList" parameterType="map" resultType="map">
 
 		SELECT
-			RKIS_NO,
-			ACDN_TITLE,
-			SCN,
-			PROJ_NO,
-			RSK_ID,
-			PRRY_RNKG,
-			AREA,
-			DCRM_LEV,
-			PGS_ST,
-			TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT,
-			OCCU_PROB,
-			IFLU_DEG,
-			RSK_DEG,
-			ACDN_SBC,
-			CRGR,
-			TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT,
-			PVNT_PLN,
-			TO_CHAR(TO_DATE(A.TRTM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') TRTM_DT,
-			TRTM_MANH,
-			CRE_USER_ID,
-			(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM,
-			TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
+			 RKIS_NO
+			,ACDN_TITLE
+			,SCN
+			,PROJ_NO
+			,RSK_ID
+			,PRRY_RNKG
+			,AREA
+			,DCRM_LEV
+			,PGS_ST
+			,TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT
+			,OCCU_PROB
+			,IFLU_DEG
+			,RSK_DEG
+			,ACDN_SBC
+			,CRGR
+			,TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT
+			,PVNT_PLN
+			,TO_CHAR(TO_DATE(A.TRTM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') TRTM_DT
+			,TRTM_MANH
+			,CRE_USER_ID
+			,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM
+			,TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
 		FROM TARKIS A
-		WHERE RKIS_NO = #{map.rkisNo}
+		WHERE RKIS_NO = #{map.rkis_no}
 
 	</select>
 
 	<select id="projSelectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 		SELECT
-			PROJ_NO,
-			PROJ_NM,
-			ST_DT,
-			FN_DT,
-			CLIENT
+			 PROJ_NO
+			,PROJ_NM
+			,ST_DT
+			,FN_DT
+			,CLIENT
 		FROM TAPRJM A
 		WHERE 1=1
 		<if test="map.p_no != '' and map.p_no != null">
@@ -55,84 +55,85 @@
 	</select>
 
 	<insert id="maintOne" parameterType="map" >
-		{CALL
-			DECLARE
-				PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
-				V_SEQ VARCHAR2(3) 	   := '';
-				V_RKIS_NO VARCHAR2(20) := '';
-				V_MAX_RSK VARCHAR2(20) := '';
-				V_RSK_NO VARCHAR2(20)  := '';
-				V_USER VARCHAR2(20)  := '';
+	{CALL
+		DECLARE
+			PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
+			V_SEQ VARCHAR2(3) 	   := '';
+			V_RKIS_NO VARCHAR2(20) := '';
+			V_MAX_RSK VARCHAR2(20) := '';
+			V_RSK_NO VARCHAR2(20)  := '';
+			V_USER_CHK VARCHAR2(20)  := '';
+			V_ERR_MSG VARCHAR2(100)  := '';
 
+		BEGIN
+			/* 사용자 ID CHECK */
+			SELECT MAX(CRE_USER_ID)
+			INTO V_USER_CHK
+			FROM TARKIS
+			WHERE RKIS_NO = #{map.rkis_no};
+
+			IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL THEN
+				V_ERR_MSG := '삭제할 자료가 없습니다.';	/* 확인 필요 */
+				RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
+			END IF;
+
+			/* 관리대장번호 생성 */
+			V_RKIS_NO := F_DOCNO('RKIS');
+
+			/* 리스크번호 생성 */
 			BEGIN
-				/* 관리대장번호 생성 */
-				V_RKIS_NO := F_DOCNO('RKIS');
-
-				SELECT CRE_USER_ID
-				INTO V_USER
+				SELECT MAX(RSK_ID)
+				INTO V_MAX_RSK
 				FROM TARKIS
-				WHERE RKIS_NO = #{map.rkis_no}
-
-				IF #{_loginId_} != V_USER THEN
-					V_ERR_MSG := '삭제할 자료가 없습니다.';
-					RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
-				END IF;
-
-				/* 리스크번호 생성 */
-				BEGIN
-					SELECT MAX(RSK_ID)
-					INTO V_MAX_RSK
-					FROM TARKIS
-					WHERE RSK_ID LIKE PROJ_NO||'RK'||'%'
-					  AND PROJ_NO = #{map.proj_no};
-					V_SEQ := nvl(REPLACE(V_MAX_RSK,#{map.proj_no}||'RK'),'000');
-					V_RSK_NO := #{map.proj_no} || 'RK' || F_CNUM(V_SEQ);
-				END;
-
-				/* 수정 */
-				MERGE INTO TARKIS
-				USING DUAL
-					ON (RKIS_NO = #{map.rkis_no})
-				WHEN MATCHED THEN
-				UPDATE SET
-					  ACDN_TITLE = #{map.acdn_title}
-					, PROJ_NO = #{map.proj_no}
-					, PRRY_RNKG = #{map.prry_rnkg}
-					, AREA = #{map.area}
-					, DCRM_LEV = #{map.dcrm_lev}
-					, PGS_ST = #{map.pgs_st}
-					, DCRM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-					, OCCU_PROB = #{map.occu_prob}
-					, IFLU_DEG = #{map.iflu_deg}
-					, RSK_DEG = #{map.rsk_deg}
-					, ACDN_SBC = #{map.acdn_sbc}
-					, CTMS = #{map.ctms}
-					, CRGR = #{map.crgr}
-					, PARR_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-					, PVNT_PLN = #{map.pvnt_pln}
-					, TRTM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-					, TRTM_MANH = #{map.trtm_manh}
-					, UPD_USER_ID = #{_loginId_}
-					, UPD_DTM = SYSDATE
-				WHEN NOT MATCHED THEN
-				/* 신규입력 */
-				INSERT(
-					RKIS_NO, ACDN_TITLE, SCN, PROJ_NO, RSK_ID, PRRY_RNKG,
-					AREA, DCRM_LEV, PGS_ST, OCCU_PROB, IFLU_DEG, RSK_DEG,
-					ACDN_SBC, CTMS, CRGR, PVNT_PLN, TRTM_MANH,
-					DCRM_DT, PARR_DT, TRTM_DT,
-					CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
-				)VALUES(
-					V_RKIS_NO, #{map.acdn_title}, 'R', #{map.proj_no}, V_RSK_NO, #{map.prry_rnkg},
-					#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.occu_prob}, #{map.iflu_deg}, #{map.rsk_deg},
-					#{map.acdn_sbc}, #{map.ctms}, #{map.crgr}, #{map.pvnt_pln}, #{map.trtm_manh},
-					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-					TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-					#{_loginId_}, SYSDATE, #{_loginId_}, SYSDATE
-				);
+				WHERE RSK_ID LIKE PROJ_NO||'RK'||'%'
+				  AND PROJ_NO = #{map.proj_no};
+				V_SEQ := nvl(REPLACE(V_MAX_RSK,#{map.proj_no}||'RK'),'000');
+				V_RSK_NO := #{map.proj_no} || 'RK' || F_CNUM(V_SEQ);
 			END;
-		}
+
+			/* 수정 */
+			MERGE INTO TARKIS
+			USING DUAL
+				ON (RKIS_NO = #{map.rkis_no})
+			WHEN MATCHED THEN
+			UPDATE SET
+				  ACDN_TITLE = #{map.acdn_title}
+				, PROJ_NO = #{map.proj_no}
+				, PRRY_RNKG = #{map.prry_rnkg}
+				, AREA = #{map.area}
+				, DCRM_LEV = #{map.dcrm_lev}
+				, PGS_ST = #{map.pgs_st}
+				, DCRM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+				, OCCU_PROB = #{map.occu_prob}
+				, IFLU_DEG = #{map.iflu_deg}
+				, RSK_DEG = #{map.rsk_deg}
+				, ACDN_SBC = #{map.acdn_sbc}
+				, CRGR = #{map.crgr}
+				, PARR_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+				, PVNT_PLN = #{map.pvnt_pln}
+				, TRTM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+				, TRTM_MANH = #{map.trtm_manh}
+				, UPD_USER_ID = #{_loginId_}
+				, UPD_DTM = SYSDATE
+			WHEN NOT MATCHED THEN
+			/* 신규입력 */
+			INSERT(
+				RKIS_NO, ACDN_TITLE, SCN, PROJ_NO, RSK_ID, PRRY_RNKG,
+				AREA, DCRM_LEV, PGS_ST, OCCU_PROB, IFLU_DEG, RSK_DEG,
+				ACDN_SBC, CRGR, PVNT_PLN, TRTM_MANH,
+				DCRM_DT, PARR_DT, TRTM_DT,
+				CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
+			)VALUES(
+				V_RKIS_NO, #{map.acdn_title}, 'R', #{map.proj_no}, V_RSK_NO, #{map.prry_rnkg},
+				#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.occu_prob}, #{map.iflu_deg}, #{map.rsk_deg},
+				#{map.acdn_sbc}, #{map.crgr}, #{map.pvnt_pln}, #{map.trtm_manh},
+				TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+				TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+				TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+				#{_loginId_}, SYSDATE, #{_loginId_}, SYSDATE
+			);
+		END
+	}
 	</insert>
 
 	<delete id="deleteList" parameterType="map">
