@@ -81,7 +81,8 @@
         /**** 클릭 이벤트 ****/
         //수정
         $("#goModify").click(function(){
-            app.top.pop_name = 'add';
+            fn_alert('수정');
+            maintOne('maint');
         });
         //저장
         $("#goSave").click(function(){
@@ -89,6 +90,7 @@
         });
         //삭제
         $("#goDelete").click(function(){
+            fn_alert('삭제');
             maintOne('delete');
         });
         //팝업창 Close
@@ -241,7 +243,7 @@
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
 
-              if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
+                if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
             }else if(func == "maint"){        // 저장 콜백
                 parent.grid.gridView.refresh();
                 fn_alert('정상적으로 저장되었습니다.');
@@ -303,11 +305,11 @@
   </div>
   <!-- 버튼 -->
   <div class="ar btnWrap">
-    <!-- 조회화면 버튼 -->
+    <!-- 작성화면 버튼 -->
     <template th:if="${para.popName} == 'add'">
       <div id="goSave" class="btn_typeA btn_save">저장</div>
     </template>
-    <!-- 작성화면 버튼 -->
+    <!-- 조회화면 버튼 -->
     <template th:if="${para.popName} != 'add'">
       <template v-if="isMine">
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
