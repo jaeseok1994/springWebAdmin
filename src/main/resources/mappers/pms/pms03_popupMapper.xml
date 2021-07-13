@@ -6,19 +6,28 @@
 	<select id="IssueSearch" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 		SELECT
-			A.RKIS_NO,
-			A.ACDN_TITLE,
-			(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN,
-			DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID,
-			A.PROJ_NO,
-			(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST,
-			NVL((SELECT 1 FROM DUAL WHERE EXISTS( SELECT RKIS_NO FROM TAAFRK WHERE RKIS_NO = A.RKIS_NO)),0)chk
+			A.RKIS_NO
+			,A.ACDN_TITLE
+			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN
+			,DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID
+			,A.PROJ_NO
+			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST
+			<if test="affr_no != '' and affr_no != null">
+			,NVL((SELECT 1 FROM DUAL WHERE EXISTS(
+													SELECT RKIS_NO
+													FROM TAAFRK
+													WHERE RKIS_NO = A.RKIS_NO
+													<if test="affr_no != '' and affr_no != null">
+													AND EXISTS(SELECT 1 FROM TAAFRK WHERE AFFR_NO = #{affr_no} AND RKIS_NO = A.RKIS_NO)
+													</if>)),0)chk
+			</if>
 		FROM TARKIS A
 		WHERE 1=1
 		<if test="proj_no != '' and proj_no != null">
 			AND PROJ_NO LIKE '%' || #{proj_no} || '%'
 		</if>
-		ORDER BY CHK DESC, A.RKIS_NO
+
+		ORDER BY A.RKIS_NO
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 	<select id="selectOne" parameterType="map" resultType="cMap">
@@ -27,6 +36,7 @@
 		SELECT
 			affr_no,
 			proj_no,
+			(select proj_nm from taprjm where proj_no = a.proj_no)proj_nm,
 			title,
 			substr(wr_dt,0,4)||'-'||substr(wr_dt,5,2)||'-'||substr(wr_dt,7,2) wr_dt,
 			substr(st_dt,0,4)||'-'||substr(st_dt,5,2)||'-'||substr(st_dt,7,2) st_dt,

@@ -11,6 +11,9 @@
 .BCell {width:100px;height:50px;font-size:15px;}
 .CCell {width:100px;height:10px;background:#BDBDBD;}
 .textarea { height:400px; width:98%; !important; }
+.parent { width: 100%;}
+.first {float: left;width:30%;box-sizing: border-box;}
+.Sub_Title{ font-size:25px; color:#474e61; font-weight:500; letter-spacing:-0.5px;}
 </style>
 <script th:inline="javascript">
     // 위험,이슈 grid 정보
@@ -32,13 +35,30 @@
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
       {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
       {name: "pgs_st", fieldName: "pgs_st", type: "data", width: "100", header: "진행상황", editable: false },
-      {name: "chk", fieldName: "chk", type: "data", width: "100", header: "chk", editable: false },
+      {name: "chk", fieldName: "chk", type: "data", width: "100", header: "chk", editable: false, visible: false },
 
+    ];
+     /**** modal 그리드 필드 선언 ****/
+	var fields2 = [
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "client",dataType: "text"}
+    ];
+
+    /**** modal 그리드 컬럼 선언 ****/
+    var columns2 = [
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호", editable: false },
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column", editable: false },
+      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처", styleName:"left-column", editable: false}
     ];
 
      var grid;
+     var grid2;
      var app;
-     var IssueList = new Array();
 
      // 현재날짜 구하는 기능
      var today = new Date();
@@ -59,6 +79,7 @@
                 keys:{      // 주간업무column
                     affr_no: '',
                     proj_no: '',
+                    proj_nm: '',
                     title: '',
                     writer: '',
                     wr_dt: '',
@@ -81,8 +102,13 @@
                    acdn_title: '',
                    pgs_st: '',
                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
-                   pagerows:8, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                   pagerows:5, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                },
+                 /**** 프로젝트명 조회 key ****/
+                keys3:{
+                  p_no: '',
+                  p_nm: ''
                 },
                 methods:{
                 }
@@ -110,11 +136,19 @@
 
         // 위험,이슈사항 추가기능
         $("#goSelect").click(function(){
-             if($('#proj_no').val() == null || $('#proj_no').val() == ''){
+             if($('#proj_nm').val() == null || $('#proj_nm').val() == ''){
         		fn_alert("프로젝트를 선택해주세요.");
         		return;
         	}
              IssueSearch();
+        });
+
+        /****** 조회조건 프로젝트명 클릭 이벤트 ******/
+		$("#proj_nm").click(function(){
+          $("#modal_pop").show();
+          projSearch();
+          setResizeHeightObjs("realgrid2");
+          grid2.gridView.refresh();
         });
 
         // 그리드 생성
@@ -124,37 +158,48 @@
             columns:columns,
             pagenum:1, // 현재 페이지 번호
             pagerows:5, // 페이지당 표시할 데이터 건수
+            pageDiv:"#commonPaging"
         }
-
+        /****** modal 그리드 popup 생성 ******/
+        grid2 = {
+            id:"realgrid2",
+            fields:fields2,
+            columns:columns2,
+            pagenum:1, // 현재 페이지 번호
+            pagerows:50, // 페이지당 표시할 데이터 건수
+            pageDiv:"#commonPaging2"
+        }
         createRGrid(grid);
+        createRGrid(grid2);
+
         grid.gridView.displayOptions.fitStyle = "even";
         grid.gridView.setCheckBar({ visible: true });
 
-        // 더블클릭 이벤트
-        /*
-        grid.gridView.onCellDblClicked = function (gridBase, clickData) {
-           grid.daaProvider.setValue(clickData.itemIndex,'check','1');
-          //var jsonData = grid.dataProvider.getJsonRow(clickData.itemIndex)
-          //jsonData = JSON.stringify(jsonData);
-           // console.log(jsonData);
 
+        setResizeHeightObjs("realgrid2");
+        grid2.gridView.refresh();
+
+        /****** modal 조회 버튼 클릭 이벤트 ******/
+        $("#modalSelect").click(function(){
+          projSearch();
+        });
+
+        /****** modal close 버튼 클릭 이벤트 ******/
+        $("#modalClose").click(function(){
+          $("#modal_pop").hide();
+        });
+
+        /**** modal ROW 더블클릭 이벤트 ****/
+        grid2.gridView.onCellDblClicked = function (gridBase, clickData) {
+          app.keys.proj_no = grid2.dataProvider.getValue(clickData.itemIndex,0);
+          app.keys.proj_nm = grid2.dataProvider.getValue(clickData.itemIndex,1);
+          console.log(app.keys.proj_no);
+          console.log(app.keys.proj_nm);
+          projSearch_off();
         }
-        setResizeHeightObjs("realgrid");
-        grid.gridView.refresh();
-        */
-        grid.gridView.onCellClicked = function (gridBase, clickData) {
-            console.log(clickData);
-        }
-
-
 
         // 파라미터값 가져옴
-        //var para = [[${param.param}]];
-        //var param =  document.getElementById("param").textContent;
-        //var arr = param.split("=");
-        //var new_text = arr[1].replace("}","");
         var para = getCommonPara();
-        //console.log(para.AFNO);
 
         if(para.param.afno != null){ // 문서번호로 조회 후 값 세팅
             app.keys.affr_no = para.param.afno;
@@ -176,14 +221,26 @@
         }
 
     });
+     /**** 모달:프로젝트 번호 조회 ****/
+    function projSearch(){
+        grid2.dataProvider.clearRows();
+        app.keys2.pagenum = grid2.pagenum;
 
+        var jsonData = { map: app.keys2 };
+        fn_transaction("proj_select","/service/pms/pms03/selectList.do/projSelectList",jsonData,fn_callback);
+    };
+
+    /**** 모달 팝업 OFF ****/
+    function projSearch_off(){
+        $("#modal_pop").hide();
+    };
     function IssueSearch(){ // 전체조회
         grid.dataProvider.clearRows();
-        //app.keys2.pagenum = grid.pagenum;
         app.keys2.pagenum = 1;
 
         var jsonData = {
                 proj_no: app.keys.proj_no,
+                affr_no: app.keys.affr_no,
                 map: app.keys2,
         };
 
@@ -220,19 +277,29 @@
         searchParam.func = func;
         var list = getCheckedRows(grid);
         var rkis_no = '';
-        console.log(list);
-        for(var v in list){
-            rkis_no += list[v].rkis_no+",";
+
+        var projno = app.keys.proj_no;
+        var title = app.keys.title;
+        if(projno == '' || projno == null || projno == undefined){
+          fn_alert('프로젝트 번호를 입력해주세요.');
+        }else if(title == '' || title == null || title == undefined){
+          fn_alert('제목을 입력해주세요.');
+        }else{
+            /*
+            for(var v in list){
+                rkis_no += list[v].rkis_no+",";
+            }
+            console.log(rkis_no);
+
+
+            var jsonData = {
+                      map: app.keys,
+                      rkis_no: rkis_no,
+            };
+            fn_transaction(func,"/service/pms/pms03_popup/maintOne.do/"+func+"List",jsonData,fn_callback);
+            return;
+            */
         }
-        console.log(rkis_no);
-
-
-        var jsonData = {
-                  map: app.keys,
-                  rkis_no: rkis_no,
-        };
-        fn_transaction(func,"/service/pms/pms03_popup/maintOne.do/"+func+"List",jsonData,fn_callback);
-        return;
 
     }
     function fn_callback(func,data,status){
@@ -241,6 +308,7 @@
         }else{
              if(func == "select"){
                 app.keys.proj_no = data.resultList[0].proj_no;
+                app.keys.proj_nm = data.resultList[0].proj_nm;
                 app.keys.title = data.resultList[0].title;
                 app.keys.wr_dt = data.resultList[0].wr_dt;
                 app.keys.st_dt = data.resultList[0].st_dt;
@@ -258,6 +326,8 @@
                 console.log(app.keys);
                 IssueListSearch();
             }else if(func == "IssueSearch"){
+                console.log('IssueSearch');
+                console.log(data.resultList);
                 grid.dataProvider.setRows(data.resultList);
                 for(var i = 0;i<grid.dataProvider.getRowCount();i++)    {
                     var chk = grid.gridView.getValue(i,"chk");
@@ -266,10 +336,16 @@
                     }
                 }
                 grid.gridView.refresh();
+                 commonPaging(grid, data.resultList[0].tcnt, IssueSearch);
                 //if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
             }else if(func == "IssueList"){
                grid.dataProvider.setRows(data.resultList);
               grid.gridView.refresh();
+            }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
+                grid2.dataProvider.setRows(data.resultList);
+                grid2.gridView.refresh();
+
+              if(data.resultList.length > 0) commonPaging(grid2, data.resultList[0].tcnt, projSearch);
             }else{
                 fn_alert(data.message);
             }
@@ -322,26 +398,22 @@
             <caption>주간업무보고 등록</caption>
             <colgroup>
                 <col style="width:120px;"/>
+                <col style="width:200px;"/>
+                <col style="width:80px;"/>
+                <col style="width:200px;"/>
+                <col style="width:100px;"/>
                 <col style="width:150px;"/>
                 <col style="width:80px;"/>
-                <col style="width:150px;"/>
+                <col style="width:300px;"/>
                 <col style="width:80px;"/>
-                <col style="width:220px;"/>
-                <col style="width:80px;"/>
-                <col style="width:400px;"/>
-                <col style="width:80px;"/>
-                <col style="width:150px;"/>
+                <col style="width:100px;"/>
                 <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
-                <td class="ar">프로젝트 명</td>
+                <td class="">프로젝트 명</td>
                 <td>
-                    <!--<select name="proj_no" id="proj_no" class="ui_sel w80p" v-model="keys.proj_no">
-                        <option value="">선택</option>
-                        <option v-for="list in projList" :value="list.value">{{list.text}}</option>
-                    </select>-->
-                    <input name="proj_no" id="proj_no" class="ui_sel w100p" v-model="keys.proj_no"></input>
+                    <input name="proj_nm" id="proj_nm" class="ui_sel w100p" v-model="keys.proj_nm"></input>
                 </td>
                 <td class="ar">제목</td>
                 <td>
@@ -354,7 +426,7 @@
                 <td class="ar">기간</td>
                 <td>
                     <datepicker id="st_dt" class="input_A w45p" v-model="keys.st_dt"></datepicker>
-                        ~
+                    ~
                     <datepicker id="fn_dt" class="input_A w45p" v-model="keys.fn_dt"></datepicker>
                 </td>
                 <td class="ar">작성자</td>
@@ -366,80 +438,124 @@
             </tbody>
         </table>
     </div>
-    <div class="gap5"></div>
 
-    <div class="ar">
-        <div id="goSave" class="btn_typeA btn_save">저장</div>
-        <div id="popClose" class="btn_typeA btn_close">Close</div>
+    <div class="parent Sub_Title">
+        <div class="first " >주간업무</div>
+        <div id="popClose" class="btn_typeA  btn_close" style="float:right;margin-top: 5px;">Close</div>
+        <div id="goSave" class="btn_typeA  btn_save" style="float:right; margin-top: 5px; margin-right: 5px;">저장</div>
     </div>
-    <div class="content_title">주간업무</div>
-        <div class="box_Atype">
-            <form id="fileuploadForm" name="fileuploadForm" method="POST">
-                <table class="tbl_base" border="1">
-                    <tr>
-                        <th colspan="8" style="height:40px;background-color:#BDBDBD;">금주실적</th>
-                        <th colspan="2" style="height:40px;background-color:#BDBDBD;">차주계획</th>
-                    </tr>
-                    <tr>
-                        <td colspan="8" style="padding:5px;">
-                            <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
-                        </td>
+    <div class="gap5"></div>
+    <div class="box_Atype">
+        <form id="fileuploadForm" name="fileuploadForm" method="POST">
+            <table class="tbl_base" border="1">
+                <tr>
+                    <th colspan="8" style="height:40px;background-color:#BDBDBD;">금주실적</th>
+                    <th colspan="2" style="height:40px;background-color:#BDBDBD;">차주계획</th>
+                </tr>
+                <tr>
+                    <td colspan="8" style="padding:5px;">
+                        <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
+                    </td>
 
-                        <td colspan="2" style="padding:5px;">
-                            <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="CCell" colspan="8">진척률</th>
-                        <th class="ACell" rowspan="3">비고</th>
-                        <td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
-                    </tr>
-                    <tr>
-                        <th class="CCell">금주계획</th>
-                        <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
-                        <th class="CCell">금주실적</th>
-                        <td><input id="twk_ars_rate" type="text" class="input_A BCell" v-model="keys.twk_ars_rate"></td>
-                        <th class="CCell">누적계획</th>
-                        <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
-                        <th class="CCell">누적실적</th>
-                        <td><input id="acum_ars_rate" type="text" class="input_A BCell" v-model="keys.acum_ars_rate"></td>
-                    </tr>
-                    <tr>
-                        <th class="ACell">첨부파일</th>
-                        <td colspan="2">
-                            <span class="txt-file" id="file-upload-name"></span>
-                            <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
-                        </td>
-                        <td colspan="2">
+                    <td colspan="2" style="padding:5px;">
+                        <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="CCell" colspan="8">진척률</th>
+                    <th class="ACell" rowspan="3">비고</th>
+                    <td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
+                </tr>
+                <tr>
+                    <th class="CCell">금주계획</th>
+                    <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
+                    <th class="CCell">금주실적</th>
+                    <td><input id="twk_ars_rate" type="text" class="input_A BCell" v-model="keys.twk_ars_rate"></td>
+                    <th class="CCell">누적계획</th>
+                    <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
+                    <th class="CCell">누적실적</th>
+                    <td><input id="acum_ars_rate" type="text" class="input_A BCell" v-model="keys.acum_ars_rate"></td>
+                </tr>
+                <tr>
+                    <th class="ACell">첨부파일</th>
+                    <td colspan="2">
+                        <span class="txt-file" id="file-upload-name"></span>
+                        <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
+                    </td>
+                    <td colspan="2">
                             <span class="btn btn_primary btn-file">
                                 <input name="fileUpload" id="fileUpload" type="file" onchange="fn_filechange(this)">
                             </span>
-                        </td>
-                        <td colspan="1">
+                    </td>
+                    <td colspan="1">
                             <span class="btn btn-primary btn-file">
                                 <div name="fileDown" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
                             </span>
-                        </td>
-                        <td colspan="2">
-                            <div id="gofileSave" class="btn_typeA btn_save">파일저장</div>
-                        </td>
+                    </td>
+                    <td colspan="2">
+                        <div id="gofileSave" class="btn_typeA btn_save">파일저장</div>
+                    </td>
 
-                    </tr>
-                </table>
-            </form>
-        </div>
-    <div class="gap10"></div>
-    <div class="content_title">위험 및 이슈현황</div>
-    <div class="ar">
-        <div id="goSelect" class="btn_typeA btn_search">전체조회</div>
+                </tr>
+            </table>
+        </form>
     </div>
-    <div class="gap10"></div>
+    <div class="gap5"></div>
+
+    <div class="parent">
+        <div class="first Sub_Title">위험 및 이슈현황</div>
+        <div id="goSelect" class="btn_typeA btn_search"style="float:right;">전체조회</div>
+    </div>
+    <div class="gap5"></div>
     <!-- realgrid  -->
     <div style="width:100%; height:auto; overflow: hidden;">
-        <div id="realgrid"></div>
+        <div id="realgrid" style="height:200px"></div>
         <div id="commonPaging" class="commonPaging" ></div>
     </div>
     <div class="gap10"></div>
+    <!-- Modal 팝업 -->
+    <div id="modal_pop" class="modal_wrap">
+        <div class="modal_content">
+            <div class="ac content_title">프로젝트 번호 조회</div>
+            <div class="gap10"></div>
+            <div class="box_Atype">
+                <table class="tbl_base">
+                    <caption>프로젝트 번호 조회</caption>
+                    <colgroup>
+                        <col style="width:22%;"/>
+                        <col style="width:25%;"/>
+                        <col style="width:20%;"/>
+                        <col style="width:25%;"/>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td class="ar f14">프로젝트번호</td>
+                        <td>
+                            <input id="p_no" type="text" class="input_Ac w100p" placeholder="번호 입력"  v-model="keys2.p_no">
+                        </td>
+                        <td class="ar f14">프로젝트명</td>
+                        <td>
+                            <input id="p_nm" type="text" class="input_Ac w100p" placeholder="명칭 입력"  v-model="keys2.p_nm">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="gap5"></div>
+            <!-- Modal 버튼 -->
+            <div class="ar">
+                <div id="modalSelect" class="btn_typeA btn_search">조회</div>
+                <div id="modalClose" class="btn_typeA btn_close">Close</div>
+            </div>
+            <div class="gap10"></div>
+            <!-- realgrid  -->
+            <div class="realgrid_wrap">
+                <div id="realgrid2"></div>
+                <div id="commonPaging2" class="commonPaging" ></div>
+            </div>
+            <div class="gap10"></div>
+        </div>
+    </div>
 </div>
 
 </body>

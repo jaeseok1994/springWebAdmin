@@ -43,7 +43,7 @@
       {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
       {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
     ];
-     /**** modal 그리드 필드 선언 ****/
+    /**** modal 그리드 필드 선언 ****/
 	var fields2 = [
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "proj_nm",dataType: "text"},
@@ -91,9 +91,9 @@
             },
         });
 
-        /****** 버튼클릭 이벤트 ******/
+        /****** 주간 업무보고 버튼클릭 이벤트 ******/
         $("#goSelect").click(function(){
-        	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
+        	if($('#proj_nm').val() == null || $('#proj_nm').val() == ''){
         		fn_alert("프로젝트를 선택하세요.");
         		return;
         	}
@@ -140,7 +140,7 @@
         });
 
 
-        /****** 조회조건 클릭 이벤트 ******/
+        /****** 조회조건 프로젝트명 클릭 이벤트 ******/
 		$("#proj_nm").click(function(){
           $("#modal_pop").show();
           projSearch();
@@ -207,18 +207,6 @@
           search();
           projSearch_off();
         }
-
-
-     	/****** 조회조건 프로젝트명  세팅 후 자동 조회
-     	$('#proj_nm').change(function(){
-     	    console.log("proj_nm change");
-     		var val = $(this).val();
-     		if(val != null && val != '') {
-     			app.keys2.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
-                projSearch();
-     		}
-     	});
-     	******/
     });
 
     /****** 팝업창 열기 기능(문서번호가 넘겨줌) ******/
