@@ -246,9 +246,9 @@ $(document.body).ready(function () {
     var vue_innerpopup_temp = '    \
         <div class="container" id="vueinnerpopup"> \
             <div class="modal-mask" v-if="showModal" @close="showModal = false">\
-                <div class="modal-wrapper">\
-                    <div class="innerPopupContainerGrid" :style="{width:width,height:height}"> \
-                        <div class="innerPopupTitle">{{headText}}</div>\
+                <div class="modal-wrapper"  id="innerPopupWrapper">\
+                    <div class="innerPopupContainerGrid" id="innerPopupContainerGrid" :style="{width:width,height:height}"> \
+                        <div class="innerPopupTitle" id="innerPopupTitle">{{headText}}</div>\
                         <div class="innerPopupClose">\
                             <button class="modal-default-button" @click="defaultCallBack()">Close</button>\
                         </div>\
@@ -396,6 +396,13 @@ function fn_inner_popup_open(arg){
     app_innerpopup.url = arg.url + "?param=" + jstring;
     app_innerpopup.callBack = arg.callBack;
     app_innerpopup.showModal = true;
+    if(arg.width) app_innerpopup.width = arg.width;
+    if(arg.height) app_innerpopup.height = arg.height;
+    if(arg.title) app_innerpopup.headText = arg.title;
+
+    //debugger;
+    //var container = document.getElementById("innerPopupContainerGrid");
+    setTimeout(function(){dragElement();},200);
 }
 
 // 새창팝업
@@ -530,3 +537,52 @@ function fn_getCodePopup(param,url,callBack,title){
     app_code_popup.callBack = callBack;
 }
 
+
+
+function dragElement() {
+    var elmnt = document.getElementById("innerPopupContainerGrid");
+    var parent = elmnt.parentElement;
+    elmnt.style.top = (parent.offsetHeight - elmnt.offsetHeight)/2 + "px";
+    elmnt.style.left = (parent.offsetWidth - elmnt.offsetWidth)/2 + "px";
+
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (document.getElementById("innerPopupTitle")) {
+        // if present, the header is where you move the DIV from:
+        document.getElementById("innerPopupTitle").onmousedown = dragMouseDown;
+    } else {
+        // otherwise, move the DIV from anywhere inside the DIV:
+        elmnt.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // get the mouse cursor position at startup:
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        // calculate the new cursor position:
+        console.log(e.clientX);
+        console.log(elmnt.offsetTop);
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // set the element's new position:
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        // stop moving when mouse button is released:
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
