@@ -285,7 +285,6 @@
         }else if(title == '' || title == null || title == undefined){
           fn_alert('제목을 입력해주세요.');
         }else{
-            /*
             for(var v in list){
                 rkis_no += list[v].rkis_no+",";
             }
@@ -298,7 +297,6 @@
             };
             fn_transaction(func,"/service/pms/pms03_popup/maintOne.do/"+func+"List",jsonData,fn_callback);
             return;
-            */
         }
 
     }
@@ -386,6 +384,23 @@
                 //fn_alert(rtn.error.message);
             }
         });
+    }
+
+    function fn_filecheck(){
+        if(app.keys.filno !== null && app.keys.filno !== ""){
+            var param = {filNo:app.keys.filno} //app.keys;
+            var url = "/service/commonFile/upload/maintfileDownload.do/selectFile";
+            param.flid = $('#file-upload-name').text();
+            var jsonData = {
+                map:param,
+            };
+            fn_downLoad(url,jsonData,"_self");
+            //fn_popup_open
+        }else{
+            fn_alert("저장된 파일이 없습니다.");
+        }
+
+
     }
 
 </script>

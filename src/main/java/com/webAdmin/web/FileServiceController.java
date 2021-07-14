@@ -2,6 +2,7 @@ package com.webAdmin.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webAdmin.dao.CommonMybatisDao;
+import com.webAdmin.dao.model.fileVO;
 import com.webAdmin.security.domain.model.SecurityUser;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -91,21 +96,52 @@ public class FileServiceController {
             }
         }
 
-
-//        para.put("mapperGroup",group);
-//        para.put("mapperPgm",pgm);
-//        para.put("mapperSqlId",sqlId);
-//        para.put("map",map);
-//        param.put("map",map);
-
-
-//        count += dao.fileupload(para);
-
-
-      //  mv.addObject("resultCount", count+"");
-      //  mv.addObject("resultList", result);
         setMessage(mv,sqlId);
         return mv;
+    }
+
+    @RequestMapping(value = "/maintfileDownload.do/{sqlId}", produces="application/text; charset=utf8")
+    public void fileDownload(HttpServletResponse response, HttpServletRequest req, @RequestParam Map map, @PathVariable("pgm") String pgm,@PathVariable("sqlId") String sqlId , ModelMap model ) throws Exception{
+       // Map<String, Object> resultFile = new HashMap();
+        HashMap<String,Object> para = new  HashMap<String,Object>();
+        String param1 = String.valueOf(map.get("param"));
+        param1 = param1.replaceAll("&quot;","\"");
+
+        try {
+            para = new ObjectMapper().readValue(param1,HashMap.class);
+        }catch (IOException e){
+            throw new IOException("mapData JSON Parse 예외 발생");
+        }
+        initParam(para);
+
+        para.put("mapperGroup",group);
+        para.put("mapperPgm",pgm);
+        para.put("mapperSqlId",sqlId);
+
+        List<Map<?, ?>> resultList = dao.selectList(para);
+        if(resultList.isEmpty()){
+
+        }else{
+            fileVO vo = (fileVO) resultList.get(0);
+            byte[] file = vo.getBLOB1();
+            String FileName = vo.getATTC_FIL_NM();
+
+            ServletOutputStream os = response.getOutputStream();
+
+
+ //           LinkedHashMap test = (LinkedHashMap) para.get("map");
+ //           String FileName = (String) test.get("flid");
+
+            //String header = req.getHeader("User-Agent");
+
+            FileName = new String(FileName.getBytes(StandardCharsets.UTF_8),"ISO-8859-1");
+            response.setHeader("Content-Disposition",String.format("attachment; filename=\""+ FileName + "\""));
+
+            os.write(file);
+            os.flush();
+
+        }
+
     }
 
 

@@ -46,6 +46,7 @@ $(document.body).ready(function () {
                    </select>',
         mounted: function () {
             var _url = this.url;
+            //debugger;
             if(_url.indexOf('/') == -1){
                 _url = "/commonCode/selectList.do/" + _url;
             }
@@ -417,6 +418,12 @@ function fn_popup_open(arg){
      window.open(url,arg.name,option);
  }
 
+ //파일 다운로드 공통팝업
+function fn_downLoad(url, jsonData, option){
+    var param = encodeURIComponent(JSON.stringify(jsonData));
+    var popTitle = option ||"popOpen";
+        window.open(url +  "?param=" + param,popTitle,"toolbar=no, location=no, directories=no, status=no, menubar=no,scrollbar=no,resizable=no,width=1400,height=800,top=100,left=100");
+}
 //function fn_confirm(msg,callback){
   //  return confirm(msg);
     // app_alert.message=msg;
