@@ -11,7 +11,7 @@
 		A.ACDN_TITLE,
 		A.SCN,
 		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN_NM,
-		DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID,
+		A.PREN_RKIS_NO,
 		A.PROJ_NO,
 		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PRRY_RNKG' AND X.CD_CODE = A.PRRY_RNKG) AS PRRY_RNKG,
 		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'AREA' AND X.CD_CODE = A.AREA) AS AREA,
@@ -40,9 +40,6 @@
 		</if>
 		<if test="map.pgs_st != '' and map.pgs_st != null">
 			AND A.PGS_ST = #{map.pgs_st}
-		</if>
-		<if test="map.rsk_isu_id != '' and map.rsk_isu_id != null">
-			AND UPPER(DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'')) LIKE UPPER('%' || #{map.rsk_isu_id} || '%')
 		</if>
 
 		<!-- 등록일자 조회조건 -->
