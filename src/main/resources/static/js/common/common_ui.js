@@ -40,7 +40,7 @@ $(document.body).ready(function () {
         return;
     }
     Vue.component('select2', {
-        props: ['options', 'value' ,'url','para'],
+        props: ['options', 'value' ,'url','para','min'],
         template: '<select>\
                      <slot></slot>\
                    </select>',
@@ -52,6 +52,10 @@ $(document.body).ready(function () {
             }
             var vm = this;
             var _para = this.para;
+            var _min = this.min;
+            if(_min == undefined) _min = '1';
+            console.log("min:",this.min);
+            console.log("_min:",_min);
             if(this.options){
                 $(this.$el).select2({ data: this.options, closeOnSelect: true, allowClear: true  })
                            .val(this.value);
@@ -64,7 +68,7 @@ $(document.body).ready(function () {
                             //templateResult: formatState,
                             closeOnSelect: true,
                             allowClear: true,
-                            minimumInputLength: 1,
+                            minimumInputLength: _min,
                             ajax: {
                                 url:_url,
                                 type:"POST",
@@ -576,8 +580,8 @@ function dragElement() {
         e = e || window.event;
         e.preventDefault();
         // calculate the new cursor position:
-        console.log(e.clientX);
-        console.log(elmnt.offsetTop);
+        // console.log(e.clientX);
+        // console.log(elmnt.offsetTop);
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
