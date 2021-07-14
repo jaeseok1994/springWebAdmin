@@ -410,6 +410,14 @@ function fn_inner_popup_open(arg){
     setTimeout(function(){dragElement();},200);
 }
 
+var arg = {
+    map:{key1:1},
+    height:600,
+    wight:800,
+    url:url,
+    isInner:true
+
+}
 // 새창팝업
 function fn_popup_open(arg){
     var jsonData = {

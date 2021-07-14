@@ -32,6 +32,11 @@ public class FrameController {
 
         return "main";
     }
+    @RequestMapping("/login")
+    public String login() {
+
+        return "index";
+    }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public String logout(HttpServletRequest request, HttpServletResponse response) {
