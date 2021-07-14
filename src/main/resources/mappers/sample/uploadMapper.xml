@@ -8,6 +8,12 @@
         SELECT F_FILSN('FILNO') FIL_SN FROM DUAL
     </select>
 
+    <select id="selectFile" parameterType="map"  resultType="com.webAdmin.dao.model.fileVO">
+        SELECT FIL_DATA BLOB1, ATTC_FIL_NM ATTC_FIL_NM
+            FROM ATTC_FIL
+            WHERE ATTC_FIL_SN = #{map.filNo }
+    </select>
+
     <update id="maintList" parameterType="map">
 	    DECLARE
         V_FILENOS NUMBER;
