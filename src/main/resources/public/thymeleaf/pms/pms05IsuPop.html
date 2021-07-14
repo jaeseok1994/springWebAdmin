@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
-  <title>위험관리대장</title>
+  <title>이슈관리대장</title>
   <div th:replace="headerRGrid"></div>
 </head>
 <script>
@@ -47,25 +47,24 @@
                 // 작성란 key
                 keys:{
                     rkis_no: '',
-                    scn: '위험',
+                    scn: '이슈',
                     proj_no: '',
                     area: '',
                     dcrm_lev: '',
                     prry_rnkg: '01',
-                    occu_prob: '',
                     iflu_deg: '',
                     rsk_deg: '',
                     cre_user_id: '',
                     acdn_title: '',
                     acdn_sbc: '',
+                    ctms: '',
                     crgr: '',
-                    pvnt_pln: '',
                     pgs_st: 'O',
+                    act: '',
                     trtm_manh: '',
                     dcrm_dt: setToday,
                     cre_dtm: setToday,
-                    parr_dt: setToday,
-                    trtm_dt: ''
+                    parr_dt: setToday
                 },
                 // 프로젝트 번호 조회 key
                 keys2:{
@@ -156,17 +155,17 @@
 
         /**** 조회,수정 화면 전환 ****/
         if(app.top.pop_name == 'search'){
-          app.top.title = '위험상세 조회';
+          app.top.title = '이슈상세 조회';
           search();
         }else{
-          app.top.title = '위험상세 작성';
+          app.top.title = '이슈상세 작성';
         }
     });
 
     /**** 작성글 조회 ****/
     function search(){
         var jsonData = { map: paramObj };
-        fn_transaction("select","/service/pms/pms05RiskPop/selectList.do/selectList",jsonData,fn_callback);
+        fn_transaction("select","/service/pms/pms05IsuPop/selectList.do/selectList",jsonData,fn_callback);
     }
 
     /**** 모달:프로젝트 번호 조회 ****/
@@ -175,7 +174,7 @@
         app.keys2.pagenum = grid.pagenum;
 
         var jsonData = { map: app.keys2 };
-        fn_transaction("proj_select","/service/pms/pms05RiskPop/selectList.do/projSelectList",jsonData,fn_callback);
+        fn_transaction("proj_select","/service/pms/pms05IsuPop/selectList.do/projSelectList",jsonData,fn_callback);
     };
 
     /**** 모달 팝업 OFF ****/
@@ -203,7 +202,7 @@
             var jsonData = {
                   map: app.keys,
             };
-            fn_transaction(func,"/service/pms/pms05RiskPop/maintOne.do/"+func+"List",jsonData,fn_callback);
+            fn_transaction(func,"/service/pms/pms05IsuPop/maintOne.do/"+func+"List",jsonData,fn_callback);
             return;
         }
     }
@@ -226,13 +225,13 @@
                 app.keys.acdn_title = data.resultList[0].ACDN_TITLE;
                 app.keys.acdn_sbc = data.resultList[0].ACDN_SBC;
                 app.keys.crgr = data.resultList[0].CRGR;
-                app.keys.pvnt_pln = data.resultList[0].PVNT_PLN;
                 app.keys.pgs_st = data.resultList[0].PGS_ST;
+                app.keys.act = data.resultList[0].ACT;
                 app.keys.trtm_manh = data.resultList[0].TRTM_MANH;
                 app.keys.dcrm_dt = data.resultList[0].DCRM_DT;
                 app.keys.cre_dtm = data.resultList[0].CRE_DTM;
                 app.keys.parr_dt = data.resultList[0].PARR_DT;
-                app.keys.trtm_dt = data.resultList[0].TRTM_DT;
+                app.keys.ctms = data.resultList[0].CTMS;
                 app.top.isMine = getLoginId() == data.resultList[0].CRE_USER_ID;
 
             }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
@@ -318,7 +317,9 @@
     <div class="gap10"></div>
     <span class="spanT hidden">관리대장번호</span>
     <input id="rkis_no" type="text" class="hidden" v-model="keys.rkis_no" readonly>
-    <span class="spanT al w90">구분</span>
+    <span class="spanT al w90">상위관리번호</span>
+    <input id="pren_rkis_no" type="text" class="input_Ac textBar w100" v-model="keys.pren_rkis_no" placeholder="번호 입력" readonly>
+    <span class="spanT al mg10 w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="spanT al mg10 w90">프로젝트번호</span>
     <input id="proj_no" type="text" class="input_Ac textBar w100" v-model="keys.proj_no" placeholder="번호 입력" readonly>
@@ -328,12 +329,12 @@
       <option value="">선택</option>
       <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">식별단계</span>
+    <span class="spanT al mg10 w90">단계</span>
     <select name="dcrm_lev" id="dcrm_lev" class="ui_selC w100" v-model="keys.dcrm_lev">
       <option value="">선택</option>
       <option v-for="list in levList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">식별일</span>
+    <span class="spanT al mg10 w90">발생일</span>
     <datepicker id="dcrm_dt" class="input_Ac w100" v-model="keys.dcrm_dt"></datepicker>
     <div class="gap20"></div>
 
@@ -342,18 +343,12 @@
       <option value="">선택</option>
       <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">발생확률</span>
-    <select name="occu_prob" id="occu_prob" class="ui_selC w100" v-model="keys.occu_prob">
-      <option value="">선택</option>
-      <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
-    </select>
     <span class="spanT al mg10 w90">영향도</span>
     <select name="iflu_deg" id="iflu_deg" class="ui_selC w100" v-model="keys.iflu_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
-    <div class="gap5"></div>
-    <span class="spanT al w90">위험도</span>
+    <span class="spanT al mg10 w90">위험도</span>
     <select name=""rsk_deg id="rsk_deg" class="ui_selC w100" v-model="keys.rsk_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
@@ -372,6 +367,11 @@
       <span class="spanT al w90">상세내용</span>
       <textarea id="acdn_sbc" type="text" class="w87p" v-model.trim="keys.acdn_sbc" placeholder="내용 입력"></textarea>
     </div>
+    <div class="gap5"></div>
+    <div class="tArea">
+      <span class="spanT al w90">대응방안</span>
+      <textarea id="ctms" type="text" class="w87p" v-model.trim="keys.ctms" placeholder="내용 입력"></textarea>
+    </div>
     <div class="gap20"></div>
 
     <span class="spanT al w90">담당자</span>
@@ -380,13 +380,11 @@
     <datepicker id="parr_dt" class="input_Ac w100" v-model="keys.parr_dt"></datepicker>
     <div class="gap5"></div>
     <div class="tArea">
-      <span class="spanT al w90">예방계획</span>
-      <textarea id="pvnt_pln" type="text" class="w87p" v-model.trim="keys.pvnt_pln" placeholder="내용 입력"></textarea>
+      <span class="spanT al w90">조치내용</span>
+      <textarea id="act" type="text" class="w87p" v-model.trim="keys.act" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
-    <span class="spanT al w120">처리확인일자</span>
-    <datepicker id="trtm_dt" class="input_Ac w100" v-model="keys.trtm_dt" placeholder="____-__-__"></datepicker>
     <span class="spanT al mg10 w90">진행상황</span>
     <select name="pgs_st" id="pgs_st" class="ui_selC w100" v-model="keys.pgs_st">
       <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>

@@ -10,7 +10,6 @@
       {fieldName: "rkis_no",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
       {fieldName: "scn_nm",dataType: "text"},
-      {fieldName: "rsk_isu_id",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "prry_rnkg",dataType: "text"},
       {fieldName: "area",dataType: "text"},
@@ -26,7 +25,6 @@
       {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
       {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분ID", visible: false },
       {name: "scn_nm", fieldName: "scn_nm", type: "data", width: "80", header: "구분", editable: false },
-      {name: "rsk_isu_id", fieldName: "rsk_isu_id", type: "data", width: "120", header: "위험·이슈ID", editable: false },
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
       {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
       {name: "area", fieldName: "area", type: "data", width: "80", header: "영역", editable: false },
@@ -139,17 +137,18 @@
     }
     /**** 위험,이슈조회 팝업 ****/
     function goRskSearch(scn,key){
+        var url = '';
         if(scn == 'R'){
-            var url    = "/service/pms/pms05RiskPop/selectForm.do";
+            url = "/service/pms/pms05RiskPop/selectForm.do";
         }else if(scn == 'I'){
-            var url    = "/service/pms/pms05IsuPop/selectForm.do";
+            url = "/service/pms/pms05IsuPop/selectForm.do";
         }else{
             fn_alert('오류가 발생하였습니다.');
         }
 
         var arg = {
-            map: { popName: 'search', rkisNo: key },
-            url: "/service/pms/pms05RiskPop/selectForm.do",
+            map: { popName: 'search', rkis_key: key },
+            url: url,
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
@@ -241,28 +240,28 @@
         <table class="tbl_base">
             <caption>위험 및 이슈 관리대장</caption>
             <colgroup>
-                <col style="width:120px;"/>
                 <col style="width:150px;"/>
-                <col style="width:180px;"/>
-                <col style="width:250px;"/>
-                <col style="width:120px;"/>
-                <col style="width:150px;"/>
-                <col style="width:120px;"/>
                 <col style="width:300px;"/>
+                <col style="width:120px;"/>
+                <col style="width:150px;"/>
+                <col style="width:120px;"/>
+                <col style="width:150px;"/>
+                <col style="width:120px;"/>
+                <col style="width:150px;"/>
                 <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
+                <td class="ar">프로젝트 번호</td>
+                <td>
+                    <input id="proj_no" type="text" class="input_A w100p" placeholder="번호 입력"  v-model="keys.proj_no">
+                </td>
                 <td class="ar">구분</td>
                 <td>
                     <select name="scn" id="scn" class="ui_sel w90p" v-model="keys.scn">
                         <option value="">전체</option>
                         <option v-for="list in scnList" :value="list.value">{{list.text}}</option>
                     </select>
-                </td>
-                <td class="ar">프로젝트 번호</td>
-                <td>
-                    <input id="proj_no" type="text" class="input_A w90p" placeholder="번호 입력"  v-model="keys.proj_no">
                 </td>
                 <td class="ar">우선순위</td>
                 <td>
@@ -273,13 +272,18 @@
                 </td>
                 <td class="ar">영역</td>
                 <td>
-                    <select name="area" id="area" class="ui_sel w45p" v-model="keys.area">
+                    <select name="area" id="area" class="ui_sel w90p" v-model="keys.area">
                         <option value="">전체</option>
                         <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
             </tr>
             <tr>
+                <td class="ar">등록일자</td>
+                <td>
+                    <datepicker id="date1" class="input_A w45p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
+                    <datepicker id="date2" class="input_A w45p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
+                </td>
                 <td class="ar">식별단계</td>
                 <td>
                     <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w90p" v-model="keys.dcrm_lev">
@@ -287,21 +291,12 @@
                         <option v-for="list in levList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
-                <td class="ar">위험·이슈ID</td>
-                <td>
-                    <input id="rsk_isu_id" type="text" class="input_A w90p" placeholder="ID 입력" v-model="keys.rsk_isu_id">
-                </td>
                 <td class="ar">진행상황</td>
                 <td>
                     <select name="pgs_st" id="pgs_st" class="ui_sel w90p" v-model="keys.pgs_st">
                         <option value="">전체</option>
                         <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
                     </select>
-                </td>
-                <td class="ar">등록일자</td>
-                <td>
-                    <datepicker id="date1" class="input_A w45p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
-                    <datepicker id="date2" class="input_A w45p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
                 </td>
                 <td></td>
             </tr>
