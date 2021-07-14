@@ -247,13 +247,16 @@ $(document.body).ready(function () {
         <div class="container" id="vueinnerpopup"> \
             <div class="modal-mask" v-if="showModal" @close="showModal = false">\
                 <div class="modal-wrapper">\
-                    <div class="modal-container" :style="{width:width,height:height}"> \
-                        <div class="modal-header">\
-                            {{headText}}\
+                    <div class="innerPopupContainerGrid" :style="{width:width,height:height}"> \
+                        <div class="innerPopupTitle">{{headText}}</div>\
+                        <div class="innerPopupClose">\
                             <button class="modal-default-button" @click="defaultCallBack()">Close</button>\
-                        </div> \
-                        <div class="modal-body" style="height:99%">\
+                        </div>\
+                        <div class="innerPopupMain" >\
                             <iframe :src="url" width="100%" frameborder="NO" framespacing="0" height="99%"></iframe>\
+                        </div> \
+                        <div class="innerPopupFooter" >\
+                            Msg:\
                         </div> \
                     </div>\
                 </div>\
