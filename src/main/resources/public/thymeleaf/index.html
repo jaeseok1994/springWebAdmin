@@ -4,6 +4,7 @@
     <title>Admin | Log in </title>
     <div th:replace="head"></div>
     <div th:replace="script"></div>
+    <link rel="stylesheet" href="css/style.css">
     <style>
         form.was-validated input:invalid{
             border-color:red;
@@ -27,45 +28,47 @@
             }
     </script>
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <div class="login-logo">
-        <b>로그인</b>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <p class="login-box-msg"></p>
+<body>
+<div id="login">
 
-        <form th:action="@{/login}" method="post">
-            <div class="form-group has-feedback">
-                <input type="text" class="form-control" placeholder="username" name="username" required="required"/>
-                <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-            </div>
-            <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Password" name="password" required="required"/>
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-            </div>
-            <div class="row">
-                <div class="col-xs-8">
-                    <div class="checkbox icheck">
-                        <label>
-                            <input type="checkbox" name="remember-me"/> 비밀번호 기억하기
-                        </label>
-                    </div>
+    <form th:action="@{/login}" method="post">
+    <div class="login_box_wrap">
+<!--        <div class="login_logo"><img src="images/login_logo.png" alt="Up C&S PMS" /></div>-->
+
+        <div class="login_box">
+
+            <div class="login_conts">
+                <div class="login_txt">
+                    Up C&S <span>PMS</span>
                 </div>
-                <!-- /.col -->
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">로그인</button>
-                </div>
-                <!-- /.col -->
-            </div>
-        </form>
 
+                <div class="login_id_R">
+                    <input type="text"  name="username" required="required" class="login_id_input_R" placeholder="아이디를 입력하세요" />
+                </div>
+
+                <div class="login_pw_R">
+                    <input type="password"  name="password" required="required" class="login_pw_input_R" placeholder="비밀번호를 입력해주세요" />
+                </div>
+
+                <div class="gap10"></div>
+
+                <div class="loginBox_btn_R">
+                    <button type="submit" class="loginBox_btn_R" style="color: white">로그인</button>
+                </div>
+
+            </div>
+
+            <div class="gap20"></div>
+            <div class="ac tc_666 tlh140">
+                <div th:text="${param.msg}">message here</div>
+            </div>
+            <div class="gap20"></div>
+
+        </div>
 
     </div>
-    <!-- /.login-box-body -->
+    </form>
+
 </div>
-<!-- /.login-box -->
-
 </body>
 </html>
