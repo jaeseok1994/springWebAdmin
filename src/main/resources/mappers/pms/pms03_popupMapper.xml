@@ -9,7 +9,6 @@
 			A.RKIS_NO
 			,A.ACDN_TITLE
 			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN
-			,DECODE(A.SCN,'R',A.RSK_ID,'I',A.ISU_ID,'') AS RSK_ISU_ID
 			,A.PROJ_NO
 			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST
 			<if test="affr_no != '' and affr_no != null">
@@ -62,7 +61,6 @@
 			affr_no,
 			rkis_no,
 			proj_no,
-			rsk_isu_id,
 			(select acdn_title from tarkis where rkis_no = a.rkis_no) acdn_title,
 			(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_st) as pgs_st,
 			(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.scn) as scn,
@@ -101,11 +99,10 @@
 		);
 
 
-		INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,rsk_isu_id,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
+		INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
 			SELECT V_DOC_NO,
 					rkis_no,
 					proj_no,
-					rsk_id,
 					#{_loginId_},
 					systimestamp,
 					#{_loginId_},
@@ -151,11 +148,10 @@
 			DELETE FROM TAAFRK
 			WHERE affr_no = #{map.affr_no};
 
-			INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,rsk_isu_id,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
+			INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
 				SELECT #{map.affr_no},
 						rkis_no,
 						proj_no,
-						rsk_id,
 						#{_loginId_},
 						systimestamp,
 						#{_loginId_},
