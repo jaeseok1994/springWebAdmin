@@ -126,9 +126,6 @@
 
              }
         });
-        $("#gofileSave").click(function(){
-            fileUpload('maint');
-        });
 
         $("#popClose").click(function(){
              close();
@@ -352,6 +349,7 @@
 
     function fn_filechange(f){
         app.keys.file = $('#file-upload-name').text($('#fileUpload').val());
+        fileUpload("maint");
     }
 
     function fileUpload(func){
@@ -493,7 +491,7 @@
                 </tr>
                 <tr>
                     <th class="ACell">첨부파일</th>
-                    <td colspan="2">
+                    <td colspan="3">
                         <span class="txt-file" id="file-upload-name"></span>
                         <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
                     </td>
@@ -502,15 +500,11 @@
                                 <input name="fileUpload" id="fileUpload" type="file" onchange="fn_filechange(this)">
                             </span>
                     </td>
-                    <td colspan="1">
+                    <td colspan="2">
                             <span class="btn btn-primary btn-file">
-                                <div name="fileDown" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
+                                <div name="fileDown" class="btn_typeA btn_save" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
                             </span>
                     </td>
-                    <td colspan="2">
-                        <div id="gofileSave" class="btn_typeA btn_save">파일저장</div>
-                    </td>
-
                 </tr>
             </table>
         </form>

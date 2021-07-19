@@ -122,10 +122,6 @@
      ]]>
 	</insert>
 
-	<delete id="deleteList" parameterType="map">
-		delete from tarkis
-		where rkis_no = #{rkisNo}
-	</delete>
 	<update id="updateList" parameterType="map">
 		DECLARE
 		USER_EXCEPTION EXCEPTION;
