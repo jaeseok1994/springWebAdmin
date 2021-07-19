@@ -56,12 +56,15 @@ public class CommonServiceController {
         SecurityUser user = getSecurityUser();
         String loginId = "";
         String role = "";
+        String currentdate = "";
         if(user != null){
             loginId = user.getUid();
             role = user.getAuthorities().toString();
+            currentdate = user.getCurrentdate();
         }
         model.addAttribute("loginId",loginId);
         model.addAttribute("roles",role);
+        model.addAttribute("currentdate",currentdate);
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 

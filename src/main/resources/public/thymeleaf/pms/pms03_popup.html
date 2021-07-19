@@ -60,16 +60,8 @@
      var grid2;
      var app;
 
-     // 현재날짜 구하는 기능
-     var today = new Date();
-     //var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+today.getDate();
-     var mm = today.getMonth()+1;
-     var dd = today.getDate();
 
-     if(mm<10){ mm = '0'+mm }
-     if(dd<10){ dd = '0'+dd }
-
-     var setToday = today.getFullYear()+'-'+mm+'-'+dd;
+     var setToday = getdate();
 
     $(document.body).ready(function(){
         app = new Vue({

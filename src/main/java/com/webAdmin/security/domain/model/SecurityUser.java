@@ -14,11 +14,14 @@ public class SecurityUser extends User {
     private String salt;
     private String email;
 
-    public SecurityUser(String uid, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities, String salt, String email) {
+    private String currentdate;
+
+    public SecurityUser(String uid, String username, String password, boolean enabled, boolean accountNonExpired, boolean credentialsNonExpired, boolean accountNonLocked, Collection<? extends GrantedAuthority> authorities, String salt, String email,String currentdate) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.salt = salt;
         this.uid=uid;
         this.email = email;
+        this.currentdate = currentdate;
     }
 
     public String getSalt() {
@@ -33,7 +36,12 @@ public class SecurityUser extends User {
         return email;
     }
 
+    public String getCurrentdate() {
+        return currentdate;
+    }
+
     public void setEmail(String email) {
         this.email = email;
     }
+
 }

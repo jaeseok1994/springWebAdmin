@@ -120,6 +120,9 @@ function getLoginId(arg){
 function getRols(arg){
     return getModelValue("roles") ;
 }
+function getdate(arg){
+    return getModelValue("currentdate") ;
+}
 </script>
 <!-- Bootstrap 3.3.6 -->
 <!--<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>-->
@@ -144,3 +147,4 @@ function getRols(arg){
 <div id=param th:text="${param.param}" style="display: none;"></div>
 <div id=loginId th:text="${loginId}" style="display: none;"></div>
 <div id=roles th:text="${roles}" style="display: none;"></div>
+<div id=currentdate th:text="${currentdate}" style="display: none;"></div>

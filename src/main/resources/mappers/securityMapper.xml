@@ -18,4 +18,8 @@
           FROM SYS_ROLE  R JOIN SYS_USER_ROLE UR
             ON R.ROLE_ID=UR.ROLE_ID WHERE UR.USER_ID=#{USER_ID}
     </select>
+    <select id="selectTime" parameterType="map" resultType="map">
+        SELECT TO_CHAR(SYSDATE,'YYYY-MM-DD') currentdate
+            FROM DUAL
+    </select>
 </mapper>

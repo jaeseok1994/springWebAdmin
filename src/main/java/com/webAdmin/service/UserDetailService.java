@@ -32,10 +32,14 @@ public class UserDetailService implements UserDetailsService {
         param.put("USER_ID",id);
         List<Map<?, ?>> result = dao.selectList(param);
 
+        param.put("mapperSqlId","selectTime");
+        List<Map<?, ?>> resultTime = dao.selectList(param);
+
         if(result==null || result.size()==0){
             throw new UsernameNotFoundException("no user");
         }
         HashMap<String,String>  user = (HashMap<String,String>)result.get(0);
+        HashMap<String,String>  currentDate = (HashMap<String,String>)resultTime.get(0);
         HashMap  user2 = (HashMap)result.get(0);
 //        System.out.println(user2.get("USER_USE_YN").equals("Y"));
 //        System.out.println(user2.get("USER_USE_YN").toString().equals("0"));
@@ -43,7 +47,7 @@ public class UserDetailService implements UserDetailsService {
 //        System.out.println(user.get("USER_USE_YN").equals("0"));
         Object dis = result.get(0).get("USER_USE_YN");
         boolean enabled = (dis.toString()+"").equals("Y");
-        SecurityUser userDetails = new SecurityUser(user.get("USER_ID"), user.get("USER_NAME"),user.get("USER_PASS"),enabled, true, true, true, grantedAuthorities(user.get("USER_ID")), "r", "b");
+        SecurityUser userDetails = new SecurityUser(user.get("USER_ID"), user.get("USER_NAME"),user.get("USER_PASS"),enabled, true, true, true, grantedAuthorities(user.get("USER_ID")), "r", "b",currentDate.get("CURRENTDATE"));
 //        SecurityUser userDetails = new SecurityUser(user.get("id"), user.get("id")username, user.getPassword(), !user.isDisabled(), true, true, true, grantedAuthorities(user.getUsername()), user.getSalt(), user.getEmail());
         return userDetails;
     }
