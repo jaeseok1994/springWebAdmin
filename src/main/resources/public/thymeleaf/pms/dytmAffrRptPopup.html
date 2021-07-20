@@ -53,9 +53,9 @@
                     proj_nm: '',
                     title: '',
                     writer: '',
-                    wr_dt: '',
-                    st_dt: '',
-                    fn_dt: '',
+                    wr_dt: setToday,
+                    st_dt: setToday,
+                    fn_dt: setToday,
                     twk_ars: '',
                     nxw_pln: '',
                     twk_pln_rate: '',
@@ -137,23 +137,16 @@
             //console.log(user);
 
             app.keys.writer = user;
-            app.keys.wr_dt = setToday;
-            app.keys.st_dt = setToday;
-            app.keys.fn_dt = setToday;
         }
-        $("#proj_no").click(function(){
-             console.log("click");
-        });
-        /*
+
+        $("input[id='proj_no1']").hide();
+        $("select2[id='proj_no2']").hide();
         if(para.param.proj_no != ""){
-            app.keys.proj_no = para.param.proj_no;
+
+
+        }else{
+
         }
-        $("#proj_no").val(function(){
-            console.log("proj_no:::"+para.param.proj_no);
-            app.keys.proj_no = para.param.proj_no;
-        });
-        $("#proj_no").val(para.param.proj_no);
-        */
     });
 
     function IssueSearch(){ // 전체조회
@@ -346,8 +339,8 @@
             <tr>
                 <td class="">프로젝트 명</td>
                 <td>
-                    <!----><select2 id="proj_no" class="form-control" v-model="keys.proj_no" :url="projUrl" :para="keys" style="width:200px"></select2>
-                   <!-- <input id="proj_no" type="text" class="input_A w70p" v-model="keys.proj_no">-->
+                    <input id="proj_no1" type="text" class="input_A w70p" v-model="keys.proj_no">
+                   <select2 id="proj_no2" class="form-control" v-model="keys.proj_no" :url="projUrl" :para="keys" style="width:200px"></select2>
                 </td>
                 <td class="ar">제목</td>
                 <td>

@@ -18,4 +18,14 @@
         </if>
          order by ROLE_NAME
     </select>
+    <select id="selectProjList" parameterType="map" resultType="cMap">
+        SELECT PROJ_NO value, PROJ_NM text
+        FROM TAPRJM a
+        where 1=1
+        <if test="map.q != '' and map.q != null">
+            AND ( UPPER(A.PROJ_NO) LIKE '%' || UPPER(#{map.q }) || '%'
+            OR  UPPER(A.PROJ_NM) LIKE '%' || UPPER(#{map.q }) || '%' )
+        </if>
+        ORDER BY PROJ_NO
+    </select>
 </mapper>
