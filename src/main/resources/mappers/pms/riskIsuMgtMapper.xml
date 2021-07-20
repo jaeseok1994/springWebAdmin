@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="proj.pms.pms05">
+<mapper namespace="proj.pms.riskIsuMgt">
 
 	<select id="selectList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
@@ -19,7 +19,7 @@
 		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST,
 		A.CRE_USER_ID,
 		(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM,
-		TO_CHAR(A.CRE_DTM,'YYYY-MM-DD HH24:MI:SS') CRE_DTM
+		TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
 		FROM TARKIS A
 		WHERE 1=1
 

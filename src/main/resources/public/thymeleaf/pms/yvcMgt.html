@@ -207,6 +207,7 @@
 
         createRGrid(grid);
         grid.gridView.setColumnLayout(grid.layout);
+        grid.gridView.displayOptions.selectionStyle = "rows"
 
         setResizeHeightObjs("realgrid");
         grid.gridView.refresh();
@@ -230,7 +231,7 @@
           colCount: 2
         });
 
-        fn_transaction("select","/service/pms/pms04/selectList.do/selectList",jsonData,fn_callback);
+        fn_transaction("select","/service/pms/yvcMgt/selectList.do/selectList",jsonData,fn_callback);
     }
     function maintList(func,key){
         grid.gridView.commit(true);
@@ -249,7 +250,7 @@
             var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/pms/pms04/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/yvcMgt/maintList.do/"+func+"List",listData,fn_callback);
         }
         return;
     }
