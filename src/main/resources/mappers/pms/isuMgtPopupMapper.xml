@@ -7,49 +7,28 @@
 
 		SELECT
 		 RKIS_NO
-		,ACDN_TITLE
+		,ACDN_NM
 		,SCN
 		,PROJ_NO
 		,PRRY_RNKG
 		,AREA
-		,DCRM_LEV
-		,PGS_ST
+		,DCRM_STEP
+		,PGS_SITU
 		,TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT
 		,IFLU_DEG
 		,RSK_DEG
 		,ACDN_SBC
-		,CTMS
-		,CRGR
+		,CRPD_WAY
+		,CRGR_NM
 		,TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT
-		,ACT
-		,TRTM_MANH
-		,CRE_USER_ID
-		,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM
-		,TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
-		FROM TARKIS A
+		,ACT_SBC
+		,TRTM_MH
+		,VBG_CRE_USER_ID
+		,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.VBG_CRE_USER_ID) CRE_USER_NM
+		,TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') CRE_DT
+		FROM RISK_ISSUE A
 		WHERE RKIS_NO = #{map.rkis_key}
 
-	</select>
-
-	<select id="projSelectList" parameterType="map" resultType="cMap">
-		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-		SELECT
-		PROJ_NO
-		,PROJ_NM
-		,ST_DT
-		,FN_DT
-		,CLIENT
-		FROM TAPRJM A
-		WHERE 1=1
-		<if test="map.p_no != '' and map.p_no != null">
-			AND PROJ_NO LIKE '%' || #{map.p_no} || '%'
-		</if>
-		<if test="map.p_nm != '' and map.p_nm != null">
-			AND PROJ_NM LIKE '%' || #{map.p_nm} || '%'
-		</if>
-		ORDER BY PROJ_NO
-
-		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
 	<insert id="maintList" parameterType="map" >
@@ -58,16 +37,14 @@
 		PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
 		V_SEQ VARCHAR2(3) 	   := '';
 		V_RKIS_NO VARCHAR2(20) := '';
-		V_MAX_RSK VARCHAR2(20) := '';
-		V_RSK_NO VARCHAR2(20)  := '';
 		V_USER_CHK VARCHAR2(20)  := '';
 		V_ERR_MSG VARCHAR2(100)  := '';
 
 		BEGIN
 		/* 사용자 ID CHECK */
-		SELECT MAX(CRE_USER_ID)
+		SELECT MAX(VBG_CRE_USER_ID)
 		INTO V_USER_CHK
-		FROM TARKIS
+		FROM RISK_ISSUE
 		WHERE RKIS_NO = #{map.rkis_no};
 
 		IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL THEN
@@ -79,40 +56,40 @@
 		V_RKIS_NO := F_DOCNO('RKIS');
 
 		/* 수정 */
-		MERGE INTO TARKIS
+		MERGE INTO RISK_ISSUE
 		USING DUAL
 		ON (RKIS_NO = #{map.rkis_no})
 		WHEN MATCHED THEN
 		UPDATE SET
-		ACDN_TITLE = #{map.acdn_title}
+		ACDN_NM = #{map.acdn_nm}
 		, PROJ_NO = #{map.proj_no}
 		, PRRY_RNKG = #{map.prry_rnkg}
 		, AREA = #{map.area}
-		, DCRM_LEV = #{map.dcrm_lev}
-		, PGS_ST = #{map.pgs_st}
+		, DCRM_STEP = #{map.dcrm_step}
+		, PGS_SITU = #{map.pgs_situ}
 		, DCRM_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
 		, IFLU_DEG = #{map.iflu_deg}
 		, RSK_DEG = #{map.rsk_deg}
 		, ACDN_SBC = #{map.acdn_sbc}
-		, CTMS = #{map.ctms}
-		, CRGR = #{map.crgr}
+		, CRPD_WAY = #{map.crpd_way}
+		, CRGR_NM = #{map.crgr_nm}
 		, PARR_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-		, ACT = #{map.act}
-		, TRTM_MANH = #{map.trtm_manh}
-		, UPD_USER_ID = #{_loginId_}
-		, UPD_DTM = SYSDATE
+		, ACT_SBC = #{map.act_sbc}
+		, TRTM_MH = #{map.trtm_mh}
+		, FIN_UPDR_ID = #{_loginId_}
+		, FIN_MDFY_DT = SYSDATE
 		WHEN NOT MATCHED THEN
 		/* 신규입력 */
 		INSERT(
-		RKIS_NO, ACDN_TITLE, SCN, PROJ_NO, PRRY_RNKG,
-		AREA, DCRM_LEV, PGS_ST, IFLU_DEG, RSK_DEG,
-		ACDN_SBC, CTMS, CRGR, ACT, TRTM_MANH,
+		RKIS_NO, ACDN_NM, SCN, PROJ_NO, PRRY_RNKG,
+		AREA, DCRM_STEP, PGS_SITU, IFLU_DEG, RSK_DEG,
+		ACDN_SBC, CRPD_WAY, CRGR_NM, ACT_SBC, TRTM_MH,
 		DCRM_DT, PARR_DT,
-		CRE_USER_ID, CRE_DTM, UPD_USER_ID, UPD_DTM
+		VBG_CRE_USER_ID, VBG_CRE_DT, FIN_UPDR_ID, FIN_MDFY_DT
 		)VALUES(
-		V_RKIS_NO, #{map.acdn_title}, 'I', #{map.proj_no}, #{map.prry_rnkg},
-		#{map.area}, #{map.dcrm_lev}, #{map.pgs_st}, #{map.iflu_deg}, #{map.rsk_deg},
-		#{map.acdn_sbc}, #{map.ctms}, #{map.crgr}, #{map.act}, #{map.trtm_manh},
+		V_RKIS_NO, #{map.acdn_nm}, 'I', #{map.proj_no}, #{map.prry_rnkg},
+		#{map.area}, #{map.dcrm_step}, #{map.pgs_situ}, #{map.iflu_deg}, #{map.rsk_deg},
+		#{map.acdn_sbc}, #{map.crpd_way}, #{map.crgr_nm}, #{map.act_sbc}, #{map.trtm_mh},
 		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.parr_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
 		#{_loginId_}, SYSDATE, #{_loginId_}, SYSDATE
@@ -122,7 +99,7 @@
 	</insert>
 
 	<delete id="deleteList" parameterType="map">
-		DELETE FROM TARKIS
+		DELETE FROM RISK_ISSUE
 		WHERE RKIS_NO = #{map.rkis_no}
 	</delete>
 

@@ -8,26 +8,26 @@
 
 		SELECT
 		A.RKIS_NO,
-		A.ACDN_TITLE,
+		A.ACDN_NM,
 		A.SCN,
-		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN_NM,
-		A.PREN_RKIS_NO,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) SCN_NM,
+		A.SUPI_RKIS_NO,
 		A.PROJ_NO,
-		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PRRY_RNKG' AND X.CD_CODE = A.PRRY_RNKG) AS PRRY_RNKG,
-		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'AREA' AND X.CD_CODE = A.AREA) AS AREA,
-		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'DCRM_LEV' AND X.CD_CODE = A.DCRM_LEV) AS DCRM_LEV,
-		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST,
-		A.CRE_USER_ID,
-		(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.CRE_USER_ID) CRE_USER_NM,
-		TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') CRE_DTM
-		FROM TARKIS A
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PRRY_RNKG' AND X.CD_CODE = A.PRRY_RNKG) PRRY_RNKG,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'AREA' AND X.CD_CODE = A.AREA) AREA,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'DCRM_STEP' AND X.CD_CODE = A.DCRM_STEP) DCRM_STEP,
+		(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_SITU' AND X.CD_CODE = A.PGS_SITU) PGS_SITU,
+		A.VBG_CRE_USER_ID CRE_USER_ID,
+		(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.VBG_CRE_USER_ID) CRE_USER_NM,
+		TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') CRE_DT
+		FROM RISK_ISSUE A
 		WHERE 1=1
 
 		<if test="map.scn != '' and map.scn != null">
 			AND A.SCN = #{map.scn}
 		</if>
 		<if test="map.proj_no != '' and map.proj_no != null">
-			AND UPPER(A.PROJ_NO) LIKE UPPER('%' || #{map.proj_no} || '%')
+			AND PROJ_NO = #{map.proj_no}
 		</if>
 		<if test="map.prry_rnkg != '' and map.prry_rnkg != null">
 			AND A.PRRY_RNKG = #{map.prry_rnkg}
@@ -35,35 +35,35 @@
 		<if test="map.area != '' and map.area != null">
 			AND A.AREA = #{map.area}
 		</if>
-		<if test="map.dcrm_lev != '' and map.dcrm_lev != null">
-			AND A.DCRM_LEV = #{map.dcrm_lev}
+		<if test="map.dcrm_step != '' and map.dcrm_step != null">
+			AND A.DCRM_STEP = #{map.dcrm_step}
 		</if>
-		<if test="map.pgs_st != '' and map.pgs_st != null">
-			AND A.PGS_ST = #{map.pgs_st}
+		<if test="map.pgs_situ != '' and map.pgs_situ != null">
+			AND A.PGS_SITU = #{map.pgs_situ}
 		</if>
 
 		<!-- 등록일자 조회조건 -->
 		<if test="map.date1 != '' and map.date1 != null">
 			<if test="map.date2 != '' and map.date2 != null">
-				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
+				AND TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
 			</if>
 			<if test="map.date2 == '' and map.date2 == null">
-				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND '99999999'
+				AND TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') BETWEEN #{map.date1} AND '99999999'
 			</if>
 		</if>
 		<if test="map.date1 == '' and map.date1 == null">
 			<if test="map.date2 != '' and map.date2 != null">
-				AND TO_CHAR(A.CRE_DTM,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
+				AND TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') BETWEEN #{map.date1} AND #{map.date2}
 			</if>
 		</if>
 
-		ORDER BY A.RKIS_NO, A.ACDN_TITLE
+		ORDER BY A.RKIS_NO, A.ACDN_NM
 
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
 	<delete id="deleteList" parameterType="map">
-		DELETE FROM TARKIS
+		DELETE FROM RISK_ISSUE
 		WHERE RKIS_NO = #{rkis_no}
 	</delete>
 

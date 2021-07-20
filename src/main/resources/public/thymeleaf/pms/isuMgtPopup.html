@@ -6,30 +6,11 @@
   <div th:replace="headerRGrid"></div>
 </head>
 <script>
-    /**** 리얼그리드 필드 선언 ****/
-    var fields = [
-      {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "proj_nm",dataType: "text"},
-      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "client",dataType: "text"}
-    ];
-
-    /**** 리얼그리드 컬럼 선언 ****/
-    var columns = [
-      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트번호", editable: false },
-      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트명" ,styleName:"left-column", editable: false },
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", editable: false, datetimeFormat: "yyyy-MM-dd" },
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", editable: false, datetimeFormat: "yyyy-MM-dd" },
-      {name: "client", fieldName: "client", type: "data", width: "150", header: "발주처", styleName:"left-column", editable: false}
-    ];
-
     /**** 변수 선언 ****/
     var grid;
     var app;
     var paramObj = getCommonPara();
-    var today    = new Date();
-    var setToday = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
+    var today    = getdate();
 
     $(document.body).ready(function(){
         /**** Vue 선언 ****/
@@ -37,7 +18,7 @@
             el:'#form',
             data:{
                 // 콤보 리스트
-                areaList:[], rnkgList:[], levList:[], pgsStList:[], mgmtGrdList:[],
+                areaList:[], rnkgList:[], stepList:[], pgsStList:[], mgmtGrdList:[],
                 // 상단 요소
                 top:{
                   title: '',
@@ -50,26 +31,21 @@
                     scn: '이슈',
                     proj_no: '',
                     area: '',
-                    dcrm_lev: '',
+                    dcrm_step: '',
                     prry_rnkg: '01',
                     iflu_deg: '',
                     rsk_deg: '',
                     cre_user_id: '',
-                    acdn_title: '',
+                    acdn_nm: '',
                     acdn_sbc: '',
-                    ctms: '',
-                    crgr: '',
-                    pgs_st: 'O',
-                    act: '',
-                    trtm_manh: '',
-                    dcrm_dt: setToday,
-                    cre_dtm: setToday,
-                    parr_dt: setToday
-                },
-                // 프로젝트 번호 조회 key
-                keys2:{
-                  p_no: '',
-                  p_nm: ''
+                    crpd_way: '',
+                    crgr_nm: '',
+                    pgs_situ: 'O',
+                    act_sbc: '',
+                    trtm_mh: '',
+                    dcrm_dt: today,
+                    cre_dt: today,
+                    parr_dt: today
                 },
                 methods:{
                 }
@@ -89,25 +65,6 @@
         $("#goDelete").click(function(){
             maintOne('delete');
         });
-        //팝업창 Close
-        $("#popClose").click(function(){
-            close();
-        });
-        //프로젝트 번호 입력버튼
-        $("#proj_no").click(function(){
-          $("#modal_pop").show();
-          projSearch();
-          setResizeHeightObjs("realgrid");
-          grid.gridView.refresh();
-        });
-        //모달:프로젝트 번호 조회 버튼
-        $("#modalSelect").click(function(){
-          projSearch();
-        });
-        //모달창 Close
-        $("#modalClose").click(function(){
-          $("#modal_pop").hide();
-        });
 
         /**** 콤보박스 코드 데이터 ****/
         //우선순위
@@ -119,39 +76,17 @@
             app.areaList = list;
         });
         // 식별단계
-        fn_codeDataSync({group:"DCRM_LEV"},function(list){
-            app.levList = list;
+        fn_codeDataSync({group:"DCRM_STEP"},function(list){
+            app.stepList = list;
         });
         // 진행상황
-        fn_codeDataSync({group:"PGS_ST"},function(list){
+        fn_codeDataSync({group:"PGS_SITU"},function(list){
             app.pgsStList = list;
         });
         // 관리등급
         fn_codeDataSync({group:"MGMT_GRD"},function(list){
             app.mgmtGrdList = list;
         });
-
-        /**** 그리드 생성 ****/
-        grid = {
-            id:"realgrid",
-            fields:fields,
-            columns:columns,
-            pagenum:1, // 현재 페이지 번호
-            pagerows:50, // 페이지당 표시할 데이터 건수
-        }
-
-        createRGrid(grid);
-        // 그리드 레이아웃 속성
-        grid.gridView.displayOptions.fitStyle = "even"; //컬럼 자동 폭맞춤
-        grid.gridView.setCheckBar({ visible: false });  //체크바 비활성화
-
-        /**** ROW 더블클릭 이벤트 ****/
-        grid.gridView.onCellDblClicked = function (gridBase, clickData) {
-          // console.log(clickData.itemIndex);
-          // console.log(clickData.column);
-          app.keys.proj_no = grid.dataProvider.getValue(clickData.itemIndex,0);
-          projSearch_off();
-        }
 
         /**** 조회,수정 화면 전환 ****/
         if(app.top.pop_name == 'search'){
@@ -168,20 +103,6 @@
         fn_transaction("select","/service/pms/isuMgtPopup/selectList.do/selectList",jsonData,fn_callback);
     }
 
-    /**** 모달:프로젝트 번호 조회 ****/
-    function projSearch(){
-        grid.dataProvider.clearRows();
-        app.keys2.pagenum = grid.pagenum;
-
-        var jsonData = { map: app.keys2 };
-        fn_transaction("proj_select","/service/pms/isuMgtPopup/selectList.do/projSelectList",jsonData,fn_callback);
-    };
-
-    /**** 모달 팝업 OFF ****/
-    function projSearch_off(){
-        $("#modal_pop").hide();
-    };
-
     /**** 저장 & 삭제 ****/
     function maintOne(func,key){
 
@@ -189,7 +110,7 @@
         searchParam.func = func;
 
         var proj_no = this.proj_no.value;
-        var acdnTitle = this.acdn_title.value;
+        var acdnTitle = this.acdn_nm.value;
         var acdnSbc = this.acdn_sbc.value;
 
         if(proj_no == '' || proj_no == null || proj_no == undefined){
@@ -216,22 +137,22 @@
                 app.keys.rkis_no = data.resultList[0].RKIS_NO;
                 app.keys.proj_no = data.resultList[0].PROJ_NO;
                 app.keys.area = data.resultList[0].AREA;
-                app.keys.dcrm_lev = data.resultList[0].DCRM_LEV;
+                app.keys.dcrm_step = data.resultList[0].DCRM_STEP;
                 app.keys.prry_rnkg = data.resultList[0].PRRY_RNKG;
                 app.keys.occu_prob = data.resultList[0].OCCU_PROB;
                 app.keys.iflu_deg = data.resultList[0].IFLU_DEG;
                 app.keys.rsk_deg = data.resultList[0].RSK_DEG;
                 app.keys.cre_user_id = data.resultList[0].CRE_USER_ID;
-                app.keys.acdn_title = data.resultList[0].ACDN_TITLE;
+                app.keys.acdn_nm = data.resultList[0].ACDN_NM;
                 app.keys.acdn_sbc = data.resultList[0].ACDN_SBC;
-                app.keys.crgr = data.resultList[0].CRGR;
-                app.keys.pgs_st = data.resultList[0].PGS_ST;
-                app.keys.act = data.resultList[0].ACT;
-                app.keys.trtm_manh = data.resultList[0].TRTM_MANH;
+                app.keys.crgr_nm = data.resultList[0].CRGR_NM;
+                app.keys.pgs_situ = data.resultList[0].PGS_SITU;
+                app.keys.act_sbc = data.resultList[0].ACT_SBC;
+                app.keys.trtm_mh = data.resultList[0].TRTM_MH;
                 app.keys.dcrm_dt = data.resultList[0].DCRM_DT;
-                app.keys.cre_dtm = data.resultList[0].CRE_DTM;
+                app.keys.cre_dt = data.resultList[0].CRE_DT;
                 app.keys.parr_dt = data.resultList[0].PARR_DT;
-                app.keys.ctms = data.resultList[0].CTMS;
+                app.keys.crpd_way = data.resultList[0].CRPD_WAY;
                 app.top.isMine = getLoginId() == data.resultList[0].CRE_USER_ID;
 
             }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
@@ -255,49 +176,6 @@
 <body>
 <div id="form" class="contentPgm">
   <div class="content_title">{{ top.title }}</div>
-  <!-- Modal 팝업 -->
-  <div id="modal_pop" class="modal_wrap">
-    <div class="modal_content">
-      <div class="ac content_title">프로젝트 번호 조회</div>
-      <div class="gap10"></div>
-      <div class="box_Atype">
-        <table class="tbl_base">
-          <caption>프로젝트 번호 조회</caption>
-          <colgroup>
-            <col style="width:22%;"/>
-            <col style="width:25%;"/>
-            <col style="width:20%;"/>
-            <col style="width:25%;"/>
-          </colgroup>
-          <tbody>
-          <tr>
-            <td class="ar f14">프로젝트번호</td>
-            <td>
-              <input id="p_no" type="text" class="input_Ac w100p" placeholder="번호 입력"  v-model="keys2.p_no">
-            </td>
-            <td class="ar f14">프로젝트명</td>
-            <td>
-              <input id="p_nm" type="text" class="input_Ac w100p" placeholder="명칭 입력"  v-model="keys2.p_nm">
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="gap5"></div>
-      <!-- Modal 버튼 -->
-      <div class="ar">
-        <div id="modalSelect" class="btn_typeA btn_search">조회</div>
-        <div id="modalClose" class="btn_typeA btn_close">Close</div>
-      </div>
-      <div class="gap10"></div>
-      <!-- realgrid  -->
-      <div class="realgrid_wrap">
-        <div id="realgrid"></div>
-        <div id="commonPaging" class="commonPaging" ></div>
-      </div>
-      <div class="gap10"></div>
-    </div>
-  </div>
   <!-- 버튼 -->
   <div class="ar btnWrap">
     <!-- 작성화면 버튼 -->
@@ -330,9 +208,9 @@
       <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="spanT al mg10 w90">단계</span>
-    <select name="dcrm_lev" id="dcrm_lev" class="ui_selC w100" v-model="keys.dcrm_lev">
+    <select name="dcrm_step" id="dcrm_step" class="ui_selC w100" v-model="keys.dcrm_step">
       <option value="">선택</option>
-      <option v-for="list in levList" :value="list.value">{{list.text}}</option>
+      <option v-for="list in stepList" :value="list.value">{{list.text}}</option>
     </select>
     <span class="spanT al mg10 w90">발생일</span>
     <datepicker id="dcrm_dt" class="input_Ac w100" v-model="keys.dcrm_dt"></datepicker>
@@ -358,10 +236,10 @@
     <span class="spanT al w90">등록자</span>
     <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" placeholder="자동 입력" readonly>
     <span class="spanT al mg10 w90">등록일자</span>
-    <input id="cre_dtm" type="text" class="input_Ac textBar w100" v-model="keys.cre_dtm" readonly>
+    <input id="cre_dt" type="text" class="input_Ac textBar w100" v-model="keys.cre_dt" readonly>
     <div class="gap5"></div>
     <span class="spanT al w90">사건명</span>
-    <input id="acdn_title" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdn_title" placeholder="사건명 입력">
+    <input id="acdn_nm" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdn_nm" placeholder="사건명 입력">
     <div class="gap5"></div>
     <div class="tArea">
       <span class="spanT al w90">상세내용</span>
@@ -370,28 +248,28 @@
     <div class="gap5"></div>
     <div class="tArea">
       <span class="spanT al w90">대응방안</span>
-      <textarea id="ctms" type="text" class="w87p" v-model.trim="keys.ctms" placeholder="내용 입력"></textarea>
+      <textarea id="crpd_way" type="text" class="w87p" v-model.trim="keys.crpd_way" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="spanT al w90">담당자</span>
-    <input id="crgr" type="text" class="input_Ac textBar w100" v-model.trim="keys.crgr" placeholder="담당자 입력">
+    <input id="crgr_nm" type="text" class="input_Ac textBar w100" v-model.trim="keys.crgr_nm" placeholder="담당자 입력">
     <span class="spanT al mg10 w90">예정일</span>
     <datepicker id="parr_dt" class="input_Ac w100" v-model="keys.parr_dt"></datepicker>
     <div class="gap5"></div>
     <div class="tArea">
       <span class="spanT al w90">조치내용</span>
-      <textarea id="act" type="text" class="w87p" v-model.trim="keys.act" placeholder="내용 입력"></textarea>
+      <textarea id="act_sbc" type="text" class="w87p" v-model.trim="keys.act_sbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
     <span class="spanT al w90">진행상황</span>
-    <select name="pgs_st" id="pgs_st" class="ui_selC w100" v-model="keys.pgs_st">
+    <select name="pgs_situ" id="pgs_situ" class="ui_selC w100" v-model="keys.pgs_situ">
       <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap5"></div>
     <span class="spanT al w120">처리공수(M/H)</span>
-    <input id="trtm_manh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtm_manh">
+    <input id="trtm_mh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtm_mh">
     <div class="gap10"></div>
   </div>
   <div class="gap20"></div>

@@ -13,7 +13,7 @@
 <script>
     var fields = [
       {fieldName: "user_id",dataType: "text"},
-      {fieldName: "user_name",dataType: "text"},
+      {fieldName: "user_nm",dataType: "text"},
       {fieldName: "rbof_id",dataType: "text"},
       {fieldName: "rbof_nm",dataType: "text"},
 
@@ -49,7 +49,7 @@
 
     var columns = [
       {name: "user_id", fieldName: "user_id", type: "data", width: "140", header: "사원ID", visible: false },
-      {name: "user_name", fieldName: "user_name", type: "data", width: "141", header: "사원명", editable: false },
+      {name: "user_nm", fieldName: "user_nm", type: "data", width: "141", header: "사원명", editable: false },
       {name: "rbof_id", fieldName: "rbof_id", type: "data", width: "140", header: "직책ID", visible: false },
       {name: "rbof_nm", fieldName: "rbof_nm", type: "data", width: "100", header: "직책", editable: false },
 
@@ -137,7 +137,7 @@
 
     <!-- 레이아웃 헤더(헤더 병합) -->
     var layout1 = [
-        "user_id", "user_name", "rbof_id", "rbof_nm",
+        "user_id", "user_nm", "rbof_id", "rbof_nm",
         {name: "month01", direction: "horizontal", items: ["half_yvc01","full_yvc01"], header: "1월"},
         {name: "month02", direction: "horizontal", items: ["half_yvc02","full_yvc02"], header: "2월"},
         {name: "month03", direction: "horizontal", items: ["half_yvc03","full_yvc03"], header: "3월"},
@@ -162,7 +162,7 @@
             data:{
                 rbofList:[],
                 keys:{
-                	user_name:'',
+                	user_nm:'',
                 	rbof_id:''
                 },
                 methods:{
@@ -293,7 +293,7 @@
             <tr>
                 <td class="ar">사원명</td>
                 <td>
-                    <input id="user_name" type="text" class="input_A w90p"  v-model="keys.user_name">
+                    <input id="user_nm" type="text" class="input_A w90p"  v-model="keys.user_nm">
                 </td>
                 <td class="ar">직책</td>
                 <td>

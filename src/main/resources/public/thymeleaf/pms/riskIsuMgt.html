@@ -6,6 +6,7 @@
     <div th:replace="headerRGrid"></div>
 </head>
 <script>
+    /**** 그리드 필드 선언 ****/
     var fields = [
       {fieldName: "rkis_no",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
@@ -13,14 +14,15 @@
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "prry_rnkg",dataType: "text"},
       {fieldName: "area",dataType: "text"},
-      {fieldName: "dcrm_lev",dataType: "text"},
-      {fieldName: "acdn_title",dataType: "text"},
-      {fieldName: "pgs_st",dataType: "text"},
+      {fieldName: "dcrm_step",dataType: "text"},
+      {fieldName: "acdn_nm",dataType: "text"},
+      {fieldName: "pgs_situ",dataType: "text"},
       {fieldName: "cre_user_id",dataType: "text"},
       {fieldName: "cre_user_nm",dataType: "text"},
-      {fieldName: "cre_dtm",dataType: "text"}
+      {fieldName: "cre_dt",dataType: "text"}
     ];
 
+    /**** 그리드 컬럼 선언 ****/
     var columns = [
       {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
       {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분ID", visible: false },
@@ -28,28 +30,35 @@
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
       {name: "prry_rnkg", fieldName: "prry_rnkg", type: "data", width: "80", header: "우선순위", editable: false },
       {name: "area", fieldName: "area", type: "data", width: "80", header: "영역", editable: false },
-      {name: "dcrm_lev", fieldName: "dcrm_lev", type: "data", width: "80", header: "식별단계", editable: false },
-      {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
-      {name: "pgs_st", fieldName: "pgs_st", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "dcrm_step", fieldName: "dcrm_step", type: "data", width: "80", header: "식별단계", editable: false },
+      {name: "acdn_nm", fieldName: "acdn_nm", type: "data", width: "450", styleName:"left-column rg_link", header: "사건명", editable: false },
+      {name: "pgs_situ", fieldName: "pgs_situ", type: "data", width: "100", header: "진행상황", editable: false },
       {name: "cre_user_id", fieldName: "cre_user_id", type: "data", width: "100", header: "등록자ID", visible: false },
       {name: "cre_user_nm", fieldName: "cre_user_nm", type: "data", width: "100", header: "등록자", editable: false },
-      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "100", header: "등록일자", editable: false }
+      {name: "cre_dt", fieldName: "cre_dt", type: "data", width: "100", header: "등록일자", editable: false }
     ];
 
+    /**** 변수 선언 ****/
     var grid;
     var app;
     var today = getdate();
+
     $(document.body).ready(function(){
+        /**** Vue 선언 ****/
         app = new Vue({
             el:'#form',
             data:{
-                scnList:[], areaList:[], rnkgList:[], levList:[], pgsStList:[],
+                // 콤보 리스트
+                scnList:[], areaList:[], rnkgList:[], stepList:[], pgsSituList:[],
+                //프로젝트 조회
+                projUrl:'selectProjList',
+                // 작성란 key
                 keys:{
                     scn: '',
                     area: '',
                     prry_rnkg: '01',
-                    dcrm_lev: '',
-                    pgs_st: '',
+                    dcrm_step: '',
+                    pgs_situ: '',
                     date1: '',
                     date2: today
                 },
@@ -58,21 +67,22 @@
             },
         });
 
-        $("#goSelect").click(function(){
+        /**** 클릭 이벤트 ****/
+        $("#goSelect").click(function(){    //조회
         	app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
         	search();
         });
-
-        $("#goRskAdd").click(function(){
+        $("#goRskAdd").click(function(){    //위험추가
             goRskAdd();
         });
-        $("#goIsuAdd").click(function(){
+        $("#goIsuAdd").click(function(){    //이슈추가
             goIsuAdd();
         });
-        $("#goDelete").click(function(){
+        $("#goDelete").click(function(){    //삭제
             maintList('delete');
         });
 
+        /**** 그리드 생성  ****/
         grid = {
             id:"realgrid",
             fields:fields,
@@ -82,16 +92,20 @@
         }
 
         createRGrid(grid);
+
+        //그리드 스타일
         grid.gridView.displayOptions.fitStyle = "even";
         grid.gridView.displayOptions.selectionStyle = "rows"
 
-        // 더블클릭 이벤트
-        grid.gridView.onCellDblClicked = function (gridBase, clickData) {
-          // console.log(clickData.itemIndex);
-          // console.log(clickData.column);
-          var scn = grid.dataProvider.getValue(clickData.itemIndex,1);
-          var rkisNo = grid.dataProvider.getValue(clickData.itemIndex,0);
-          goRskSearch(scn,rkisNo);
+        // 그리드 클릭 이벤트
+        grid.gridView.onCellClicked = function (gridBase, clickData) {
+          //console.log(clickData.itemIndex);
+          //console.log(clickData.column);
+          if(clickData.column == 'acdn_nm'){    //특정 컬럼 내의 셀을 선택했을 때 이벤트 출력
+            var scn = grid.dataProvider.getValue(clickData.itemIndex,1);
+            var rkisNo = grid.dataProvider.getValue(clickData.itemIndex,0);
+            goRskSearch(scn,rkisNo);
+          }
         }
 
         setResizeHeightObjs("realgrid");
@@ -107,15 +121,16 @@
         fn_codeDataSync({group:"AREA"},function(list){
             app.areaList = list;    // 영역
         });
-        fn_codeDataSync({group:"DCRM_LEV"},function(list){
-            app.levList = list;     // 식별단계
+        fn_codeDataSync({group:"DCRM_STEP"},function(list){
+            app.stepList = list;     // 식별단계
         });
-        fn_codeDataSync({group:"PGS_ST"},function(list){
-            app.pgsStList = list;  // 진행상황
+        fn_codeDataSync({group:"PGS_SITU"},function(list){
+            app.pgsSituList = list;  // 진행상황
         });
 
         search();
     });
+
     /**** 위험추가 팝업 ****/
     function goRskAdd(){
         var arg = {
@@ -162,6 +177,7 @@
         fn_inner_popup_open(arg);
     }
 
+    /**** 조회 ****/
     function search(){
         grid.dataProvider.clearRows();
         app.keys.pagenum = grid.pagenum;
@@ -172,12 +188,15 @@
 
         fn_transaction("select","/service/pms/riskIsuMgt/selectList.do/selectList",jsonData,fn_callback);
     }
-    // 확인창(수정필요)
+
+    /**** 확인창 ****/     //수정필요
     async function fn_update(){
         var rtn = await fn_confirm("진행하시겠습니까?");
         //console.log(rtn);
         //fn_alert(rtn);
     }
+
+    /**** 저장 ****/
     function maintList(func,key){
         grid.gridView.commit(true);
 
@@ -253,7 +272,8 @@
             <tr>
                 <td class="ar">프로젝트 번호</td>
                 <td>
-                    <input id="proj_no" type="text" class="input_A w100p" placeholder="번호 입력"  v-model="keys.proj_no">
+                    <!--<input id="proj_no" type="text" class="input_A w100p" placeholder="번호 입력"  v-model="keys.proj_no">-->
+                    <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:100%"></select2>
                 </td>
                 <td class="ar">구분</td>
                 <td>
@@ -280,19 +300,19 @@
             <tr>
                 <td class="ar">등록일자</td>
                 <td>
-                    <datepicker id="date1" class="input_A w45p" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
-                    <datepicker id="date2" class="input_A w45p" placeholder="____-__-__" v-model="keys.date2"></datepicker>
+                    <datepicker id="date1" class="input_A" style="width:46%" placeholder="____-__-__" v-model="keys.date1"></datepicker> ~
+                    <datepicker id="date2" class="input_A" style="width:46%" placeholder="____-__-__" v-model="keys.date2"></datepicker>
                 </td>
                 <td class="ar">식별단계</td>
                 <td>
-                    <select name="dcrm_lev" id="dcrm_lev" class="ui_sel w90p" v-model="keys.dcrm_lev">
+                    <select name="dcrm_step" id="dcrm_step" class="ui_sel w90p" v-model="keys.dcrm_step">
                         <option value="">전체</option>
-                        <option v-for="list in levList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in stepList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td class="ar">진행상황</td>
                 <td>
-                    <select name="pgs_st" id="pgs_st" class="ui_sel w90p" v-model="keys.pgs_st">
+                    <select name="pgs_situ" id="pgs_situ" class="ui_sel w90p" v-model="keys.pgs_situ">
                         <option value="">전체</option>
                         <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
                     </select>

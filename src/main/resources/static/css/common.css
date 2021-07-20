@@ -522,21 +522,15 @@ a.tc_sky {color:#02acc5 !important;}
 
 
 /* 팝업 UI */
-.popWrap { min-height: 100%; position: relative; overflow: hidden; }
-.btnWrap { margin:0; padding:0; }
-.popWrap .spanT { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
-.popWrap .textBar { padding-left: 0.5em; padding-right: 0.5em; }
-.popWrap .tArea { margin:0; padding: 0; width: 100%; }
-.popWrap .tArea .spanT { float: left; width: 90px; height: 100px; margin-right: 6px;}
-.popWrap .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
-.popWrap .hidden { display: none; }
+.top_container { display:flex; }
+
+.box_Atype .spanT { background-color: #e4e7eb; color: #4e546d; padding: 6px 10px; display:inline-block; font-weight: 600; }
+.box_Atype .textBar { padding-left: 0.5em; padding-right: 0.5em; }
+.box_Atype .tArea { margin:0; padding: 0; width: 100%; }
+.box_Atype .tArea .spanT { float: left; width: 90px; height: 100px; margin-right: 6px;}
+.box_Atype .tArea textarea { float: left; height: 111px; box-sizing:border-box; }
+.box_Atype .hidden { display: none; }
+
 .hidden { display: none; }
-
-/* 모달 팝업 */
-.modal_wrap { display: none; position: fixed; top:0; left:0; margin:0; padding:0; width: 100%; height: 100%; background-color:rgba(0,0,0,0.4); overflow: auto; z-index: 1; }
-.modal_wrap .modal_content { background-color: #fefefe; margin: 5% auto; padding: 10px; border: 1px solid #888; width: 50%; }
-.modal_wrap .modal_content .realgrid_wrap { width:100%; height:auto; overflow: hidden; }
-.modal_wrap .modal_content .realgrid_wrap #realgrid { height: 300px !important; }
-
-
-
+.rg_link:hover { color: #446ddf; text-decoration: underline; font-weight: bold; }
+input:read-only { background-color: #eee; color: #666; }

@@ -14,7 +14,7 @@
 		A.FULL_YVC07 + A.FULL_YVC08 + A.FULL_YVC09 + A.FULL_YVC10 + A.FULL_YVC11 + A.FULL_YVC12) AS FULL_TOTAL
 		FROM(SELECT
 		USER_ID,
-		USER_NAME,
+		USER_NM,
 		RBOF_ID,
 		RBOF_NM,
 		SUM(NVL(HALF_YVC01,0)) AS HALF_YVC01,
@@ -41,22 +41,22 @@
 		SUM(NVL(FULL_YVC11,0)) AS FULL_YVC11,
 		SUM(NVL(HALF_YVC12,0)) AS HALF_YVC12,
 		SUM(NVL(FULL_YVC12,0)) AS FULL_YVC12
-		FROM TAYVCM
+		FROM YEAR_VACATION
 		WHERE 1=1
 		<if test="map.user_name != '' and map.user_name != null">
-			AND UPPER(USER_NAME) LIKE UPPER('%' || #{map.user_name} || '%')
+			AND UPPER(USER_NM) LIKE UPPER('%' || #{map.user_nm} || '%')
 		</if>
 		<if test="map.rbof_id != '' and map.rbof_id != null">
 			AND RBOF_ID = #{map.rbof_id}
 		</if>
-		GROUP BY USER_ID, USER_NAME, RBOF_ID, RBOF_NM ) A
-		ORDER BY RBOF_ID, USER_NAME
+		GROUP BY USER_ID, USER_NM, RBOF_ID, RBOF_NM ) A
+		ORDER BY RBOF_ID, USER_NM
 
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
 	<update id="maintList" parameterType="map" >
-		UPDATE  TAYVCM
+		UPDATE  YEAR_VACATION
 		SET
 		HALF_YVC01 = #{half_yvc01},
 		FULL_YVC01 = #{full_yvc01},
@@ -83,7 +83,7 @@
 		HALF_YVC12 = #{half_yvc12},
 		FULL_YVC12 = #{full_yvc12}
 		WHERE USER_ID 	= #{user_id}
-		AND USER_NAME = #{user_name}
+		AND USER_NM = #{user_nm}
 	</update>
 
 </mapper>
