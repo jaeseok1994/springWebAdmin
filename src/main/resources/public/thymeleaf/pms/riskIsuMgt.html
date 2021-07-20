@@ -33,14 +33,12 @@
       {name: "pgs_st", fieldName: "pgs_st", type: "data", width: "100", header: "진행상황", editable: false },
       {name: "cre_user_id", fieldName: "cre_user_id", type: "data", width: "100", header: "등록자ID", visible: false },
       {name: "cre_user_nm", fieldName: "cre_user_nm", type: "data", width: "100", header: "등록자", editable: false },
-      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "150", header: "등록일자", editable: false }
+      {name: "cre_dtm", fieldName: "cre_dtm", type: "data", width: "100", header: "등록일자", editable: false }
     ];
 
     var grid;
     var app;
-    var today = new Date();
-    var st = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-01';
-    var fn = today.getFullYear()+'-'+('0'+(today.getMonth()+1)).slice(-2)+'-'+('0'+(today.getDate())).slice(-2);
+    var today = getdate();
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
@@ -53,7 +51,7 @@
                     dcrm_lev: '',
                     pgs_st: '',
                     date1: '',
-                    date2: fn
+                    date2: today
                 },
                 methods:{
                 }
@@ -85,6 +83,7 @@
 
         createRGrid(grid);
         grid.gridView.displayOptions.fitStyle = "even";
+        grid.gridView.displayOptions.selectionStyle = "rows"
 
         // 더블클릭 이벤트
         grid.gridView.onCellDblClicked = function (gridBase, clickData) {
@@ -121,7 +120,9 @@
     function goRskAdd(){
         var arg = {
             map: { popName:"add", },
-            url: "/service/pms/pms05RiskPop/selectForm.do",
+            url: "/service/pms/riskMgtPopup/selectForm.do",
+            width:"80%",
+            height:"95%",
             title:"위험추가 작성",
             callBack: fn_callback_popup
         };
@@ -131,7 +132,9 @@
     function goIsuAdd(){
         var arg = {
             map: { popName:"add", },
-            url: "/service/pms/pms05IsuPop/selectForm.do",
+            url: "/service/pms/isuMgtPopup/selectForm.do",
+            width:"80%",
+            height:"95%",
             title:"이슈추가작성",
             callBack: fn_callback_popup
         };
@@ -141,9 +144,9 @@
     function goRskSearch(scn,key){
         var url = '';
         if(scn == 'R'){
-            url = "/service/pms/pms05RiskPop/selectForm.do";
+            url = "/service/pms/riskMgtPopup/selectForm.do";
         }else if(scn == 'I'){
-            url = "/service/pms/pms05IsuPop/selectForm.do";
+            url = "/service/pms/isuMgtPopup/selectForm.do";
         }else{
             fn_alert('오류가 발생하였습니다.');
         }
@@ -151,20 +154,11 @@
         var arg = {
             map: { popName: 'search', rkis_key: key },
             url: url,
-            width:"1100px",
-            height:"800px",
+            width:"80%",
+            height:"95%",
             title:"위험/이슈 상세조회",
             callBack: fn_callback_popup
         };
-        fn_inner_popup_open(arg);
-    }
-
-    function fn_popup(){
-        var arg = {
-            popName: 'add',
-            url: "/service/pms/pms05RiskPop/selectForm.do",
-            callBack: fn_callback_popup
-        }
         fn_inner_popup_open(arg);
     }
 
@@ -176,7 +170,7 @@
                 map: app.keys,
         };
 
-        fn_transaction("select","/service/pms/pms05/selectList.do/selectList",jsonData,fn_callback);
+        fn_transaction("select","/service/pms/riskIsuMgt/selectList.do/selectList",jsonData,fn_callback);
     }
     // 확인창(수정필요)
     async function fn_update(){
@@ -200,7 +194,7 @@
             var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/pms/pms05/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/riskIsuMgt/maintList.do/"+func+"List",listData,fn_callback);
         }
         return;
     }
