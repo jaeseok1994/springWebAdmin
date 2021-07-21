@@ -23,7 +23,7 @@
 		,TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT
 		,ACT_SBC
 		,TRTM_MH
-		,VBG_CRE_USER_ID
+		,VBG_CRE_USER_ID as CRE_USER_ID
 		,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.VBG_CRE_USER_ID) CRE_USER_NM
 		,TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') CRE_DT
 		FROM RISK_ISSUE A
@@ -34,22 +34,30 @@
 	<insert id="maintList" parameterType="map" >
 		{CALL
 		DECLARE
-		PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
-		V_SEQ VARCHAR2(3) 	   := '';
-		V_RKIS_NO VARCHAR2(20) := '';
-		V_USER_CHK VARCHAR2(20)  := '';
-		V_ERR_MSG VARCHAR2(100)  := '';
+			PV_PROC_STEP VARCHAR2(100) :='START_PROGRAM';
+			V_SEQ VARCHAR2(3) 	   := '';
+			V_RKIS_NO VARCHAR2(20) := '';
+			V_USER_CHK VARCHAR2(20)  := '';
+			V_ROLE_CHK VARCHAR2(20)  := '';
+			V_ERR_MSG VARCHAR2(100)  := '';
 
 		BEGIN
 		/* 사용자 ID CHECK */
 		SELECT MAX(VBG_CRE_USER_ID)
-		INTO V_USER_CHK
-		FROM RISK_ISSUE
-		WHERE RKIS_NO = #{map.rkis_no};
+		  INTO V_USER_CHK
+		  FROM RISK_ISSUE
+		 WHERE RKIS_NO = #{map.rkis_no};
 
-		IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL THEN
-		V_ERR_MSG := '삭제할 자료가 없습니다.';	/* 확인 필요 */
-		RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
+		/* 사용자 권한 CHECK - 임시 테스트용 */
+		SELECT MAX(USER_ID)
+		  INTO V_ROLE_CHK
+		  FROM SYS_USER_ROLE
+		 WHERE USER_ID = #{_loginId_}
+		   AND (ROLE_ID = 'ROLE_ADMIN' OR ROLE_ID = 'ROLE_MANAGE');
+
+		IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL AND V_ROLE_CHK IS NULL THEN
+			V_ERR_MSG := '삭제할 자료가 없습니다.';	/* 확인 필요 */
+			RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
 		END IF;
 
 		/* 관리대장번호 생성 */

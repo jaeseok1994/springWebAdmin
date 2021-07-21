@@ -18,7 +18,9 @@
             el:'#form',
             data:{
                 // 콤보 리스트
-                areaList:[], rnkgList:[], stepList:[], pgsStList:[], mgmtGrdList:[],
+                areaList:[], rnkgList:[], stepList:[], pgsSituList:[], mgmtGrdList:[],
+                //프로젝트 조회
+                projUrl:'selectProjList',
                 // 상단 요소
                 top:{
                   title: '',
@@ -81,7 +83,7 @@
         });
         // 진행상황
         fn_codeDataSync({group:"PGS_SITU"},function(list){
-            app.pgsStList = list;
+            app.pgsSituList = list;
         });
         // 관리등급
         fn_codeDataSync({group:"MGMT_GRD"},function(list){
@@ -104,27 +106,55 @@
     }
 
     /**** 저장 & 삭제 ****/
-    function maintOne(func,key){
+    async function maintOne(func,key){
+        var rtn = '';
+        if(func == 'maint'){
+          rtn = await fn_confirm("저장하시겠습니까?");
+        }
+        if(func == 'delete'){
+          rtn = await fn_confirm("삭제하시겠습니까?");
+        }
 
-        var searchParam = {};
-        searchParam.func = func;
+        if(rtn == 'Y'){
+          var searchParam = {};
+          searchParam.func = func;
 
-        var proj_no = this.proj_no.value;
-        var acdnTitle = this.acdn_nm.value;
-        var acdnSbc = this.acdn_sbc.value;
+          if(func == 'maint'){
+            var proj_no = this.proj_no.value;
+            var acdnNm = this.acdn_nm.value;
+            var acdnSbc = this.acdn_sbc.value;
 
-        if(proj_no == '' || proj_no == null || proj_no == undefined){
-          fn_alert('프로젝트 번호를 입력해주세요.');
-        }else if(acdnTitle == '' || area == null || area == undefined){
-          fn_alert('사건명을 입력해주세요.');
-        }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
-          fn_alert('상세내용을 입력해주세요.');
+            if(proj_no == '' || proj_no == null || proj_no == undefined){
+              fn_alert('프로젝트 번호를 입력해주세요.');
+              return;
+            }else if(acdnNm == '' || acdnNm == null || acdnNm == undefined){
+              fn_alert('사건명을 입력해주세요.');
+              return;
+            }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
+              fn_alert('상세내용을 입력해주세요.');
+              return;
+            }
+          }
+          var jsonData = {
+            map: app.keys,
+          };
+          fn_transaction(func,"/service/pms/isuMgtPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
+          return;
+        }
+    }
+
+    /**** 권한 체크 - 임시 테스트용 ****/
+    function roleChk(chkId){
+        var role = getRols();
+        var userId = getLoginId();
+        if(role.includes('ROLE_ADMIN') || role.includes('ROLE_MANAGE')){
+          app.top.isMine = true;
         }else{
-            var jsonData = {
-                  map: app.keys,
-            };
-            fn_transaction(func,"/service/pms/isuMgtPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
-            return;
+          if(userId == chkId){
+            app.top.isMine = true;
+          }else{
+            app.top.isMine = false;
+          }
         }
     }
 
@@ -153,8 +183,8 @@
                 app.keys.cre_dt = data.resultList[0].CRE_DT;
                 app.keys.parr_dt = data.resultList[0].PARR_DT;
                 app.keys.crpd_way = data.resultList[0].CRPD_WAY;
-                app.top.isMine = getLoginId() == data.resultList[0].CRE_USER_ID;
 
+                roleChk(app.keys.cre_user_id);
             }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
                 grid.dataProvider.setRows(data.resultList);
                 grid.gridView.refresh();
@@ -195,12 +225,13 @@
     <div class="gap10"></div>
     <span class="spanT hidden">관리대장번호</span>
     <input id="rkis_no" type="text" class="hidden" v-model="keys.rkis_no" readonly>
-    <span class="spanT al w90">상위관리번호</span>
-    <input id="pren_rkis_no" type="text" class="input_Ac textBar w100" v-model="keys.pren_rkis_no" placeholder="번호 입력" readonly>
-    <span class="spanT al mg10 w90">구분</span>
+
+    <span class="spanT al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="spanT al mg10 w90">프로젝트번호</span>
-    <input id="proj_no" type="text" class="input_Ac textBar w100" v-model="keys.proj_no" placeholder="번호 입력" readonly>
+    <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px"></select2>
+    <span class="spanT al mg10 w90">상위관리번호</span>
+    <input id="pren_rkis_no" type="text" class="input_Ac textBar w100" v-model="keys.pren_rkis_no" placeholder="번호 입력" readonly>
     <div class="gap5"></div>
     <span class="spanT al w90">영역</span>
     <select name="area" id="area" class="ui_selC w100" v-model="keys.area">
@@ -233,11 +264,6 @@
     </select>
     <div class="gap20"></div>
 
-    <span class="spanT al w90">등록자</span>
-    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" placeholder="자동 입력" readonly>
-    <span class="spanT al mg10 w90">등록일자</span>
-    <input id="cre_dt" type="text" class="input_Ac textBar w100" v-model="keys.cre_dt" readonly>
-    <div class="gap5"></div>
     <span class="spanT al w90">사건명</span>
     <input id="acdn_nm" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdn_nm" placeholder="사건명 입력">
     <div class="gap5"></div>
@@ -265,11 +291,16 @@
 
     <span class="spanT al w90">진행상황</span>
     <select name="pgs_situ" id="pgs_situ" class="ui_selC w100" v-model="keys.pgs_situ">
-      <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
+      <option v-for="list in pgsSituList" :value="list.value">{{list.text}}</option>
     </select>
-    <div class="gap5"></div>
-    <span class="spanT al w120">처리공수(M/H)</span>
+    <span class="spanT al mg10 w120">처리공수(M/H)</span>
     <input id="trtm_mh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtm_mh">
+    <div class="gap20"></div>
+
+    <span class="spanT al w90">등록자</span>
+    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" readonly>
+    <span class="spanT al mg10 w90">등록일자</span>
+    <input id="cre_dt" type="text" class="input_Ac textBar w100" v-model="keys.cre_dt" readonly>
     <div class="gap10"></div>
   </div>
   <div class="gap20"></div>
