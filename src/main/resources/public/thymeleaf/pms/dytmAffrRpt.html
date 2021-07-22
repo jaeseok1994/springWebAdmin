@@ -8,45 +8,46 @@
 <script>
     /****** 주간업무내역 그리드 필드 선언 ******/
     var fields = [
-      {fieldName: "affr_no",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
       {fieldName: "proj_nm",dataType: "text"},
       {fieldName: "title",dataType: "text"},
-      {fieldName: "wr_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "writer",dataType: "text"},
+      {fieldName: "drft_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "dytm_strt_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "get_week",dataType: "text"},
+      {fieldName: "pprr_id",dataType: "text"},
+      {fieldName: "pprr_nm",dataType: "text"},
       {fieldName: "rem",dataType: "text"},
-      {fieldName: "upd_user_nm",dataType: "text"},
-      {fieldName: "upd_dtm",dataType: "text"}
+      {fieldName: "fin_updr_id",dataType: "text"},
+      {fieldName: "fin_updr_nm",dataType: "text"},
+      {fieldName: "fin_mdfy_dt",dataType: "text"}
     ];
     /****** 주간업무내역 그리드 컬럼 선언 ******/
     var columns = [
-      {name: "affr_no", fieldName: "affr_no", type: "data", width: "80", header: "문서번호",editable: false},
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "90", header: "프로젝트번호",editable: false},
       {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
       {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일",editable: false,
+      {name: "dytm_strt_dt", fieldName: "dytm_strt_dt", maxLength: 8, width: "100", header: "주간시작날짜(월)",editable: false,
 
           datetimeFormat: "yyyy-MM-dd"
     	},
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일",editable: false,
+      {name: "get_week", fieldName: "get_week", type: "data", width: "150", header: "주차", editable: false},
+        {name: "drft_dt", fieldName: "drft_dt", maxLength: 8, width: "100", header: "기안날짜",editable: false,
 
             datetimeFormat: "yyyy-MM-dd"
         },
-        {name: "wr_dt", fieldName: "wr_dt", maxLength: 8, width: "100", header: "기안날짜",editable: false,
-
-            datetimeFormat: "yyyy-MM-dd"
-        },
-      {name: "writer", fieldName: "writer", type: "data", width: "80", header: "작성자", editable: false},
+      {name: "pprr_id", fieldName: "pprr_id", type: "data", width: "80", header: "작성자ID", editable: false},
+      {name: "pprr_nm", fieldName: "pprr_nm", type: "data", width: "80", header: "작성자", editable: false},
       {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column", editable: false},
-      {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
-      {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
+      {name: "fin_updr_id", fieldName: "fin_updr_id", type: "data", width: "80", header: "수정자ID", editable: false, visible: false },
+      {name: "fin_updr_nm", fieldName: "fin_updr_nm", type: "data", width: "80", header: "수정자", editable: false },
+      {name: "fin_mdfy_dt", fieldName: "fin_mdfy_dt", type: "data", width: "180", header: "수정일시", editable: false }
     ];
+
     /****** 전역변수 선언 ******/
     var grid;
     var app;
     var setToday = getdate();
+
     /****** 폼 로딩함수 ******/
     $(document.body).ready(function(){
         /****** Vue 선언 ******/
@@ -55,7 +56,6 @@
             data:{
                 keys:{
                 	proj_no:'',
-                	proj_nm:'',
                     title:'',
                     strt_dt:'',
                     fnh_dt:setToday,
@@ -70,7 +70,7 @@
             },
         });
 
-        /****** 주간 업무보고 버튼클릭 이벤트 ******/
+        /****** 주간업무보고  조회 버튼 이벤트 ******/
         $("#goSelect").click(function(){
         	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
         	    console.log("proj_nm:::"+app.keys.proj_nm);
@@ -83,22 +83,12 @@
         	search();
         });
 
+        /****** 주간업무보고 추가 버튼 이벤트 ******/
         $("#goAdd").click(function(){
-        	/*
-        	var proj_no = $('#proj_no').val();
-        	if(proj_no == null || proj_no == ''){
-        		fn_alert("프로젝트를 선택하세요.");
-        		return;
-        	}
-        	var r = grid.dataProvider.addRow(1);
-        	grid.dataProvider.setValue(r,'proj_no',proj_no);
-        	*/
-        	//var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms03_popup','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
-
-        	popup_open(null);
+        	popup_open(app.keys.proj_no,null);
         });
 
-
+         /****** 주간업무보고 삭제 버튼 이벤트 ******/
         $("#goDelete").click(function(){
             maintList('delete');
         });
@@ -106,7 +96,7 @@
         	grid.gridView.exportGrid({
 			    type: "excel",
 			    target: "local",
-			    fileName: "프로젝트 일정관리.xlsx", 
+			    fileName: "주간업무보고.xlsx",
 			    showProgress: true,
 			    progressMessage: "엑셀 Export중입니다.",
 			    indicator: 'visible',
@@ -141,19 +131,38 @@
 
        /****** 그리드 더블클릭 이벤트 ******/
         grid.gridView.onCellDblClicked = function (g, clickData) {
-          var column = clickData.column;
-           console.log(column);
-            var AF_NO = grid.gridView.getValue(clickData.itemIndex,"affr_no");
-            if(column = 'title'){ // 제목 cell 클릭 시 팝업창 열림 기능
-                popup_open(AF_NO);
-                //console.log(column);
+
+             /****** 팝업창 열 때 파라미터 값 만들기 ******/
+             var PROJ_NO = grid.gridView.getValue(clickData.itemIndex,"proj_no");
+             var date = grid.dataProvider.getValue(clickData.itemIndex,"dytm_strt_dt");
+
+             /****** 날짜형식으로 변경(그리드에서 값 추출 시 날짜형식(YYYY-MM-DD)으로 변경) ******/
+             var yyyy = date.getFullYear();
+             var mm = date.getMonth()+1;
+             var mm2 = mm.toString();
+                 if( mm2.length < 2 ){
+                    mm2 = '0'+mm;
+                 }
+             var dd = date.getDate();
+             var dd2 = dd.toString();
+                 if( dd2.length < 2 ){
+                    dd2 = '0'+dd2;
+                 }
+
+             var DY_STRT_DT = date.getFullYear()+'-'+mm2+'-'+dd2;
+
+            /****** 제목컬럼 더블클릭하면 팝업창 오픈 ******/
+            if(clickData.column == 'title'){
+                popup_open(PROJ_NO,DY_STRT_DT);
             }
         };
     });
 
-    /****** 팝업창 열기 기능(문서번호가 넘겨줌) ******/
-    function popup_open(AF_NO){
-        app.keys.afno = AF_NO;
+    /****** 팝업창 열기 기능(파라미터 : 프로젝트번호, 주간시작날짜) ******/
+    function popup_open(PROJ_NO,DY_STRT_DT){
+        app.keys.proj_no = PROJ_NO;
+        app.keys.dy_strt_dt = DY_STRT_DT;
+        console.log(app.keys.dy_strt_dt);
         var jsonData = {
             url:'/service/pms/dytmAffrRptPopup/selectForm.do',
             name:'dytmAffrRptPopup',
@@ -254,7 +263,7 @@
                 </td>
                 <td class="ar">기안날짜</td>
                 <td>
-                    <datepicker id="strt_dt" class="input_A w45p" v-model="keys.strt_dt"></datepicker>
+                    <datepicker id="strt_dt" class="input_A w45p" v-model="keys.strt_dt" placeholder="____-__-__"></datepicker>
                     ~
                     <datepicker id="fnh_dt" class="input_A w45p" v-model="keys.fnh_dt"></datepicker>
                 </td>

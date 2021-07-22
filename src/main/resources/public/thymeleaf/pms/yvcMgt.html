@@ -233,7 +233,7 @@
 
         fn_transaction("select","/service/pms/yvcMgt/selectList.do/selectList",jsonData,fn_callback);
     }
-    function maintList(func,key){
+    async function maintList(func,key){
         grid.gridView.commit(true);
 
         var searchParam = {};
@@ -246,7 +246,9 @@
           return;
         }
 
-        if(list.length >0){
+        var rtn = await fn_confirm("저장하시겠습니까?");
+
+        if(rtn == 'Y' && list.length >0){
             var listData = {
                   list: list,
             };

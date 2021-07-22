@@ -39,16 +39,24 @@
 			V_SEQ VARCHAR2(3) 	   := '';
 			V_RKIS_NO VARCHAR2(20) := '';
 			V_USER_CHK VARCHAR2(20)  := '';
+			V_ROLE_CHK VARCHAR2(20)  := '';
 			V_ERR_MSG VARCHAR2(100)  := '';
 
 		BEGIN
 			/* 사용자 ID CHECK */
-			SELECT MAX(CRE_USER_ID)
-			INTO V_USER_CHK
-			FROM RISK_ISSUE
-			WHERE RKIS_NO = #{map.rkis_no};
+			SELECT MAX(VBG_CRE_USER_ID)
+			  INTO V_USER_CHK
+			  FROM RISK_ISSUE
+			 WHERE RKIS_NO = #{map.rkis_no};
 
-			IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL THEN
+			/* 사용자 권한 CHECK - 임시 테스트용 */
+			SELECT MAX(USER_ID)
+			  INTO V_ROLE_CHK
+			  FROM SYS_USER_ROLE
+			 WHERE USER_ID = #{_loginId_}
+			   AND (ROLE_ID = 'ROLE_ADMIN' OR ROLE_ID = 'ROLE_MANAGE');
+
+			IF #{_loginId_} != V_USER_CHK AND V_USER_CHK IS NOT NULL AND V_ROLE_CHK IS NULL THEN
 				V_ERR_MSG := '문서에 대한 권한이 없습니다.';
 				RAISE_APPLICATION_ERROR(-20010, '문서에 대한 권한이 없습니다.' || '|' || PV_PROC_STEP);
 			END IF;
@@ -78,8 +86,8 @@
 				, PVNT_PLN = #{map.pvnt_pln}
 				, TRTM_CONF_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.trtm_conf_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
 				, TRTM_MH = #{map.trtm_mh}
-				, VBG_CRE_USER_ID = #{_loginId_}
-				, VBG_CRE_DT = SYSDATE
+				, FIN_UPDR_ID = #{_loginId_}
+				, FIN_MDFY_DT = SYSDATE
 			WHEN NOT MATCHED THEN
 			/* 신규입력 */
 			INSERT(

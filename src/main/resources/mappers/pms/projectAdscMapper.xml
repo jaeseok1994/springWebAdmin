@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.pms.projectAdsc">
+
+    <select id="codeList" parameterType="map" resultType="cMap">
+	    SELECT
+		    PROJ_NO CODE,
+		    PROJ_NM NAME
+		FROM PROJECT_MASTER
+		ORDER BY PROJ_NM
+    </select>
+    
+    <select id="codeList2" parameterType="map" resultType="cMap">
+	    SELECT
+			TRWI_HPW CODE,
+			TRWI_HPW NAME
+		FROM PROJECT_DETAIL
+		WHERE PROJ_NO = #{proj_no}
+		ORDER BY TRWI_HPW
+    </select>
+    
+    <select id="selectList" parameterType="map" resultType="cMap">
+	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+	    
+	        SELECT
+			    PROJ_NO,
+			    WBDS,
+			    WK_NM,
+			    REM,
+			    STRT_DT,
+			    FNH_DT,
+			    WGVL,
+			    CRGR_NM,
+			    PDT_NM,
+			    PGS_RT,
+			    FIN_UPDR_ID,
+			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.FIN_UPDR_ID) UPD_USER_NM,
+			    TO_CHAR(FIN_MDFY_DT,'YYYY-MM-DD HH24:MI:SS') FIN_MDFY_DT
+			FROM PROJECT_ADSC A
+			WHERE PROJ_NO = #{map.proj_no}
+	        ORDER BY WBDS
+	        		
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+    
+    <insert id="maintList" parameterType="map" >
+    {CALL
+        DECLARE
+        BEGIN
+
+            MERGE INTO PROJECT_ADSC
+		        USING DUAL
+		           ON (PROJ_NO = #{proj_no} AND WBDS = #{wbds})
+		        WHEN MATCHED THEN
+		        UPDATE SET
+		               WK_NM = #{wk_nm}
+		             , REM = #{rem}
+		             , STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , FNH_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fnh_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , WGVL = #{wgvl}
+		             , CRGR_NM = #{crgr_nm}
+		             , PDT_NM = #{pdt_nm}
+		             , PGS_RT = #{pgs_rt}
+		             , FIN_UPDR_ID = #{_loginId_}
+		             , FIN_MDFY_DT = SYSDATE
+		        WHEN NOT MATCHED THEN
+		            INSERT (PROJ_NO, WBDS, WK_NM, REM,
+		            		STRT_DT, FNH_DT,
+		            		WGVL, CRGR_NM, PDT_NM, PGS_RT,
+		            		VBG_CRE_USER_ID, VBG_CRE_DT, FIN_UPDR_ID, FIN_MDFY_DT)
+		            values (#{proj_no},#{wbds},#{wk_nm},#{rem},
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fnh_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		#{wgvl},#{crgr_nm},#{pdt_nm},#{pgs_rt},
+							#{_loginId_},SYSDATE,#{_loginId_},SYSDATE);
+		    
+        END
+    }
+    </insert>
+    
+    <insert id="deleteList" parameterType="map" >
+        DELETE FROM PROJECT_ADSC
+        WHERE PROJ_NO = #{proj_no}
+        AND WBDS = #{WBDS}
+    </insert>
+</mapper>

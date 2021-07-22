@@ -8,40 +8,40 @@
 <script>
     var fields = [
       {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "wbs",dataType: "text"},
-      {fieldName: "task",dataType: "text"},
+      {fieldName: "wbds",dataType: "text"},
+      {fieldName: "wk_nm",dataType: "text"},
       {fieldName: "rem",dataType: "text"},
-      {fieldName: "st_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "fn_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
-      {fieldName: "importance",dataType: "number"},
-      {fieldName: "dev_mp",dataType: "text"},
-      {fieldName: "ouputs",dataType: "text"},
-      {fieldName: "prgr_rate",dataType: "number"},
+      {fieldName: "strt_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "fnh_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "wgvl",dataType: "number"},
+      {fieldName: "crgr_nm",dataType: "text"},
+      {fieldName: "pdt_nm",dataType: "text"},
+      {fieldName: "pgs_rt",dataType: "number"},
       {fieldName: "upd_user_nm",dataType: "text"},
       {fieldName: "upd_dtm",dataType: "text"}
     ];
     
     var columns = [
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트번호", visible: false},
-      {name: "wbs", fieldName: "wbs", maxLength: 20, type: "data", width: "140", header: "WBS ( '.' 으로 구분 )",styleName:"left-column" },
-      {name: "task", fieldName: "task", type: "data", width: "150", header: "작업" ,styleName:"left-column"},
+      {name: "wbds", fieldName: "wbds", maxLength: 20, type: "data", width: "140", header: "wbds ( '.' 으로 구분 )",styleName:"left-column" },
+      {name: "wk_nm", fieldName: "wk_nm", type: "data", width: "150", header: "작업" ,styleName:"left-column"},
       {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column"},
-      {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", 
+      {name: "strt_dt", fieldName: "strt_dt", maxLength: 8, width: "100", header: "시작일", 
     	  editor: {
               type: "date",
               datetimeFormat: "yyyy-MM-dd"
           },
           datetimeFormat: "yyyy-MM-dd"
     	},
-      {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", 
+      {name: "fnh_dt", fieldName: "fnh_dt", maxLength: 8, width: "100", header: "종료일", 
     		editor: {
                 type: "date",
                 datetimeFormat: "yyyy-MM-dd"
             },
             datetimeFormat: "yyyy-MM-dd"
         },
-      {name: "importance", fieldName: "importance", type: "data", width: "80", header: "가중치"},
-      {name: "dev_mp", fieldName: "dev_mp", width: "80", header: "담당자",
+      {name: "wgvl", fieldName: "wgvl", type: "data", width: "80", header: "가중치"},
+      {name: "crgr_nm", fieldName: "crgr_nm", width: "80", header: "담당자",
     	  editor: {
     		 type: "list",
    		     values: [],
@@ -50,8 +50,8 @@
    		     textReadOnly: true
           }
         },
-      {name: "ouputs", fieldName: "ouputs", type: "data", width: "200", header: "산출물" ,styleName:"left-column"},
-      {name: "prgr_rate", fieldName: "prgr_rate", type: "data", width: "80", header: "진척율(%)"},
+      {name: "pdt_nm", fieldName: "pdt_nm", type: "data", width: "200", header: "산출물" ,styleName:"left-column"},
+      {name: "pgs_rt", fieldName: "pgs_rt", type: "data", width: "80", header: "진척율(%)"},
       {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
       {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
     ];
@@ -158,7 +158,7 @@
                 map: app.keys,
         };
 
-        fn_transaction("select","/service/pms/pms02/selectList.do/selectList",jsonData,fn_callback);
+        fn_transaction("select","/service/pms/projectAdsc/selectList.do/selectList",jsonData,fn_callback);
     }
     function maintList(func,key){
         grid.gridView.commit(true);
@@ -177,7 +177,7 @@
             var listData = {
                   list: list,
             };
-            fn_transaction(func,"/service/pms/pms02/maintList.do/"+func+"List",listData,fn_callback);
+            fn_transaction(func,"/service/pms/projectAdsc/maintList.do/"+func+"List",listData,fn_callback);
         }
         return;
     }
@@ -207,7 +207,7 @@
         }
     }
     function getCode(){
-    	fn_transaction("code","/service/pms/pms02/selectList.do/codeList",{},fn_callback);
+    	fn_transaction("code","/service/pms/projectAdsc/selectList.do/codeList",{},fn_callback);
     }
     function setCode(resultList) {
         var str = '<option value="">선택</option>';
@@ -219,7 +219,7 @@
     function getCode2(){
 		var jsonData = {proj_no: $('#proj_no').val()};
 
-        fn_transaction("code2","/service/pms/pms02/selectList.do/codeList2",jsonData,fn_callback);
+        fn_transaction("code2","/service/pms/projectAdsc/selectList.do/codeList2",jsonData,fn_callback);
     }
     function setColumns(resultList) {
     	var values = [];
@@ -232,25 +232,25 @@
         // console.log(values);
         columns = [
             {name: "proj_no", fieldName: "proj_no", type: "data", width: "80", header: "프로젝트번호", visible: false},
-            {name: "wbs", fieldName: "wbs", maxLength: 20, type: "data", width: "140", header: "WBS ( '.' 으로 구분 )",styleName:"left-column" },
-            {name: "task", fieldName: "task", type: "data", width: "150", header: "작업" ,styleName:"left-column"},
+            {name: "wbds", fieldName: "wbds", maxLength: 20, type: "data", width: "140", header: "wbds ( '.' 으로 구분 )",styleName:"left-column" },
+            {name: "wk_nm", fieldName: "wk_nm", type: "data", width: "150", header: "작업" ,styleName:"left-column"},
             {name: "rem", fieldName: "rem", type: "data", width: "150", header: "비고" ,styleName:"left-column"},
-            {name: "st_dt", fieldName: "st_dt", maxLength: 8, width: "100", header: "시작일", 
+            {name: "strt_dt", fieldName: "strt_dt", maxLength: 8, width: "100", header: "시작일", 
           	  editor: {
                     type: "date",
                     datetimeFormat: "yyyy-MM-dd"
                 },
                 datetimeFormat: "yyyy-MM-dd"
           	},
-            {name: "fn_dt", fieldName: "fn_dt", maxLength: 8, width: "100", header: "종료일", 
+            {name: "fnh_dt", fieldName: "fnh_dt", maxLength: 8, width: "100", header: "종료일", 
           		editor: {
                       type: "date",
                       datetimeFormat: "yyyy-MM-dd"
                   },
                   datetimeFormat: "yyyy-MM-dd"
               },
-            {name: "importance", fieldName: "importance", type: "data", width: "80", header: "가중치"},
-            {name: "dev_mp", fieldName: "dev_mp", width: "80", header: "담당자",
+            {name: "wgvl", fieldName: "wgvl", type: "data", width: "80", header: "가중치"},
+            {name: "crgr_nm", fieldName: "crgr_nm", width: "80", header: "담당자",
           	  editor: {
           		 	type: "list",
 	         		values:values,
@@ -259,8 +259,8 @@
       		     	textReadOnly: true  
                 }
               },
-            {name: "ouputs", fieldName: "ouputs", type: "data", width: "200", header: "산출물" ,styleName:"left-column"},
-            {name: "prgr_rate", fieldName: "prgr_rate", type: "data", width: "80", header: "진척율(%)"},
+            {name: "pdt_nm", fieldName: "pdt_nm", type: "data", width: "200", header: "산출물" ,styleName:"left-column"},
+            {name: "pgs_rt", fieldName: "pgs_rt", type: "data", width: "80", header: "진척율(%)"},
             {name: "upd_user_nm", fieldName: "upd_user_nm", type: "data", width: "80", header: "수정자", editable: false },
             {name: "upd_dtm", fieldName: "upd_dtm", type: "data", width: "180", header: "수정일시", editable: false }
           ];

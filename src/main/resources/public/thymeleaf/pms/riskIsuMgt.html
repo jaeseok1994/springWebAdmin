@@ -42,6 +42,7 @@
     var grid;
     var app;
     var today = getdate();
+    var st_dt = today.substr(0,8)+"01";  //당일 월의 1일
 
     $(document.body).ready(function(){
         /**** Vue 선언 ****/
@@ -59,7 +60,7 @@
                     prry_rnkg: '01',
                     dcrm_step: '',
                     pgs_situ: '',
-                    date1: '',
+                    date1: st_dt,
                     date2: today
                 },
                 methods:{
@@ -138,7 +139,7 @@
             url: "/service/pms/riskMgtPopup/selectForm.do",
             width:"80%",
             height:"95%",
-            title:"위험추가 작성",
+            title:"위험 추가 작성",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
@@ -150,28 +151,28 @@
             url: "/service/pms/isuMgtPopup/selectForm.do",
             width:"80%",
             height:"95%",
-            title:"이슈추가작성",
+            title:"이슈 추가 작성",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
     }
     /**** 위험,이슈조회 팝업 ****/
     function goRskSearch(scn,key){
-        var url = '';
+        var popUrl = '';
         if(scn == 'R'){
-            url = "/service/pms/riskMgtPopup/selectForm.do";
+            popUrl = "/service/pms/riskMgtPopup/selectForm.do";
         }else if(scn == 'I'){
-            url = "/service/pms/isuMgtPopup/selectForm.do";
+            popUrl = "/service/pms/isuMgtPopup/selectForm.do";
         }else{
             fn_alert('오류가 발생하였습니다.');
         }
 
         var arg = {
             map: { popName: 'search', rkis_key: key },
-            url: url,
+            url: popUrl,
             width:"80%",
             height:"95%",
-            title:"위험/이슈 상세조회",
+            title:"위험/이슈 상세 조회",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
@@ -189,15 +190,8 @@
         fn_transaction("select","/service/pms/riskIsuMgt/selectList.do/selectList",jsonData,fn_callback);
     }
 
-    /**** 확인창 ****/     //수정필요
-    async function fn_update(){
-        var rtn = await fn_confirm("진행하시겠습니까?");
-        //console.log(rtn);
-        //fn_alert(rtn);
-    }
-
     /**** 저장 ****/
-    function maintList(func,key){
+    async function maintList(func,key){
         grid.gridView.commit(true);
 
         var searchParam = {};
@@ -209,7 +203,10 @@
             fn_alert("자료를 선택하세요.");
             return;
         }
-        if(list.length >0){
+
+        var rtn = await fn_confirm("삭제하시겠습니까?");
+
+        if(rtn == 'Y' && list.length >0){
             var listData = {
                   list: list,
             };
@@ -254,6 +251,7 @@
 <body>
 <div id="form" class="contentPgm">
     <div class="content_title">위험 및 이슈 관리대장</div>
+    <!-- 조회조건 -->
     <div class="box_Atype">
         <table class="tbl_base">
             <caption>위험 및 이슈 관리대장</caption>
@@ -314,7 +312,7 @@
                 <td>
                     <select name="pgs_situ" id="pgs_situ" class="ui_sel w90p" v-model="keys.pgs_situ">
                         <option value="">전체</option>
-                        <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
+                        <option v-for="list in pgsSituList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
                 <td></td>
@@ -323,7 +321,7 @@
         </table>
     </div>
     <div class="gap5"></div>
-
+    <!-- 버튼 -->
     <div class="ar">
         <div id="goSelect" class="btn_typeA btn_search">조회</div>
         <div id="goRskAdd" class="btn_typeA btn_save">위험추가</div>
@@ -331,6 +329,7 @@
         <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
     </div>
     <div class="gap10"></div>
+    <!-- 그리드 -->
     <div style="width: 100%;height: auto;overflow: hidden;">
         <div id="realgrid"  ></div>
         <div id="commonPaging" class="commonPaging" ></div>

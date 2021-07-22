@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
-<mapper namespace="proj.pms.pms01">
+<mapper namespace="proj.pms.projectMgt">
 
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
@@ -9,21 +9,21 @@
 	        SELECT
 			    PROJ_NO,
 			    PROJ_NM,
-			    ST_DT,
-			    FN_DT,
+			    STRT_DT,
+			    FNH_DT,
 			    (SELECT
 				F_PVTCOL(CURSOR(
-				    SELECT DEV_MP
-				      FROM TAPJMN
+				    SELECT TRWI_HPW
+				      FROM PROJECT_DETAIL
 				     WHERE PROJ_NO = A.PROJ_NO
-				),',') DEV_MPS
-				FROM DUAL) DEV_MPS,
-			    CLIENT,
+				),',') TRWI_HPWS
+				FROM DUAL) TRWI_HPWS,
+			    ORDP_NM,
 			    REM,
-			    UPD_USER_ID,
-			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.UPD_USER_ID) UPD_USER_NM,
-			    TO_CHAR(UPD_DTM,'YYYY-MM-DD HH24:MI:SS') UPD_DTM
-			FROM TAPRJM A
+			    FIN_UPDR_ID,
+			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.FIN_UPDR_ID) UPD_USER_NM,
+			    TO_CHAR(FIN_MDFY_DT,'YYYY-MM-DD HH24:MI:SS') FIN_MDFY_DT
+			FROM PROJECT_MASTER A
 			WHERE 1=1
 	        <if test="map.proj_no != '' and map.proj_no != null">
 	           AND PROJ_NO LIKE '%' || #{map.proj_no} || '%'
@@ -31,12 +31,12 @@
 	        <if test="map.proj_nm != '' and map.proj_nm != null">
 	           AND PROJ_NM LIKE '%' || #{map.proj_nm} || '%'
 	        </if>
-	        <if test="map.dev_mp != '' and map.dev_mp != null">
+	        <if test="map.TRWI_HPW != '' and map.TRWI_HPW != null">
 	           AND EXISTS (
 	           		SELECT 1
-	           		FROM TAPJMN
+	           		FROM PROJECT_DETAIL
 	           		WHERE PROJ_NO = A.PROJ_NO
-	           		AND DEV_MP LIKE '%' || #{map.dev_mp} || '%'
+	           		AND TRWI_HPW LIKE '%' || #{map.trwi_hpw} || '%'
 	           )
 	        </if>
 	        ORDER BY PROJ_NO
@@ -52,38 +52,38 @@
 			/* 프로젝트번호 생성 */
 			V_PROJ_NO := F_DOCNO('PJ');
 
-            MERGE INTO TAPRJM A
+            MERGE INTO PROJECT_MASTER A
 		        USING DUAL
 		           ON (A.PROJ_NO = #{proj_no})
 		        WHEN MATCHED THEN
 		        UPDATE SET
 		               A.PROJ_NM = #{proj_nm}
-		             , A.ST_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-		             , A.FN_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
-		             , A.CLIENT = #{client}
+		             , A.STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , A.FNH_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fnh_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD')
+		             , A.ORDP_NM = #{ordp_nm}
 		             , A.REM = #{rem}
-		             , A.UPD_USER_ID = #{_loginId_}
-		             , A.UPD_DTM = SYSDATE
+		             , A.FIN_UPDR_ID = #{_loginId_}
+		             , A.FIN_MDFY_DT = SYSDATE
 		        WHEN NOT MATCHED THEN
 		            INSERT (A.PROJ_NO, A.PROJ_NM,
-		            		A.ST_DT, A.FN_DT,
-		            		A.CLIENT, A.REM, A.CRE_USER_ID, A.CRE_DTM, A.UPD_USER_ID, A.UPD_DTM)
+		            		A.STRT_DT, A.FNH_DT,
+		            		A.ORDP_NM, A.REM, A.VBG_CRE_USER_ID, A.VBG_CRE_DT, A.FIN_UPDR_ID, A.FIN_MDFY_DT)
 		            VALUES (V_PROJ_NO,#{proj_nm},
-		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{st_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fn_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
-		            		#{client},#{rem},#{_loginId_},SYSDATE,#{_loginId_},SYSDATE);
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{fnh_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
+		            		#{ordp_nm},#{rem},#{_loginId_},SYSDATE,#{_loginId_},SYSDATE);
 		    
-		    DELETE FROM TAPJMN
+		    DELETE FROM PROJECT_DETAIL
 		    WHERE PROJ_NO = #{proj_no};
 		    
-		    INSERT INTO TAPJMN (
+		    INSERT INTO PROJECT_DETAIL (
 		    	PROJ_NO,
-		    	DEV_MP,
+		    	TRWI_HPW,
 		    	REM,
-		    	CRE_USER_ID,
-				CRE_DTM,
-				UPD_USER_ID,
-				UPD_DTM
+		    	VBG_CRE_USER_ID,
+				VBG_CRE_DT,
+				FIN_UPDR_ID,
+				FIN_MDFY_DT
 		    )
 		    SELECT
 				V_PROJ_NO,
@@ -93,13 +93,13 @@
 				SYSDATE,
 				#{_loginId_},
 				SYSDATE
-		    FROM TABLE(F_PVTROW(#{dev_mps},','));
+		    FROM TABLE(F_PVTROW(#{trwi_hpws},','));
         END
     }
     </insert>
     
     <insert id="deleteList" parameterType="map" >
-        DELETE FROM TAPRJM
+        DELETE FROM PROJECT_MASTER
         WHERE PROJ_NO = #{proj_no}
     </insert>
 </mapper>

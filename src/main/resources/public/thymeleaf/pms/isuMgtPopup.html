@@ -18,7 +18,10 @@
             el:'#form',
             data:{
                 // 콤보 리스트
-                areaList:[], rnkgList:[], stepList:[], pgsStList:[], mgmtGrdList:[],
+                areaList:[], rnkgList:[], stepList:[], pgsSituList:[], mgmtGrdList:[],
+                //셀렉트2 조회
+                projUrl:'selectProjList',   //프로젝트번호
+                projUrl2:'selectRiskList',   //상위관리번호
                 // 상단 요소
                 top:{
                   title: '',
@@ -28,6 +31,7 @@
                 // 작성란 key
                 keys:{
                     rkis_no: '',
+                    supi_rkis_no: '',
                     scn: '이슈',
                     proj_no: '',
                     area: '',
@@ -55,7 +59,12 @@
         /**** 클릭 이벤트 ****/
         //수정
         $("#goModify").click(function(){
+            //btnChange('modify');
             maintOne('maint');
+        });
+        //수정취소
+        $("#goModiCancel").click(function(){
+            btnChange('cancel');
         });
         //저장
         $("#goSave").click(function(){
@@ -81,7 +90,7 @@
         });
         // 진행상황
         fn_codeDataSync({group:"PGS_SITU"},function(list){
-            app.pgsStList = list;
+            app.pgsSituList = list;
         });
         // 관리등급
         fn_codeDataSync({group:"MGMT_GRD"},function(list){
@@ -90,12 +99,36 @@
 
         /**** 조회,수정 화면 전환 ****/
         if(app.top.pop_name == 'search'){
-          app.top.title = '이슈상세 조회';
+          app.top.title = '이슈 상세 조회';
+          //btnChange('search');
           search();
         }else{
-          app.top.title = '이슈상세 작성';
+          app.top.title = '이슈 추가 작성';
+          //btnChange('add');
         }
     });
+
+    /**** 버튼 변경 이벤트 - 임시 테스트용 ****/
+/*    function btnChange(func){
+      if(func == 'search'){
+        document.getElementById('goDelete').classList.remove('hidden');
+        document.getElementById('goModify').classList.remove('hidden');
+      }
+      if(func == 'modify'){
+        document.getElementById('goSave').classList.remove('hidden');
+        document.getElementById('goModify').classList.add('hidden');
+        document.getElementById('goModiCancel').classList.remove('hidden');
+      }
+      if(func == 'cancel'){
+        document.getElementById('goModify').classList.remove('hidden');
+        document.getElementById('goModiCancel').classList.add('hidden');
+        document.getElementById('goSave').classList.add('hidden');
+      }
+      if(func == 'add'){
+        document.getElementById('goSave').classList.remove('hidden');
+      }
+      //paramObj.popName = 'modify';
+    } */
 
     /**** 작성글 조회 ****/
     function search(){
@@ -104,27 +137,55 @@
     }
 
     /**** 저장 & 삭제 ****/
-    function maintOne(func,key){
+    async function maintOne(func,key){
+        var rtn = '';
+        if(func == 'maint'){
+          rtn = await fn_confirm("저장하시겠습니까?");
+        }
+        if(func == 'delete'){
+          rtn = await fn_confirm("삭제하시겠습니까?");
+        }
 
-        var searchParam = {};
-        searchParam.func = func;
+        if(rtn == 'Y'){
+          var searchParam = {};
+          searchParam.func = func;
 
-        var proj_no = this.proj_no.value;
-        var acdnTitle = this.acdn_nm.value;
-        var acdnSbc = this.acdn_sbc.value;
+          if(func == 'maint'){
+            var proj_no = this.proj_no.value;
+            var acdnNm = this.acdn_nm.value;
+            var acdnSbc = this.acdn_sbc.value;
 
-        if(proj_no == '' || proj_no == null || proj_no == undefined){
-          fn_alert('프로젝트 번호를 입력해주세요.');
-        }else if(acdnTitle == '' || area == null || area == undefined){
-          fn_alert('사건명을 입력해주세요.');
-        }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
-          fn_alert('상세내용을 입력해주세요.');
+            if(proj_no == '' || proj_no == null || proj_no == undefined){
+              fn_alert('프로젝트 번호를 입력해주세요.');
+              return;
+            }else if(acdnNm == '' || acdnNm == null || acdnNm == undefined){
+              fn_alert('사건명을 입력해주세요.');
+              return;
+            }else if(acdnSbc == '' || acdnSbc == null || acdnSbc == undefined){
+              fn_alert('상세내용을 입력해주세요.');
+              return;
+            }
+          }
+          var jsonData = {
+            map: app.keys,
+          };
+          fn_transaction(func,"/service/pms/isuMgtPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
+          return;
+        }
+    }
+
+    /**** 권한 체크 - 임시 테스트용 ****/
+    function roleChk(chkId){
+        var role = getRols();
+        var userId = getLoginId();
+        if(role.includes('ROLE_ADMIN') || role.includes('ROLE_MANAGE')){
+          app.top.isMine = true;
         }else{
-            var jsonData = {
-                  map: app.keys,
-            };
-            fn_transaction(func,"/service/pms/isuMgtPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
-            return;
+          if(userId == chkId){
+            app.top.isMine = true;
+          }else{
+            app.top.isMine = false;
+          }
         }
     }
 
@@ -136,6 +197,7 @@
             if(func == "select"){             // 조회 콜백
                 app.keys.rkis_no = data.resultList[0].RKIS_NO;
                 app.keys.proj_no = data.resultList[0].PROJ_NO;
+                app.keys.supi_rkis_no = data.resultList[0].SUPI_RKIS_NO;
                 app.keys.area = data.resultList[0].AREA;
                 app.keys.dcrm_step = data.resultList[0].DCRM_STEP;
                 app.keys.prry_rnkg = data.resultList[0].PRRY_RNKG;
@@ -153,19 +215,15 @@
                 app.keys.cre_dt = data.resultList[0].CRE_DT;
                 app.keys.parr_dt = data.resultList[0].PARR_DT;
                 app.keys.crpd_way = data.resultList[0].CRPD_WAY;
-                app.top.isMine = getLoginId() == data.resultList[0].CRE_USER_ID;
 
-            }else if(func == "proj_select"){  // 프로젝트번호 조회 콜백
-                grid.dataProvider.setRows(data.resultList);
-                grid.gridView.refresh();
-
-                if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
+                roleChk(app.keys.cre_user_id);
             }else if(func == "maint"){        // 저장 콜백
                 parent.grid.gridView.refresh();
                 fn_alert('정상적으로 저장되었습니다.');
             }else if(func == "delete"){       // 삭제 콜백
             	parent.grid.gridView.refresh();
-            	fn_alert('정상적으로 삭제되었습니다.');
+            	parent.fn_popup_close();
+            	parent.fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 fn_alert(data.message);
             }
@@ -175,101 +233,123 @@
 </script>
 <body>
 <div id="form" class="contentPgm">
-  <div class="content_title">{{ top.title }}</div>
-  <!-- 버튼 -->
-  <div class="ar btnWrap">
-    <!-- 작성화면 버튼 -->
-    <template th:if="${para.popName} == 'add'">
-      <div id="goSave" class="btn_typeA btn_save">저장</div>
-    </template>
-    <!-- 조회화면 버튼 -->
-    <template th:if="${para.popName} != 'add'">
-      <template v-if="top.isMine">
-        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
-        <div id="goModify" class="btn_typeA btn_save">수정</div>
+  <div class="top_container">
+    <!-- 타이틀 -->
+    <div class="content_title" style="width:50%">{{ top.title }}</div>
+    <div class="ar" style="width:50%; padding-top:5px;">
+      <!-- 작성화면 버튼 -->
+      <template th:if="${para.popName} == 'add'">
+        <div id="goSave" class="btn_typeA btn_save">저장</div>
       </template>
-    </template>
+      <!-- 조회화면 버튼 -->
+      <template th:if="${para.popName} == 'search'">
+        <template v-if="top.isMine">
+          <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+          <div id="goModify" class="btn_typeA btn_save">수정</div>
+        </template>
+      </template>
+      <template th:if="${para.popName} == 'modify'">
+        <div id="goModiCancel" class="btn_typeA btn_save">수정취소</div>
+      </template>
+<!--      <div id="goModiCancel" class="btn_typeA btn_save hidden">수정취소</div>
+      <div id="goDelete" class="btn_typeA btn_delete hidden">삭제</div>
+      <div id="goSave" class="btn_typeA btn_save hidden">저장</div>
+      <div id="goModify" class="btn_typeA btn_save hidden">수정</div>-->
+
+    </div>
   </div>
   <!-- 작성란 -->
   <div class="box_Atype popWrap">
     <div class="gap10"></div>
     <span class="spanT hidden">관리대장번호</span>
     <input id="rkis_no" type="text" class="hidden" v-model="keys.rkis_no" readonly>
-    <span class="spanT al w90">상위관리번호</span>
-    <input id="pren_rkis_no" type="text" class="input_Ac textBar w100" v-model="keys.pren_rkis_no" placeholder="번호 입력" readonly>
-    <span class="spanT al mg10 w90">구분</span>
-    <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
-    <span class="spanT al mg10 w90">프로젝트번호</span>
-    <input id="proj_no" type="text" class="input_Ac textBar w100" v-model="keys.proj_no" placeholder="번호 입력" readonly>
+
+    <span class="spanT al" style="width:105px;">구분</span>
+    <input id="scn" type="text" class="input_Ac textBar" style="width:130px;" v-model="keys.scn" readonly>
     <div class="gap5"></div>
-    <span class="spanT al w90">영역</span>
-    <select name="area" id="area" class="ui_selC w100" v-model="keys.area">
+    <span class="spanT al" style="width:105px;">프로젝트번호</span>
+    <template th:if="${para.popName} == 'add'">
+      <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px;"></select2>
+    </template>
+    <template th:if="${para.popName} == 'search'">
+      <input id="proj_no" type="text" class="input_Ac textBar" style="width:130px;" v-model="keys.proj_no" readonly>
+    </template>
+    <span class="spanT al mg10" style="width:105px;">상위관리번호</span>
+    <template th:if="${para.popName} == 'add'">
+      <select2 id="supi_rkis_no" v-model="keys.supi_rkis_no" :url="projUrl2" :para="keys" min=0 style="width:330px;"></select2>
+    </template>
+    <template th:if="${para.popName} == 'search'">
+      <input id="supi_rkis_no" type="text" class="input_Ac textBar" style="width:130px;" v-model="keys.supi_rkis_no" readonly>
+    </template>
+    <div class="gap5"></div>
+    <span class="spanT al" style="width:105px;">영역</span>
+    <select name="area" id="area" class="ui_selC" style="width:130px;" v-model="keys.area">
       <option value="">선택</option>
       <option v-for="list in areaList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">단계</span>
-    <select name="dcrm_step" id="dcrm_step" class="ui_selC w100" v-model="keys.dcrm_step">
+    <span class="spanT al mg10" style="width:105px;">단계</span>
+    <select name="dcrm_step" id="dcrm_step" class="ui_selC" style="width:130px;" v-model="keys.dcrm_step">
       <option value="">선택</option>
       <option v-for="list in stepList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">발생일</span>
-    <datepicker id="dcrm_dt" class="input_Ac w100" v-model="keys.dcrm_dt"></datepicker>
+    <span class="spanT al mg10" style="width:105px;">발생일</span>
+    <datepicker id="dcrm_dt" class="input_Ac" style="width:130px;" v-model="keys.dcrm_dt"></datepicker>
     <div class="gap20"></div>
 
-    <span class="spanT al w90">우선순위</span>
-    <select name="prry_rnkg" id="prry_rnkg" class="ui_selC w100" v-model="keys.prry_rnkg">
+    <span class="spanT al" style="width:105px;">우선순위</span>
+    <select name="prry_rnkg" id="prry_rnkg" class="ui_selC" style="width:130px;" v-model="keys.prry_rnkg">
       <option value="">선택</option>
       <option v-for="list in rnkgList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">영향도</span>
-    <select name="iflu_deg" id="iflu_deg" class="ui_selC w100" v-model="keys.iflu_deg">
+    <span class="spanT al mg10" style="width:105px;">영향도</span>
+    <select name="iflu_deg" id="iflu_deg" class="ui_selC" style="width:130px;" v-model="keys.iflu_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
-    <span class="spanT al mg10 w90">위험도</span>
-    <select name=""rsk_deg id="rsk_deg" class="ui_selC w100" v-model="keys.rsk_deg">
+    <span class="spanT al mg10" style="width:105px;">위험도</span>
+    <select name=""rsk_deg id="rsk_deg" class="ui_selC" style="width:130px;" v-model="keys.rsk_deg">
       <option value="">선택</option>
       <option v-for="list in mgmtGrdList" :value="list.value">{{list.text}}</option>
     </select>
     <div class="gap20"></div>
 
-    <span class="spanT al w90">등록자</span>
-    <input id="cre_user_id" type="text" class="input_Ac textBar w100" v-model="keys.cre_user_id" placeholder="자동 입력" readonly>
-    <span class="spanT al mg10 w90">등록일자</span>
-    <input id="cre_dt" type="text" class="input_Ac textBar w100" v-model="keys.cre_dt" readonly>
-    <div class="gap5"></div>
-    <span class="spanT al w90">사건명</span>
-    <input id="acdn_nm" type="text" class="input_Ac textBar w87p" v-model.trim="keys.acdn_nm" placeholder="사건명 입력">
+    <span class="spanT al" style="width:105px;">사건명</span>
+    <input id="acdn_nm" type="text" class="input_Ac textBar" style="width:85%;" v-model.trim="keys.acdn_nm" placeholder="사건명 입력">
     <div class="gap5"></div>
     <div class="tArea">
-      <span class="spanT al w90">상세내용</span>
-      <textarea id="acdn_sbc" type="text" class="w87p" v-model.trim="keys.acdn_sbc" placeholder="내용 입력"></textarea>
+      <span class="spanT al" style="width:105px;">상세내용</span>
+      <textarea id="acdn_sbc" type="text" style="width:85%; font-size:15px" v-model.trim="keys.acdn_sbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap5"></div>
     <div class="tArea">
-      <span class="spanT al w90">대응방안</span>
-      <textarea id="crpd_way" type="text" class="w87p" v-model.trim="keys.crpd_way" placeholder="내용 입력"></textarea>
+      <span class="spanT al" style="width:105px;">대응방안</span>
+      <textarea id="crpd_way" type="text" style="width:85%; font-size:15px" v-model.trim="keys.crpd_way" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
-    <span class="spanT al w90">담당자</span>
-    <input id="crgr_nm" type="text" class="input_Ac textBar w100" v-model.trim="keys.crgr_nm" placeholder="담당자 입력">
-    <span class="spanT al mg10 w90">예정일</span>
-    <datepicker id="parr_dt" class="input_Ac w100" v-model="keys.parr_dt"></datepicker>
+    <span class="spanT al" style="width:105px;">담당자</span>
+    <input id="crgr_nm" type="text" class="input_Ac textBar" style="width:130px;" v-model.trim="keys.crgr_nm" placeholder="담당자 입력">
+    <span class="spanT al mg10" style="width:105px;">예정일</span>
+    <datepicker id="parr_dt" class="input_Ac" style="width:130px;" v-model="keys.parr_dt"></datepicker>
     <div class="gap5"></div>
     <div class="tArea">
-      <span class="spanT al w90">조치내용</span>
-      <textarea id="act_sbc" type="text" class="w87p" v-model.trim="keys.act_sbc" placeholder="내용 입력"></textarea>
+      <span class="spanT al" style="width:105px;">조치내용</span>
+      <textarea id="act_sbc" type="text" style="width:85%; font-size:15px" v-model.trim="keys.act_sbc" placeholder="내용 입력"></textarea>
     </div>
     <div class="gap20"></div>
 
-    <span class="spanT al w90">진행상황</span>
-    <select name="pgs_situ" id="pgs_situ" class="ui_selC w100" v-model="keys.pgs_situ">
-      <option v-for="list in pgsStList" :value="list.value">{{list.text}}</option>
+    <span class="spanT al" style="width:105px;">진행상황</span>
+    <select name="pgs_situ" id="pgs_situ" class="ui_selC" style="width:130px;" v-model="keys.pgs_situ">
+      <option v-for="list in pgsSituList" :value="list.value">{{list.text}}</option>
     </select>
-    <div class="gap5"></div>
-    <span class="spanT al w120">처리공수(M/H)</span>
-    <input id="trtm_mh" type="number" step="0.1" class="input_Ac textBar w100" placeholder="0" v-model="keys.trtm_mh">
+    <span class="spanT al mg10" style="width:105px;">처리공수(M/H)</span>
+    <input id="trtm_mh" type="number" step="0.1" class="input_Ac textBar" style="width:130px; text-align:right;" placeholder="0" v-model="keys.trtm_mh">
+    <div class="gap20"></div>
+
+    <span class="spanT al" style="width:105px;">등록자</span>
+    <input id="cre_user_id" type="text" class="input_Ac textBar" style="width:130px;" v-model="keys.cre_user_id" readonly>
+    <span class="spanT al mg10" style="width:105px;">등록일자</span>
+    <input id="cre_dt" type="text" class="input_Ac textBar" style="width:130px; text-align:center;" v-model="keys.cre_dt" readonly>
     <div class="gap10"></div>
   </div>
   <div class="gap20"></div>

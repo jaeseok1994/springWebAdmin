@@ -22,8 +22,8 @@
       {fieldName: "rkis_no",dataType: "text"},
       {fieldName: "scn",dataType: "text"},
       {fieldName: "proj_no",dataType: "text"},
-      {fieldName: "acdn_title",dataType: "text"},
-      {fieldName: "pgs_st",dataType: "text"},
+      {fieldName: "acdn_nm",dataType: "text"},
+      {fieldName: "pgs_situ",dataType: "text"},
       {fieldName: "chk",dataType: "text"},
     ];
 
@@ -31,40 +31,45 @@
       {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
       {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
-      {name: "acdn_title", fieldName: "acdn_title", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
-      {name: "pgs_st", fieldName: "pgs_st", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "acdn_nm", fieldName: "acdn_nm", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
+      {name: "pgs_situ", fieldName: "pgs_situ", type: "data", width: "100", header: "진행상황", editable: false },
       {name: "chk", fieldName: "chk", type: "data", width: "100", header: "chk", editable: false, visible: false },
 
     ];
      var grid;
      var app;
-
-
      var setToday = getdate();
 
+    /****** 폼 로딩 시  ******/
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
             data:{
                 projList:[],
+                monthList:[],
+                weekList:[],
                 keys:{      // 주간업무column
-                    affr_no: '',
                     proj_no: '',
                     proj_nm: '',
                     title: '',
-                    writer: '',
-                    wr_dt: setToday,
-                    st_dt: setToday,
-                    fn_dt: setToday,
-                    twk_ars: '',
-                    nxw_pln: '',
+                    pprr_id: '',
+                    pprr_nm: '',
+                    drft_dt: '',
+                    get_week: '',
+                    dytm_strt_dt:'',
+                    twk_arsl: '',
+                    nxk_pln: '',
                     twk_pln_rate: '',
-                    twk_ars_rate: '',
+                    twk_arsl_rate: '',
                     acum_pln_rate: '',
-                    acum_ars_rate: '',
+                    acum_arsl_rate: '',
                     rem: '',
                     filno:'',
                     fil_nm:'',
+                    month:'',
+                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:5, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
                 },
                 keys2:{     // 위험 및 이슈사항 column
                    rkis_no: '',
@@ -80,34 +85,9 @@
                 }
             },
         });
-        $("#goSave").click(function(){
-             if(app.keys.affr_no == ""){ // 문서번호가 있는지 없는지 구분 insert, update 구분하기 위해
-                //console.log("affr_no is Null");
-                //console.log("console:"+app.keys.affr_no);
-                maintOne('insert');
-             }else{
-                //console.log("affr_no is Not Null");
-                //console.log("affr_no:::"+app.keys.affr_no);
-                maintOne('update');
-
-             }
-        });
-
-        $("#popClose").click(function(){
-             close();
-        });
 
 
-        // 위험,이슈사항 추가기능
-        $("#goSelect").click(function(){
-             if($('#proj_no').val() == null || $('#proj_no').val() == ''){
-        		fn_alert("프로젝트를 선택해주세요.");
-        		return;
-        	}
-             IssueSearch();
-        });
-
-        // 그리드 생성
+        /**** 위험 및 이슈사항 그리드 ****/
         grid = {
             id:"realgrid",
             fields:fields,
@@ -120,72 +100,120 @@
         grid.gridView.displayOptions.fitStyle = "even";
         grid.gridView.setCheckBar({ visible: true });
 
-        // 파라미터값 가져옴
+        /**** 주차선택 콤보 ****/
+        GetWeekCombo();
+
+        /**** 파라미터값 구분 기능 ****/
         var para = getCommonPara();
+        if(para.param.dy_strt_dt != null){ // 주간시작날짜값과 프로젝트번호로 조회 후 값 세팅
+            app.keys.proj_no = para.param.proj_no;
+            app.keys.dytm_strt_dt = para.param.dy_strt_dt;
+            AFFR_search("select");
 
-        if(para.param.afno != null){ // 문서번호로 조회 후 값 세팅
-            app.keys.affr_no = para.param.afno;
-            //console.log("affr_no:::"+app.keys.affr_no);
-            console.log("Not Null");
-            if(app.keys.affr_no != null){
-                AFFR_search("select");
-            }
-        }else{ // 문서번호가 없으면 기본값 세팅
-            console.log("NULL");
-
+        }else{ // 주간시작날짜값이 없으면 기본값 세팅
             var user = document.getElementById("user").textContent;
-            //console.log(user);
-
-            app.keys.writer = user;
-        }
-
-        $("input[id='proj_no1']").hide();
-        $("select2[id='proj_no2']").hide();
-        if(para.param.proj_no != ""){
-
-
-        }else{
+            app.keys.pprr_id = user;
+            app.keys.proj_no = para.param.proj_no;
+            app.keys.drft_dt = setToday;
 
         }
+
+        /**** 저장 버튼 클릭 이벤트 ****/
+       $("#goSave").click(function(){
+             maintOne('insert');
+       });
+
+        /**** 닫기 버튼 클릭 이벤트 ****/
+        $("#popClose").click(function(){
+             close();
+        });
+
+
+       /**** 전체조회 버튼 클릭 이벤트 ****/
+        $("#goSelect").click(function(){
+             if($('#proj_no').val() == null || $('#proj_no').val() == ''){
+        		fn_alert("프로젝트를 선택해주세요.");
+        		return;
+        	}
+             IssueSearch();
+        });
+
+       /**** 주차선택박스 값 변경 이벤트 ****/
+        $("#dytm_strt_dt").change(function(){
+            if($("#dytm_strt_dt").val() != ""){
+                GetWeekSearch();
+             }else{
+                app.keys.get_week = ''
+             }
+        });
     });
 
-    function IssueSearch(){ // 전체조회
+    /**** 월 선택 콤보박스 조회 ****/
+    function GetMonthCombo(list){
+        var jsonData = {
+                map : app.keys,
+        };
+
+        fn_transaction("GetMonthCombo","/service/pms/dytmAffrRptPopup/selectList.do/GetMonthCombo",jsonData,fn_callback);
+    };
+
+     /**** 주차선택 콤보박스 조회 ****/
+    function GetWeekCombo(){
+
+        var jsonData = {
+                map : app.keys,
+        };
+
+        fn_transaction("GetWeekCombo","/service/pms/dytmAffrRptPopup/selectList.do/GetWeekCombo",jsonData,fn_callback);
+    };
+
+    /**** 주차선택 시 주차자동으로 입력조회 ****/
+    function GetWeekSearch(){
+             app.keys.dytm_strt_dt = $("#dytm_strt_dt").val();
+        var jsonData = {
+                map : app.keys,
+        };
+
+        fn_transaction("GetWeekSearch","/service/pms/dytmAffrRptPopup/selectList.do/GetWeekSearch",jsonData,fn_callback);
+    };
+
+     /**** 전체조회 버튼 조회 ****/
+    function IssueSearch(){
         grid.dataProvider.clearRows();
         app.keys2.pagenum = 1;
 
         var jsonData = {
                 proj_no: app.keys.proj_no,
-                affr_no: app.keys.affr_no,
+                dytm_strt_dt : app.keys.dytm_strt_dt,
                 map: app.keys2,
         };
 
-        fn_transaction("IssueSearch","/service/pms/pms03_popup/selectList.do/IssueSearch",jsonData,fn_callback);
+        fn_transaction("IssueSearch","/service/pms/dytmAffrRptPopup/selectList.do/IssueSearch",jsonData,fn_callback);
     };
 
-    // 저장된 위험,이슈리스트 조회(자동) *주간업무를 수정 시 조회
+    /**** 저장된 위험,이슈리스트 조회(자동) *주간업무를 수정 시 조회 ****/
     function IssueListSearch(){
-        grid.dataProvider.clearRows();
-        //app.keys2.pagenum = grid.pagenum;
-        app.keys2.pagenum = 1;
+
 
         var jsonData = {
-                affr_no : app.keys.affr_no,
+                proj_no : app.keys.proj_no,
+                dytm_strt_dt : app.keys.dytm_strt_dt,
                 map : app.keys2,
-
         };
 
-        fn_transaction("IssueSearch","/service/pms/pms03_popup/selectList.do/IssueList",jsonData,fn_callback);
+        fn_transaction("IssueSearch","/service/pms/dytmAffrRptPopup/selectList.do/IssueList",jsonData,fn_callback);
     };
 
-    function AFFR_search(func){ // 주간업무일지를 수정 시 문서번호로 조회
+    /**** 주간업무일지를 수정 시 프로젝트번호, 주간시작날짜로 조회 ****/
+    function AFFR_search(func){
         app.keys.pagenum = 0;
         var jsonData = {
                 map: app.keys,
 
         };
-         fn_transaction(func,"/service/pms/pms03_popup/selectList.do/selectOne",jsonData,fn_callback);
+         fn_transaction(func,"/service/pms/dytmAffrRptPopup/selectList.do/selectOne",jsonData,fn_callback);
     }
-
+    /**** 저장 ****/
     function maintOne(func,key){ //insert, update 문
 
         var searchParam = {};
@@ -195,11 +223,13 @@
 
         var projno = app.keys.proj_no;
         var title = app.keys.title;
+
         if(projno == '' || projno == null || projno == undefined){
           fn_alert('프로젝트 번호를 입력해주세요.');
         }else if(title == '' || title == null || title == undefined){
           fn_alert('제목을 입력해주세요.');
         }else{
+            /**** 선택한 위험 및 이슈사항의 RKIS_NO 값을 LIST 형태로 담음 (INSERT SELECT 구문에서 WHERE절에 이용)****/
             for(var v in list){
                 rkis_no += list[v].rkis_no+",";
             }
@@ -210,11 +240,12 @@
                       map: app.keys,
                       rkis_no: rkis_no,
             };
-            fn_transaction(func,"/service/pms/pms03_popup/maintOne.do/"+func+"List",jsonData,fn_callback);
+            fn_transaction(func,"/service/pms/dytmAffrRptPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
             return;
         }
 
     }
+    /**** 콜백 ****/
     function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
@@ -223,25 +254,28 @@
                 app.keys.proj_no = data.resultList[0].proj_no;
                 app.keys.proj_nm = data.resultList[0].proj_nm;
                 app.keys.title = data.resultList[0].title;
-                app.keys.wr_dt = data.resultList[0].wr_dt;
-                app.keys.st_dt = data.resultList[0].st_dt;
-                app.keys.fn_dt = data.resultList[0].fn_dt;
-                app.keys.writer = data.resultList[0].writer;
-                app.keys.nxw_pln = data.resultList[0].nxw_pln;
-                app.keys.twk_ars = data.resultList[0].twk_ars;
+                app.keys.drft_dt = data.resultList[0].drft_dt;
+                app.keys.pprr_id = data.resultList[0].pprr_id;
+                app.keys.pprr_nm = data.resultList[0].pprr_nm;
+                app.keys.nxk_pln = data.resultList[0].nxk_pln;
+                app.keys.twk_arsl = data.resultList[0].twk_arsl;
                 app.keys.twk_pln_rate = data.resultList[0].twk_pln_rate;
-                app.keys.twk_ars_rate = data.resultList[0].twk_ars_rate;
+                app.keys.twk_arsl_rate = data.resultList[0].twk_arsl_rate;
                 app.keys.acum_pln_rate = data.resultList[0].acum_pln_rate;
-                app.keys.acum_ars_rate = data.resultList[0].acum_ars_rate;
+                app.keys.acum_arsl_rate = data.resultList[0].acum_arsl_rate;
                 app.keys.filno = data.resultList[0].attc_filno;
                 app.keys.rem = data.resultList[0].rem;
+                app.keys.get_week = data.resultList[0].get_week;
+
                 $('#file-upload-name').text(data.resultList[0].fil_nm);
-                console.log(app.keys);
+
                 IssueListSearch();
+
+                setCode(data.resultList[0].dytm_strt_dt);
             }else if(func == "IssueSearch"){
-                console.log('IssueSearch');
-                console.log(data.resultList);
                 grid.dataProvider.setRows(data.resultList);
+
+                /**** 해당 주간업무에 위험,이슈사항이 존재하는 것들만 자동체크 ****/
                 for(var i = 0;i<grid.dataProvider.getRowCount();i++)    {
                     var chk = grid.gridView.getValue(i,"chk");
                     if(chk=="1"){
@@ -250,14 +284,26 @@
                 }
                 grid.gridView.refresh();
                  commonPaging(grid, data.resultList[0].tcnt, IssueSearch);
-                //if(data.resultList.length > 0) commonPaging(grid, data.resultList[0].tcnt, projSearch);
+
             }else if(func == "IssueList"){
                grid.dataProvider.setRows(data.resultList);
               grid.gridView.refresh();
+            }else if(func == "GetWeekCombo"){
+                app.weekList = data.resultList;
+
+            }else if(func == "GetWeekSearch"){
+                app.keys.get_week = data.resultList[0].wk;
+
             }else{
                 fn_alert(data.message);
             }
         }
+    }
+
+    /**** 기존에 있는 주간업무 팝업창을 열 때 주차선택 콤보박스에 값 세팅 ****/
+    function setCode(resultList) {
+        $('#dytm_strt_dt').val(resultList);
+
     }
 
     function fn_filechange(f){
@@ -323,44 +369,53 @@
         <table class="tbl_base">
             <caption>주간업무보고 등록</caption>
             <colgroup>
-                <col style="width:120px;"/>
-                <col style="width:200px;"/>
-                <col style="width:80px;"/>
-                <col style="width:200px;"/>
                 <col style="width:100px;"/>
-                <col style="width:150px;"/>
-                <col style="width:80px;"/>
                 <col style="width:300px;"/>
+                <col style="width:130px;"/>
+                <col style="width:300px;"/>
+                <col style="width:70px;"/>
+                <col style="width:200px;"/>
                 <col style="width:80px;"/>
-                <col style="width:100px;"/>
+                <col style="width:150px;"/>
                 <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
-                <td class="">프로젝트 명</td>
+                <td class="ar">프로젝트 명</td>
                 <td>
-                    <input id="proj_no1" type="text" class="input_A w70p" v-model="keys.proj_no">
-                   <select2 id="proj_no2" class="form-control" v-model="keys.proj_no" :url="projUrl" :para="keys" style="width:200px"></select2>
+                    <input id="proj_no" type="text" class="input_A w100p" v-model="keys.proj_no">
+                   <!--<select2 id="proj_no2" class="form-control" v-model="keys.proj_no" :url="projUrl" :para="keys" style="width:200px"></select2>-->
                 </td>
                 <td class="ar">제목</td>
                 <td>
-                    <input id="title" type="text" class="input_A w70p" v-model="keys.title">
-                </td>
-                <td class="ar">기안날짜</td>
-                <td>
-                    <datepicker id="wr_dt" class="input_A w100p" v-model="keys.wr_dt"></datepicker>
-                </td>
-                <td class="ar">기간</td>
-                <td>
-                    <datepicker id="st_dt" class="input_A w45p" v-model="keys.st_dt"></datepicker>
-                    ~
-                    <datepicker id="fn_dt" class="input_A w45p" v-model="keys.fn_dt"></datepicker>
+                    <input id="title" type="text" class="input_A w100p" v-model="keys.title">
                 </td>
                 <td class="ar">작성자</td>
                 <td>
-                    <input id="writer" type="text" class="input_A w90p" v-model="keys.writer" readonly>
+                    <input id="pprr_nm" type="text" class="input_A w45p" v-model="keys.pprr_nm" readonly>
                 </td>
-                <td></td>
+                <td class="ar">기안날짜</td>
+                <td>
+                    <datepicker id="drft_dt" class="input_A w80p" v-model="keys.drft_dt"></datepicker>
+                </td>
+
+            </tr>
+            <tr>
+                <td class="ar">월 선택</td>
+                <td>
+                    <select name="month" id="month" class="ui_sel w50p" v-model="keys.month"> </select>
+                </td>
+                <td class="ar">주차선택(월요일)</td>
+                <td>
+                    <select name="dytm_strt_dt" id="dytm_strt_dt" class="ui_sel w70p" v-model="keys.dytm_strt_dt">
+                        <option value = "" selected>선택하세요.</option>
+                        <option v-for="list in weekList" :value="list.value">{{list.text}}</option>
+                    </select>
+                </td>
+                <td class="ar">주차</td>
+                <td>
+                    <input id="get_week" type="text" class="input_A w70p" v-model="keys.get_week"readonly>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -381,11 +436,11 @@
                 </tr>
                 <tr>
                     <td colspan="8" style="padding:5px;">
-                        <textarea id="twk_ars" type="text" class="textarea" v-model.trim="keys.twk_ars" style="resize: none;" ></textarea>
+                        <textarea id="twk_arsl" type="text" class="textarea" v-model.trim="keys.twk_arsl" style="resize: none;" ></textarea>
                     </td>
 
                     <td colspan="2" style="padding:5px;">
-                        <textarea id="nxw_pln" type="text" class="textarea" v-model.trim="keys.nxw_pln" style="resize: none;"></textarea>
+                        <textarea id="nxk_pln" type="text" class="textarea" v-model.trim="keys.nxk_pln" style="resize: none;"></textarea>
                     </td>
                 </tr>
                 <tr>
@@ -397,11 +452,11 @@
                     <th class="CCell">금주계획</th>
                     <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
                     <th class="CCell">금주실적</th>
-                    <td><input id="twk_ars_rate" type="text" class="input_A BCell" v-model="keys.twk_ars_rate"></td>
+                    <td><input id="twk_arsl_rate" type="text" class="input_A BCell" v-model="keys.twk_arsl_rate"></td>
                     <th class="CCell">누적계획</th>
                     <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
                     <th class="CCell">누적실적</th>
-                    <td><input id="acum_ars_rate" type="text" class="input_A BCell" v-model="keys.acum_ars_rate"></td>
+                    <td><input id="acum_arsl_rate" type="text" class="input_A BCell" v-model="keys.acum_arsl_rate"></td>
                 </tr>
                 <tr>
                     <th class="ACell">첨부파일</th>
