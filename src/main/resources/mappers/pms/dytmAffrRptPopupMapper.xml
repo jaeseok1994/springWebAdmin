@@ -3,66 +3,32 @@
 
 <mapper namespace="proj.pms.dytmAffrRptPopup">
 
-	<select id="IssueSearch" parameterType="map" resultType="cMap">
-		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-		SELECT
-			A.RKIS_NO
-			,A.ACDN_TITLE
-			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN
-			,A.PROJ_NO
-			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST
-			<if test="proj_no != '' and proj_no != null">
-				<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
-				,NVL((SELECT 1 FROM DUAL WHERE EXISTS(
-														SELECT RKIS_NO
-														FROM TARKIS
-														WHERE RKIS_NO = A.RKIS_NO
-														<if test="proj_no != '' and proj_no != null">
-															<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
-																AND EXISTS(SELECT 1 FROM PROJ_RISK WHERE PROJ_NO = #{proj_no} AND DYTM_STRT_DT = #{dytm_strt_dt} AND RKIS_NO = A.RKIS_NO)
-															</if>
-														</if>)),0)chk
-				</if>
-			</if>
-		FROM TARKIS A
-		WHERE 1=1
-		<if test="proj_no != '' and proj_no != null">
-			AND PROJ_NO LIKE '%' || #{proj_no} || '%'
-		</if>
-
-		ORDER BY A.RKIS_NO
-		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
-	</select>
-
 	<select id="selectOne" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+
 		SELECT
-			A.*
-			,DYTM_STRT_DT || ' ~ ' || FRIDAY AS TEXT
-		FROM
-		(
-			SELECT
-				PROJ_NO,
-				(SELECT PROJ_NM FROM PROJECT_MASTER WHERE PROJ_NO = A.PROJ_NO)PROJ_NM,
-				TITLE,
-				SUBSTR(DRFT_DT,0,4)||'-'||SUBSTR(DRFT_DT,5,2)||'-'||SUBSTR(DRFT_DT,7,2) DRFT_DT,
-				SUBSTR(DYTM_STRT_DT,0,4)||'-'||SUBSTR(DYTM_STRT_DT,5,2)||'-'||SUBSTR(DYTM_STRT_DT,7,2) DYTM_STRT_DT,
-				PPRR_ID,
-				TWK_ARSL,
-				NXK_PLN,
-				TWK_PLN_RATE,
-				TWK_ARSL_RATE,
-				ACUM_PLN_RATE,
-				ACUM_ARSL_RATE,
-				(SELECT ATTC_FIL_NM FROM ATTC_FIL B WHERE B.ATTC_FIL_SN = A.ATTC_FILNO) FIL_NM,
-				ATTC_FILNO,
-				REM,
-				F_GETWEEK(DYTM_STRT_DT) AS GET_WEEK,
-				TO_CHAR(TRUNC(TO_DATE(DYTM_STRT_DT,'YYYYMMDD'),'IW')+4,'YYYY-MM-DD') AS FRIDAY
-			FROM DYAFFR_RPT A
-			WHERE PROJ_NO = #{map.proj_no}
-			AND DYTM_STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
-		)A
+			PROJ_NO,
+			(SELECT PROJ_NM FROM PROJECT_MASTER WHERE PROJ_NO = A.PROJ_NO)PROJ_NM,
+			TITLE,
+			SUBSTR(DRFT_DT,0,4)||'-'||SUBSTR(DRFT_DT,5,2)||'-'||SUBSTR(DRFT_DT,7,2) DRFT_DT,
+			SUBSTR(DYTM_STRT_DT,0,4)||'-'||SUBSTR(DYTM_STRT_DT,5,2)||'-'||SUBSTR(DYTM_STRT_DT,7,2) DYTM_STRT_DT,
+			PPRR_ID,
+			(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.PPRR_ID) PPRR_NM,
+			TWK_ARSL,
+			NXK_PLN,
+			TWK_PLN_RATE,
+			TWK_ARSL_RATE,
+			ACUM_PLN_RATE,
+			ACUM_ARSL_RATE,
+			(SELECT ATTC_FIL_NM FROM ATTC_FIL B WHERE B.ATTC_FIL_SN = A.ATTC_FILNO) FIL_NM,
+			ATTC_FILNO,
+			REM,
+			F_GETWEEK(DYTM_STRT_DT) AS GET_WEEK,
+			TO_CHAR(TRUNC(TO_DATE(DYTM_STRT_DT,'YYYYMMDD'),'IW')+4,'YYYY-MM-DD') AS FRIDAY
+		FROM DYAFFR_RPT A
+		WHERE PROJ_NO = #{map.proj_no}
+		AND DYTM_STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
@@ -81,6 +47,37 @@
 		and dytm_strt_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
 
 		order by rkis_no
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+
+	<select id="IssueSearch" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		SELECT
+		A.RKIS_NO
+		,A.ACDN_NM
+		,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN
+		,A.PROJ_NO
+		,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_SITU) AS PGS_SITU
+		<if test="proj_no != '' and proj_no != null">
+			<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
+				,NVL((SELECT 1 FROM DUAL WHERE EXISTS(
+				SELECT RKIS_NO
+				FROM RISK_ISSUE
+				WHERE RKIS_NO = A.RKIS_NO
+				<if test="proj_no != '' and proj_no != null">
+					<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
+						AND EXISTS(SELECT 1 FROM PROJ_RISK WHERE PROJ_NO = #{proj_no} AND DYTM_STRT_DT = #{dytm_strt_dt} AND RKIS_NO = A.RKIS_NO)
+					</if>
+				</if>)),0)chk
+			</if>
+		</if>
+		FROM RISK_ISSUE A
+		WHERE 1=1
+		<if test="proj_no != '' and proj_no != null">
+			AND PROJ_NO LIKE '%' || #{proj_no} || '%'
+		</if>
+
+		ORDER BY A.RKIS_NO
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
 
@@ -147,39 +144,86 @@
 		DECLARE
             USER_EXCEPTION EXCEPTION;
             V_ERR_MSG VARCHAR(2000);
-
+			V_CNT NUMBER;
+			V_DYTM_STRT_DT VARCHAR2(20);
         BEGIN
 
-		INSERT INTO DYTMAFFRRPY (
-			PROJ_NO,TITLE,
-			DRFT_DT,
-			DYTM_STRT_DT,
-			PPRR_ID,TWK_ARSL,NXK_PLN,TWK_PLN_RATE,TWK_ARSL_RATE,
-			ACUM_PLN_RATE,ACUM_ARSL_RATE,REM,ATTC_FILNO,
-			VBG_CRE_USER_ID, VBG_CRE_DT, FIN_UPDR_ID, FIN_MDFY_DT
-		)values(
-			#{map.proj_no},#{map.title},
-			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.drft_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			#{map.pprr_id}, #{map.twk_arsl}, #{map.nxk_pln},#{map.twk_pln_rate},#{map.twk_arsl_rate},
-			#{map.acum_pln_rate},#{map.acum_arsl_rate}, #{map.rem},#{map.filno },
-			#{_loginId_},systimestamp,#{_loginId_},systimestamp
-		);
+		V_DYTM_STRT_DT := TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD');
 
-
-		INSERT INTO PROJ_RISK (rkis_no,proj_no,dytm_strt_dt,scn,vbg_cre_user_id,vbg_cre_dt,fin_updr_id,fin_mdfy_dt)
-			SELECT  rkis_no,
-					proj_no,
-					{map.dytm_strt_dt},
-					scn,
-					#{_loginId_},
-					systimestamp,
-					#{_loginId_},
-					systimestamp
-		from TARKIS
+		SELECT COUNT(*) INTO V_CNT
+		FROM DYAFFR_RPT
 		WHERE PROJ_NO = #{map.proj_no}
-		AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0
-		;
+		AND DYTM_STRT_DT = V_DYTM_STRT_DT;
+
+		IF V_CNT = 0 THEN
+
+			INSERT INTO DYAFFR_RPT (
+				PROJ_NO,TITLE,
+				DRFT_DT,
+				DYTM_STRT_DT,
+				PPRR_ID,TWK_ARSL,NXK_PLN,TWK_PLN_RATE,TWK_ARSL_RATE,
+				ACUM_PLN_RATE,ACUM_ARSL_RATE,rem,ATTC_FILNO,
+				VBG_CRE_USER_ID,VBG_CRE_DT,FIN_UPDR_ID,FIN_MDFY_DT
+			)values(
+				#{map.proj_no},#{map.title},
+				TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.drft_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+				V_DYTM_STRT_DT,
+				#{map.pprr_id}, #{map.twk_arsl}, #{map.nxk_pln},#{map.twk_pln_rate},#{map.twk_arsl_rate},
+				#{map.acum_pln_rate},#{map.acum_arsl_rate}, #{map.rem},#{map.filno },
+				#{_loginId_},systimestamp,#{_loginId_},systimestamp
+			);
+
+			IF #{rkis_no} IS NOT NULL THEN
+				INSERT INTO PROJ_RISK (RKIS_NO,DYTM_STRT_DT,PROJ_NO,SCN,VBG_CRE_USER_ID,VBG_CRE_DT,FIN_UPDR_ID,FIN_MDFY_DT)
+					SELECT  rkis_no,
+							V_DYTM_STRT_DT,
+							proj_no,
+							scn,
+							#{_loginId_},
+							systimestamp,
+							#{_loginId_},
+							systimestamp
+				from RISK_ISSUE
+				WHERE PROJ_NO = #{map.proj_no}
+				AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0
+				;
+			END IF;
+		ELSE
+			UPDATE DYAFFR_RPT SET
+				TITLE = #{map.title}
+				, DRFT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.drft_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+				, PPRR_ID = #{_loginId_}
+				, TWK_ARSL = #{map.twk_arsl}
+				, NXK_PLN = #{map.nxk_pln}
+				, TWK_PLN_RATE = #{map.twk_pln_rate}
+				, TWK_ARSL_RATE = #{map.twk_arsl_rate}
+				, ACUM_PLN_RATE = #{map.acum_pln_rate}
+				, ACUM_ARSL_RATE = #{map.acum_arsl_rate}
+				, ATTC_FILNO = #{map.filno }
+				, REM = #{map.rem}
+				, FIN_UPDR_ID = #{_loginId_}
+				, FIN_MDFY_DT = systimestamp
+			where PROJ_NO = #{map.proj_no}
+			AND DYTM_STRT_DT = V_DYTM_STRT_DT;
+
+			DELETE FROM PROJ_RISK
+			WHERE PROJ_NO = #{map.proj_no}
+			AND DYTM_STRT_DT = V_DYTM_STRT_DT;
+
+			INSERT INTO PROJ_RISK (RKIS_NO,DYTM_STRT_DT,PROJ_NO,SCN,VBG_CRE_USER_ID,VBG_CRE_DT,FIN_UPDR_ID,FIN_MDFY_DT)
+					SELECT  rkis_no,
+							V_DYTM_STRT_DT,
+							proj_no,
+							scn,
+							#{_loginId_},
+							systimestamp,
+							#{_loginId_},
+							systimestamp
+				from RISK_ISSUE
+				WHERE PROJ_NO = #{map.proj_no}
+				AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0
+				;
+		END IF;
 
         EXCEPTION
         WHEN USER_EXCEPTION THEN

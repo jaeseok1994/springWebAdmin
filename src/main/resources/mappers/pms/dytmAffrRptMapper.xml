@@ -13,15 +13,22 @@
 				DYTM_STRT_DT,
 				DRFT_DT,
 				PPRR_ID,
+				(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.PPRR_ID) PPRR_NM,
 				REM,
 				FIN_UPDR_ID,
 			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.FIN_UPDR_ID) FIN_UPDR_NM,
 			    TO_CHAR(FIN_MDFY_DT,'yyyy-mm-dd hh24:mi:ss') fin_mdfy_dt,
-				F_GETWEEK(DRFT_DT) GET_WEEK
+				F_GETWEEK(DYTM_STRT_DT) GET_WEEK
 			FROM DYAFFR_RPT A
 			WHERE PROJ_NO = #{map.proj_no}
-			AND DRFT_DT BETWEEN TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fnh_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
-	        ORDER BY DRFT_DT DESC
+			<if test="strt_dt != '' and strt_dt != null">
+				AND DRFT_DT BETWEEN TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fnh_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+			</if>
+			<if test="strt_dt = ''">
+			AND DRFT_DT BETWEEN TO_CHAR(TO_DATE(SUBSTR(REPLACE('1990-01-01','-'),1,8),'YYYYMMDD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fnh_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+			</if>
+
+	        ORDER BY DYTM_STRT_DT DESC
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
@@ -34,11 +41,11 @@
 
 			DELETE FROM DYAFFR_RPT
 			WHERE PROJ_NO = #{proj_no}
-			AND DYTM_STRT_DT = #{dytm_strt_dt};
+			AND DYTM_STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{dytm_strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD');
 
-			DELETE FROM PROJRISK
+			DELETE FROM PROJ_RISK
 			WHERE PROJ_NO = #{proj_no}
-			AND DYTM_STRT_DT = #{dytm_strt_dt};
+			AND DYTM_STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{dytm_strt_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD');
 
 		END;
 
