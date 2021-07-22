@@ -42,6 +42,7 @@
     var grid;
     var app;
     var today = getdate();
+    var st_dt = today.substr(0,8)+"01";  //당일 월의 1일
 
     $(document.body).ready(function(){
         /**** Vue 선언 ****/
@@ -59,7 +60,7 @@
                     prry_rnkg: '01',
                     dcrm_step: '',
                     pgs_situ: '',
-                    date1: '',
+                    date1: st_dt,
                     date2: today
                 },
                 methods:{
@@ -138,7 +139,7 @@
             url: "/service/pms/riskMgtPopup/selectForm.do",
             width:"80%",
             height:"95%",
-            title:"위험추가 작성",
+            title:"위험 추가 작성",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
@@ -150,7 +151,7 @@
             url: "/service/pms/isuMgtPopup/selectForm.do",
             width:"80%",
             height:"95%",
-            title:"이슈추가작성",
+            title:"이슈 추가 작성",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);
@@ -171,7 +172,7 @@
             url: popUrl,
             width:"80%",
             height:"95%",
-            title:"위험/이슈 상세조회",
+            title:"위험/이슈 상세 조회",
             callBack: fn_callback_popup
         };
         fn_inner_popup_open(arg);

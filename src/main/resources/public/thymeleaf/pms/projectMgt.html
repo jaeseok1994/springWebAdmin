@@ -43,8 +43,9 @@
     ];
 	
     var grid;
-
     var app;
+    var today = getdate();
+
     $(document.body).ready(function(){
         app = new Vue({
             el:'#form',
@@ -53,7 +54,7 @@
                 	proj_no:'',
                 	proj_nm:'',
                 	trwi_hpw:'',
-                    data1:'2021-05-13'
+                    data1:today
                 },
                 methods:{
                 }

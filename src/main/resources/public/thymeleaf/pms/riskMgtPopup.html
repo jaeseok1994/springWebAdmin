@@ -6,7 +6,6 @@
   <div th:replace="headerRGrid"></div>
 </head>
 <script>
-
     /**** 변수 선언 ****/
     var app;
     var paramObj = getCommonPara();
@@ -95,10 +94,10 @@
 
         /**** 조회,수정 화면 전환 ****/
         if(app.top.pop_name == 'search'){
-          app.top.title = '위험상세 조회';
+          app.top.title = '위험 상세 조회';
           search();
         }else{
-          app.top.title = '위험상세 작성';
+          app.top.title = '위험 추가 작성';
         }
     });
 
@@ -194,7 +193,8 @@
                 fn_alert('정상적으로 저장되었습니다.');
             }else if(func == "delete"){       // 삭제 콜백
             	parent.grid.gridView.refresh();
-            	fn_alert('정상적으로 삭제되었습니다.');
+            	parent.fn_popup_close();
+            	parent.fn_alert('정상적으로 삭제되었습니다.');
             }else{
                 fn_alert(data.message);
             }
@@ -229,7 +229,12 @@
     <span class="spanT al w90">구분</span>
     <input id="scn" type="text" class="input_Ac textBar w100" v-model="keys.scn" readonly>
     <span class="spanT al mg10 w90">프로젝트번호</span>
-    <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px"></select2>
+    <template th:if="${para.popName} == 'add'">
+      <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px"></select2>
+    </template>
+    <template th:if="${para.popName} != 'add'">
+      <input id="proj_no" type="text" class="input_Ac textBar w100" style="font-size:14px;" v-model="keys.proj_no" readonly>
+    </template>
     <div class="gap5"></div>
     <span class="spanT al w90">영역</span>
     <select name="area" id="area" class="ui_selC w100" v-model="keys.area">

@@ -534,3 +534,6 @@ a.tc_sky {color:#02acc5 !important;}
 .hidden { display: none; }
 .rg_link:hover { color: #446ddf; text-decoration: underline; font-weight: bold; }
 input:read-only { background-color: #eee; color: #666; }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }

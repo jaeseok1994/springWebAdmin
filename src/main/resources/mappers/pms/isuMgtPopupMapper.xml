@@ -2,30 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
 
 <mapper namespace="proj.pms.isuMgtPopup">
-
 	<select id="selectList" parameterType="map" resultType="map">
 
 		SELECT
-		 RKIS_NO
-		,ACDN_NM
-		,SCN
-		,PROJ_NO
-		,PRRY_RNKG
-		,AREA
-		,DCRM_STEP
-		,PGS_SITU
-		,TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT
-		,IFLU_DEG
-		,RSK_DEG
-		,ACDN_SBC
-		,CRPD_WAY
-		,CRGR_NM
-		,TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT
-		,ACT_SBC
-		,TRTM_MH
-		,VBG_CRE_USER_ID as CRE_USER_ID
-		,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.VBG_CRE_USER_ID) CRE_USER_NM
-		,TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') CRE_DT
+			 RKIS_NO
+			,SUPI_RKIS_NO
+			,ACDN_NM
+			,SCN
+			,PROJ_NO
+			,PRRY_RNKG
+			,AREA
+			,DCRM_STEP
+			,PGS_SITU
+			,TO_CHAR(TO_DATE(A.DCRM_DT,'YYYY-MM-DD'),'YYYY-MM-DD') DCRM_DT
+			,IFLU_DEG
+			,RSK_DEG
+			,ACDN_SBC
+			,CRPD_WAY
+			,CRGR_NM
+			,TO_CHAR(TO_DATE(A.PARR_DT,'YYYY-MM-DD'),'YYYY-MM-DD') PARR_DT
+			,ACT_SBC
+			,TRTM_MH
+			,VBG_CRE_USER_ID as CRE_USER_ID
+			,(SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.VBG_CRE_USER_ID) CRE_USER_NM
+			,TO_CHAR(A.VBG_CRE_DT,'YYYY-MM-DD') CRE_DT
 		FROM RISK_ISSUE A
 		WHERE RKIS_NO = #{map.rkis_key}
 
@@ -69,7 +69,8 @@
 		ON (RKIS_NO = #{map.rkis_no})
 		WHEN MATCHED THEN
 		UPDATE SET
-		ACDN_NM = #{map.acdn_nm}
+		  SUPI_RKIS_NO = #{map.supi_rkis_no}
+		, ACDN_NM = #{map.acdn_nm}
 		, PROJ_NO = #{map.proj_no}
 		, PRRY_RNKG = #{map.prry_rnkg}
 		, AREA = #{map.area}
@@ -89,13 +90,13 @@
 		WHEN NOT MATCHED THEN
 		/* 신규입력 */
 		INSERT(
-		RKIS_NO, ACDN_NM, SCN, PROJ_NO, PRRY_RNKG,
+		RKIS_NO, SUPI_RKIS_NO, ACDN_NM, SCN, PROJ_NO, PRRY_RNKG,
 		AREA, DCRM_STEP, PGS_SITU, IFLU_DEG, RSK_DEG,
 		ACDN_SBC, CRPD_WAY, CRGR_NM, ACT_SBC, TRTM_MH,
 		DCRM_DT, PARR_DT,
 		VBG_CRE_USER_ID, VBG_CRE_DT, FIN_UPDR_ID, FIN_MDFY_DT
 		)VALUES(
-		V_RKIS_NO, #{map.acdn_nm}, 'I', #{map.proj_no}, #{map.prry_rnkg},
+		V_RKIS_NO, #{map.supi_rkis_no}, #{map.acdn_nm}, 'I', #{map.proj_no}, #{map.prry_rnkg},
 		#{map.area}, #{map.dcrm_step}, #{map.pgs_situ}, #{map.iflu_deg}, #{map.rsk_deg},
 		#{map.acdn_sbc}, #{map.crpd_way}, #{map.crgr_nm}, #{map.act_sbc}, #{map.trtm_mh},
 		TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dcrm_dt},'-'),1,8),'YYYYMMDD')+1,'YYYYMMDD'),
