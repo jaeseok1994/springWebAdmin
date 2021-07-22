@@ -85,17 +85,6 @@
 
         /****** 주간업무보고 추가 버튼 이벤트 ******/
         $("#goAdd").click(function(){
-        	/*
-        	var proj_no = $('#proj_no').val();
-        	if(proj_no == null || proj_no == ''){
-        		fn_alert("프로젝트를 선택하세요.");
-        		return;
-        	}
-        	var r = grid.dataProvider.addRow(1);
-        	grid.dataProvider.setValue(r,'proj_no',proj_no);
-        	*/
-        	//var popup = window.open('/service/pms/pms03_popup/selectForm.do','pms03_popup','top=10, left=100, width=1500, height=800, status=no, menubar=no, toolbar=no, resizable=yes');
-
         	popup_open(app.keys.proj_no,null);
         });
 
@@ -160,7 +149,7 @@
                     dd2 = '0'+dd2;
                  }
 
-             var DY_STRT_DT = test.getFullYear()+'-'+mm2+'-'+dd2;
+             var DY_STRT_DT = date.getFullYear()+'-'+mm2+'-'+dd2;
 
             /****** 제목컬럼 더블클릭하면 팝업창 오픈 ******/
             if(clickData.column == 'title'){
