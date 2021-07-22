@@ -28,4 +28,14 @@
         </if>
         ORDER BY PROJ_NO
     </select>
+    <select id="selectRiskList" parameterType="map" resultType="cMap">
+        SELECT RKIS_NO value, ACDN_NM text
+        FROM RISK_ISSUE a
+        where SCN = 'R'
+        <if test="map.q != '' and map.q != null">
+            AND ( UPPER(A.RKIS_NO) LIKE '%' || UPPER(#{map.q }) || '%'
+            OR  UPPER(A.ACDN_NM) LIKE '%' || UPPER(#{map.q }) || '%' )
+        </if>
+        ORDER BY RKIS_NO
+    </select>
 </mapper>
