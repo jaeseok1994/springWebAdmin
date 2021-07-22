@@ -106,19 +106,15 @@
         /**** 파라미터값 구분 기능 ****/
         var para = getCommonPara();
         if(para.param.dy_strt_dt != null){ // 주간시작날짜값과 프로젝트번호로 조회 후 값 세팅
-            console.log("Not Null");
             app.keys.proj_no = para.param.proj_no;
             app.keys.dytm_strt_dt = para.param.dy_strt_dt;
             AFFR_search("select");
 
         }else{ // 주간시작날짜값이 없으면 기본값 세팅
-            console.log("NULL");
-
             var user = document.getElementById("user").textContent;
             app.keys.pprr_id = user;
             app.keys.proj_no = para.param.proj_no;
             app.keys.drft_dt = setToday;
-
 
         }
 
@@ -143,11 +139,12 @@
         });
 
        /**** 주차선택박스 값 변경 이벤트 ****/
-        $("#week_select").change(function(){
-            if($("#week_select").val() != ""){
+        $("#dytm_strt_dt").change(function(){
+            if($("#dytm_strt_dt").val() != ""){
                 GetWeekSearch();
+             }else{
+                app.keys.get_week = ''
              }
-
         });
     });
 
@@ -172,7 +169,7 @@
 
     /**** 주차선택 시 주차자동으로 입력조회 ****/
     function GetWeekSearch(){
-             app.keys.dytm_strt_dt = $("#week_select").val();
+             app.keys.dytm_strt_dt = $("#dytm_strt_dt").val();
         var jsonData = {
                 map : app.keys,
         };
@@ -295,9 +292,8 @@
                 app.weekList = data.resultList;
 
             }else if(func == "GetWeekSearch"){
-                console.log(data.resultList[0].wk);
                 app.keys.get_week = data.resultList[0].wk;
-                //app.keys.title =  data.resultList[0].wk;
+
             }else{
                 fn_alert(data.message);
             }
@@ -306,7 +302,7 @@
 
     /**** 기존에 있는 주간업무 팝업창을 열 때 주차선택 콤보박스에 값 세팅 ****/
     function setCode(resultList) {
-        $('#week_select').val(resultList);
+        $('#dytm_strt_dt').val(resultList);
 
     }
 
@@ -412,6 +408,7 @@
                 <td class="ar">주차선택(월요일)</td>
                 <td>
                     <select name="dytm_strt_dt" id="dytm_strt_dt" class="ui_sel w70p" v-model="keys.dytm_strt_dt">
+                        <option value = "" selected>선택하세요.</option>
                         <option v-for="list in weekList" :value="list.value">{{list.text}}</option>
                     </select>
                 </td>
