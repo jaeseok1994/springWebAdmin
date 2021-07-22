@@ -6,58 +6,39 @@
     <select id="selectList" parameterType="map" resultType="cMap">
 	    <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 	    
-	        select
-				affr_no,
-				proj_no,
-				(select proj_nm from taprjm where proj_no = a.proj_no)proj_nm,
-				title,
-				st_dt,
-				fn_dt,
-				wr_dt,
-				writer,
-				rem,
-			    upd_user_id,
-			    (select user_name from SYS_USER where user_id = a.upd_user_id) upd_user_nm,
-			    to_char(upd_dtm,'yyyy-mm-dd hh24:mi:ss') upd_dtm
-			from twkafm a
-			where proj_no = #{map.proj_no}
-	        order by wr_dt desc
+	        SELECT
+				PROJ_NO,
+				(SELECT PROJ_NM FROM PROJECT_MASTER WHERE PROJ_NO = A.PROJ_NO)PROJ_NM,
+				TITLE,
+				DYTM_STRT_DT,
+				DRFT_DT,
+				PPRR_ID,
+				REM,
+				FIN_UPDR_ID,
+			    (SELECT USER_NAME FROM SYS_USER WHERE USER_ID = A.FIN_UPDR_ID) FIN_UPDR_NM,
+			    TO_CHAR(FIN_MDFY_DT,'yyyy-mm-dd hh24:mi:ss') fin_mdfy_dt,
+				F_GETWEEK(DRFT_DT) GET_WEEK
+			FROM DYAFFR_RPT A
+			WHERE PROJ_NO = #{map.proj_no}
+			AND DRFT_DT BETWEEN TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD') AND TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fnh_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+	        ORDER BY DRFT_DT DESC
 	        		
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
     </select>
-	<select id="projSelectList" parameterType="map" resultType="cMap">
-		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-		SELECT
-		PROJ_NO,
-		PROJ_NM,
-		ST_DT,
-		FN_DT,
-		CLIENT
-		FROM TAPRJM A
-		WHERE 1=1
-		<if test="map.p_no != '' and map.p_no != null">
-			AND PROJ_NO LIKE '%' || #{map.p_no} || '%'
-		</if>
-		<if test="map.p_nm != '' and map.p_nm != null">
-			AND PROJ_NM LIKE '%' || #{map.p_nm} || '%'
-		</if>
-		ORDER BY PROJ_NO
-
-		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
-	</select>
     <insert id="deleteList" parameterType="map" >
 		DECLARE
 		USER_EXCEPTION EXCEPTION;
 		V_ERR_MSG VARCHAR(2000);
-		V_DOC_NO VARCHAR(20);
 
 		BEGIN
 
-			delete from twkafm
-			where affr_no = #{affr_no};
+			DELETE FROM DYAFFR_RPT
+			WHERE PROJ_NO = #{proj_no}
+			AND DYTM_STRT_DT = #{dytm_strt_dt};
 
-			delete from taafrk
-			where affr_no = #{affr_no};
+			DELETE FROM PROJRISK
+			WHERE PROJ_NO = #{proj_no}
+			AND DYTM_STRT_DT = #{dytm_strt_dt};
 
 		END;
 

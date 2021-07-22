@@ -11,14 +11,18 @@
 			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'MGMT_SCN' AND X.CD_CODE = A.SCN) AS SCN
 			,A.PROJ_NO
 			,(SELECT X.CD_NAME FROM SYS_CODE X WHERE X.CD_G_CODE = 'PGS_ST' AND X.CD_CODE = A.PGS_ST) AS PGS_ST
-			<if test="affr_no != '' and affr_no != null">
-			,NVL((SELECT 1 FROM DUAL WHERE EXISTS(
-													SELECT RKIS_NO
-													FROM TAAFRK
-													WHERE RKIS_NO = A.RKIS_NO
-													<if test="affr_no != '' and affr_no != null">
-													AND EXISTS(SELECT 1 FROM TAAFRK WHERE AFFR_NO = #{affr_no} AND RKIS_NO = A.RKIS_NO)
-													</if>)),0)chk
+			<if test="proj_no != '' and proj_no != null">
+				<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
+				,NVL((SELECT 1 FROM DUAL WHERE EXISTS(
+														SELECT RKIS_NO
+														FROM TARKIS
+														WHERE RKIS_NO = A.RKIS_NO
+														<if test="proj_no != '' and proj_no != null">
+															<if test="dytm_strt_dt != '' and dytm_strt_dt != null">
+																AND EXISTS(SELECT 1 FROM PROJ_RISK WHERE PROJ_NO = #{proj_no} AND DYTM_STRT_DT = #{dytm_strt_dt} AND RKIS_NO = A.RKIS_NO)
+															</if>
+														</if>)),0)chk
+				</if>
 			</if>
 		FROM TARKIS A
 		WHERE 1=1
@@ -29,80 +33,145 @@
 		ORDER BY A.RKIS_NO
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
+
 	<select id="selectOne" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
-
 		SELECT
-			affr_no,
-			proj_no,
-			(select proj_nm from taprjm where proj_no = a.proj_no)proj_nm,
-			title,
-			substr(wr_dt,0,4)||'-'||substr(wr_dt,5,2)||'-'||substr(wr_dt,7,2) wr_dt,
-			substr(st_dt,0,4)||'-'||substr(st_dt,5,2)||'-'||substr(st_dt,7,2) st_dt,
-			substr(fn_dt,0,4)||'-'||substr(fn_dt,5,2)||'-'||substr(fn_dt,7,2) fn_dt,
-			writer,
-			twk_ars,
-			nxw_pln,
-			twk_pln_rate,
-			twk_ars_rate,
-			acum_pln_rate,
-			acum_ars_rate,
-			(select attc_fil_nm from attc_fil b where b.attc_fil_sn = a.attc_filno) fil_nm,
-			attc_filno,
-			REM
-		from twkafm a
-		where affr_no = #{map.affr_no}
+			A.*
+			,DYTM_STRT_DT || ' ~ ' || FRIDAY AS TEXT
+		FROM
+		(
+			SELECT
+				PROJ_NO,
+				(SELECT PROJ_NM FROM PROJECT_MASTER WHERE PROJ_NO = A.PROJ_NO)PROJ_NM,
+				TITLE,
+				SUBSTR(DRFT_DT,0,4)||'-'||SUBSTR(DRFT_DT,5,2)||'-'||SUBSTR(DRFT_DT,7,2) DRFT_DT,
+				SUBSTR(DYTM_STRT_DT,0,4)||'-'||SUBSTR(DYTM_STRT_DT,5,2)||'-'||SUBSTR(DYTM_STRT_DT,7,2) DYTM_STRT_DT,
+				PPRR_ID,
+				TWK_ARSL,
+				NXK_PLN,
+				TWK_PLN_RATE,
+				TWK_ARSL_RATE,
+				ACUM_PLN_RATE,
+				ACUM_ARSL_RATE,
+				(SELECT ATTC_FIL_NM FROM ATTC_FIL B WHERE B.ATTC_FIL_SN = A.ATTC_FILNO) FIL_NM,
+				ATTC_FILNO,
+				REM,
+				F_GETWEEK(DYTM_STRT_DT) AS GET_WEEK,
+				TO_CHAR(TRUNC(TO_DATE(DYTM_STRT_DT,'YYYYMMDD'),'IW')+4,'YYYY-MM-DD') AS FRIDAY
+			FROM DYAFFR_RPT A
+			WHERE PROJ_NO = #{map.proj_no}
+			AND DYTM_STRT_DT = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+		)A
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
+
 	<select id="IssueList" parameterType="map" resultType="cMap">
 		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
 
 		select
-			affr_no,
 			rkis_no,
 			proj_no,
-			(select acdn_title from tarkis where rkis_no = a.rkis_no) acdn_title,
-			(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_st) as pgs_st,
-			(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.scn) as scn,
-			NVL((SELECT 1 FROM DUAL WHERE EXISTS( SELECT RKIS_NO FROM TAAFRK WHERE RKIS_NO = A.RKIS_NO)),0)chk
-		from (select a.*,b.scn,b.pgs_st from taafrk a, tarkis b where a.rkis_no = b.rkis_no)a
-		where a.affr_no = #{affr_no}
+			(select acdn_nm from risk_issue where rkis_no = a.rkis_no) acdn_nm,
+			(select x.cd_name from sys_code x where x.cd_g_code = 'PGS_ST' and x.cd_code = a.pgs_situ) as pgs_st,
+			(select x.cd_name from sys_code x where x.cd_g_code = 'MGMT_SCN' and x.cd_code = a.risk_scn) as scn,
+			NVL((SELECT 1 FROM DUAL WHERE EXISTS( SELECT RKIS_NO FROM proj_risk WHERE RKIS_NO = A.RKIS_NO)),0)chk
+		from (select a.*,b.scn as risk_scn,b.pgs_situ from proj_risk a, risk_issue b where a.rkis_no = b.rkis_no)a
+		where proj_no = #{proj_no}
+		and dytm_strt_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
 
 		order by rkis_no
 		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
 	</select>
+
+	<select id="GetWeekCombo" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		<![CDATA[
+		SELECT
+			TO_CHAR(MONDAY,'YYYY-MM-DD')|| ' ~ ' || TO_CHAR(SUNDAY,'YYYY-MM-DD')AS TEXT
+			,WK
+			,TO_CHAR(MONDAY,'YYYY-MM-DD') AS VALUE
+		FROM
+		(
+			SELECT
+				DAY
+				,CASE 	WHEN LAST_DAY(DAY) - NEXT_DAY((LAST_DAY(DAY)-7),2) + 1 < 4                                                                             -- 월 마지막 주의 날수가 4일 미만이면서
+						AND DAY <= LAST_DAY(DAY) AND DAY >= NEXT_DAY((LAST_DAY(DAY)-7),2)                                                              -- 오늘이 월 마지막 주의 일자에 포함되면
+						THEN TO_CHAR(ADD_MONTHS(DAY,1),'YYYYMM')||'월 '||TO_CHAR(TRUNC(TO_DATE(TO_CHAR(DAY,'YYYYMMDD'),'YYYYMMDD'), 'IW') +3, 'W')||'주차'         -- 차월의 월이 속한 년도 + 주차를 취하고
+
+						WHEN TO_NUMBER(TO_CHAR(NEXT_DAY((TRUNC(DAY,'MM')-1),1),'DD')) < 3                                                                           -- 월 첫주의 날수가 4일 미만이면서
+						AND DAY <= NEXT_DAY((TRUNC(DAY,'MM')-1),1)                                                                                             -- 오늘이 월 첫 주의 일자에 포함되면
+						THEN TO_CHAR(ADD_MONTHS(DAY,-1),'YYYYMM')||'월 '||TO_CHAR(TRUNC(TO_DATE(TO_CHAR(DAY,'YYYYMMDD'),'YYYYMMDD'), 'IW') +3, 'W')||'주차'        -- 전월의 월이 속한 년도 + 주차를 취하고
+
+						ELSE TO_CHAR(DAY,'YYYYMM')||'월 '||TO_CHAR(TRUNC(TO_DATE(TO_CHAR(DAY,'YYYYMMDD'),'YYYYMMDD'), 'IW') +3, 'W')||'주차'                       -- 그외는 당월의 월이 속한 년도 + 주차를 취함.
+					END AS WK
+				,TRUNC(DAY,'IW') MONDAY
+				,TRUNC(DAY,'IW')+6 SUNDAY
+			FROM
+			(
+			SELECT
+				  MONTHS + LEVEL -1 AS DAY
+			FROM (
+					SELECT
+						TO_DATE('202107', 'YYYYMM') "MONTHS"
+					FROM DUAL
+				)
+			CONNECT BY MONTHS + LEVEL -1 <= LAST_DAY(MONTHS)
+			)
+		)
+		GROUP BY WK, MONDAY, SUNDAY
+		HAVING WK LIKE '%'||'202107'||'%'
+		ORDER BY MONDAY
+		]]>
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+
+	<select id="GetWeekSearch" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		SELECT
+			F_GETWEEK(#{map.dytm_strt_dt}) wk
+		FROM DUAL
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+
+	<select id="GetMonthCombo" parameterType="map" resultType="cMap">
+		<include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+		SELECT
+			F_GETWEEK(#{map.dytm_strt_dt}) WK
+		FROM DUAL
+		<include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+	</select>
+
 	<insert id="insertList" parameterType="map" >
 		<![CDATA[
 		DECLARE
             USER_EXCEPTION EXCEPTION;
             V_ERR_MSG VARCHAR(2000);
-			V_DOC_NO VARCHAR(20);
 
         BEGIN
-		V_DOC_NO := F_DOCNO('AF');
-		insert into twkafm (
-			affr_no,proj_no,title,
-			wr_dt,
-			st_dt,
-			fn_dt,
-			writer,twk_ars,nxw_pln,twk_pln_rate,twk_ars_rate,
-			acum_pln_rate,acum_ars_rate,rem,attc_filno,
-			cre_user_id, cre_dtm, upd_user_id, upd_dtm
+
+		INSERT INTO DYTMAFFRRPY (
+			PROJ_NO,TITLE,
+			DRFT_DT,
+			DYTM_STRT_DT,
+			PPRR_ID,TWK_ARSL,NXK_PLN,TWK_PLN_RATE,TWK_ARSL_RATE,
+			ACUM_PLN_RATE,ACUM_ARSL_RATE,REM,ATTC_FILNO,
+			VBG_CRE_USER_ID, VBG_CRE_DT, FIN_UPDR_ID, FIN_MDFY_DT
 		)values(
-			V_DOC_NO,#{map.proj_no},#{map.title},
-			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.wr_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.st_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fn_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
-			#{map.writer}, #{map.twk_ars}, #{map.nxw_pln},#{map.twk_pln_rate},#{map.twk_ars_rate},
-			#{map.acum_pln_rate},#{map.acum_ars_rate}, #{map.rem},#{map.filno },
+			#{map.proj_no},#{map.title},
+			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.drft_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+			TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.dytm_strt_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD'),
+			#{map.pprr_id}, #{map.twk_arsl}, #{map.nxk_pln},#{map.twk_pln_rate},#{map.twk_arsl_rate},
+			#{map.acum_pln_rate},#{map.acum_arsl_rate}, #{map.rem},#{map.filno },
 			#{_loginId_},systimestamp,#{_loginId_},systimestamp
 		);
 
 
-		INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
-			SELECT V_DOC_NO,
-					rkis_no,
+		INSERT INTO PROJ_RISK (rkis_no,proj_no,dytm_strt_dt,scn,vbg_cre_user_id,vbg_cre_dt,fin_updr_id,fin_mdfy_dt)
+			SELECT  rkis_no,
 					proj_no,
+					{map.dytm_strt_dt},
+					scn,
 					#{_loginId_},
 					systimestamp,
 					#{_loginId_},
@@ -129,33 +198,35 @@
 			update twkafm set
 				title = #{map.title}
 				, proj_no = #{map.proj_no}
-				, wr_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.wr_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
-				, st_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.st_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
-				, fn_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.fn_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
-				, writer = #{_loginId_}
-				, twk_ars = #{map.twk_ars}
-				, nxw_pln = #{map.nxw_pln}
+				, drft_dt = TO_CHAR(TO_DATE(SUBSTR(REPLACE(#{map.drft_dt},'-'),1,8),'YYYYMMDD'),'YYYYMMDD')
+				, pprr_id = #{_loginId_}
+				, twk_arsl = #{map.twk_arsl}
+				, nxk_pln = #{map.nxk_pln}
 				, twk_pln_rate = #{map.twk_pln_rate}
-				, twk_ars_rate = #{map.twk_ars_rate}
+				, twk_arsl_rate = #{map.twk_arsl_rate}
 				, acum_pln_rate = #{map.acum_pln_rate}
-				, acum_ars_rate = #{map.acum_ars_rate}
+				, acum_arsl_rate = #{map.acum_arsl_rate}
 				, attc_filno = #{map.filno }
 				, rem = #{map.rem}
-				, upd_user_id = #{_loginId_}
-				, upd_dtm = systimestamp
-			where affr_no = #{map.affr_no};
+				, fin_updr_id = #{_loginId_}
+				, fin_mdfy_dt = systimestamp
+			where proj_no = #{map.proj_no}
+			and dytm_strt_dt = #{map.dytm_strt_dt};
 
-			DELETE FROM TAAFRK
-			WHERE affr_no = #{map.affr_no};
+			DELETE FROM PROJ_RISK
+			WHERE PROJ_NO = #{map.proj_no}
+			AND DYTM_STRT_DT = #{map.dytm_strt_dt};
 
-			INSERT INTO TAAFRK (affr_no,rkis_no,proj_no,cre_user_id,cre_dtm,upd_user_id,upd_dtm)
-				SELECT #{map.affr_no},
-						rkis_no,
-						proj_no,
-						#{_loginId_},
-						systimestamp,
-						#{_loginId_},
-						systimestamp
+			INSERT INTO PROJ_RISK (rkis_no,proj_no,dytm_strt_dt,scn,vbg_cre_user_id,vbg_cre_dt,fin_updr_id,fin_mdfy_dt)
+
+			SELECT  rkis_no,
+					proj_no,
+					{map.dytm_strt_dt},
+					scn,
+					#{_loginId_},
+					systimestamp,
+					#{_loginId_},
+					systimestamp
 			from TARKIS
 			WHERE PROJ_NO = #{map.proj_no}
 			AND  INSTR(#{rkis_no}||',', RKIS_NO||',') > 0

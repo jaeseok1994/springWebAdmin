@@ -86,8 +86,10 @@ $(document.body).ready(function () {
                                 processResults: function (data, params) {
                                     params.page = params.page || 1;
                                     var results = data.resultList.map(function(obj){
-                                        obj.id = obj.id||obj.value;
-                                        obj.text = obj.value + ' ' + obj.text;
+                                        //obj.id = obj.id||obj.value;
+                                        obj.id = obj.value;
+                                        //obj.text = obj.value + ' ' + obj.text;
+                                        obj.text = obj.text;
                                         return obj;
                                     });
                                     return {
@@ -409,7 +411,7 @@ function fn_inner_popup_open(arg){
     //var container = document.getElementById("innerPopupContainerGrid");
     setTimeout(function(){dragElement();},200);
 }
-
+/*
 var arg = {
     map:{key1:1},
     height:600,
@@ -418,6 +420,7 @@ var arg = {
     isInner:true
 
 }
+*/
 // 새창팝업
 function fn_popup_open(arg){
     var jsonData = {
