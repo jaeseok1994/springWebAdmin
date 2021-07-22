@@ -419,10 +419,11 @@ var arg = {
     url:url,
     isInner:true
 
-}
-*/
+}*/
+
 // 새창팝업
 function fn_popup_open(arg){
+    if(!arg.map) return;
     var jsonData = {
         param:arg.map,
     }
