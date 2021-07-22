@@ -20,7 +20,7 @@
     </select>
     <select id="selectProjList" parameterType="map" resultType="cMap">
         SELECT PROJ_NO value, PROJ_NM text
-        FROM TAPRJM a
+        FROM PROJECT_MASTER a
         where 1=1
         <if test="map.q != '' and map.q != null">
             AND ( UPPER(A.PROJ_NO) LIKE '%' || UPPER(#{map.q }) || '%'
