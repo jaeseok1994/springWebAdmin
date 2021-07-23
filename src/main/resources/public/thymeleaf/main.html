@@ -304,7 +304,7 @@
                 tabs:[],
             },
             methods:{
-                selectMenu: function (id) {  // 사용안함
+                selectMenu: function (id) {  //
                     const tab = this.tabs.filter(function (tab) { return tab.id == id; })[0];
                     const menu = this.menus.filter(function (menu) { return menu.id == id; })[0];
                     if (!tab) {
@@ -315,7 +315,7 @@
                         this.focusMenu(id);
                     } else {
                         selectTab(id);
-                        const tabs = this.tabs.filter(function (tab) { return tab.id != id; });
+                        const tabs = this.tabs.filter(function (tab) { return tab.id != id; }); //우선 제거
                         this.tabs = tabs;
                         this.tabs.push(menu); //젤 마지막으로
                     }
@@ -407,7 +407,14 @@
         console.log(id);
         $('.nav-tabs a[href="#' + id + '"]').trigger('click');
     }
-
+    var linkedTabId = 0;
+    function addLinkedTab(arg){
+        linkedTabId++;
+        var url = arg.url + "?param=" + encodeURIComponent(JSON.stringify(arg.map));
+        var linkedMenu = {id:"link"+linkedTabId, name:arg.name,url:url};
+        addTab(linkedMenu);
+        setTimeout(function(){selectTab("link"+linkedTabId),200})
+    }
     function addTab(menu) {
         var nextTab = $('#tabList li').length + 1;
         // create the tab
@@ -417,8 +424,8 @@
                        </li>';
         $(tabList).appendTo('#tabList');
         var content = '<div role="tabpanel" class="tab-pane fade h-100" id="' + menu.id + '">\
-                    <iframe src="'+ menu.url + '" width="100%" frameborder="NO" framespacing="0"  height="99%">Loading ... </iframe>\
-                </div>';
+                            <iframe src="'+ menu.url + '" width="100%" frameborder="NO" framespacing="0"  height="99%">Loading ... </iframe>\
+                       </div>';
         $(content).appendTo('#tabContentList');
         //$('#tabList a:last').tab('show');
     }

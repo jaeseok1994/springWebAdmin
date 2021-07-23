@@ -167,25 +167,31 @@
             alert(data.error);
         }else{
             if(func == "select"){             // 조회 콜백
-                app.keys.rkis_no = data.resultList[0].RKIS_NO;
-                app.keys.proj_no = data.resultList[0].PROJ_NO;
-                app.keys.area = data.resultList[0].AREA;
-                app.keys.dcrm_step = data.resultList[0].DCRM_STEP;
-                app.keys.prry_rnkg = data.resultList[0].PRRY_RNKG;
-                app.keys.occu_prob = data.resultList[0].OCCU_PROB;
-                app.keys.iflu_deg = data.resultList[0].IFLU_DEG;
-                app.keys.rsk_deg = data.resultList[0].RSK_DEG;
-                app.keys.cre_user_id = data.resultList[0].CRE_USER_ID;
-                app.keys.acdn_nm = data.resultList[0].ACDN_NM;
-                app.keys.acdn_sbc = data.resultList[0].ACDN_SBC;
-                app.keys.crgr_nm = data.resultList[0].CRGR_NM;
-                app.keys.pvnt_pln = data.resultList[0].PVNT_PLN;
-                app.keys.pgs_situ = data.resultList[0].PGS_SITU;
-                app.keys.trtm_mh = data.resultList[0].TRTM_MH;
-                app.keys.dcrm_dt = data.resultList[0].DCRM_DT;
-                app.keys.cre_dt = data.resultList[0].CRE_DT;
-                app.keys.parr_dt = data.resultList[0].PARR_DT;
-                app.keys.trtm_conf_dt = data.resultList[0].TRTM_CONF_DT;
+               console.log(data.resultList[0]);
+                Object.keys(data.resultList[0]).forEach( function(dataKey){
+                  if(app.keys[dataKey.toLowerCase()] != undefined){
+                    app.keys[dataKey.toLowerCase()] = data.resultList[0][dataKey];
+                  }
+                });
+                // app.keys.rkis_no = data.resultList[0].RKIS_NO;
+                // app.keys.proj_no = data.resultList[0].PROJ_NO;
+                // app.keys.area = data.resultList[0].AREA;
+                // app.keys.dcrm_step = data.resultList[0].DCRM_STEP;
+                // app.keys.prry_rnkg = data.resultList[0].PRRY_RNKG;
+                // app.keys.occu_prob = data.resultList[0].OCCU_PROB;
+                // app.keys.iflu_deg = data.resultList[0].IFLU_DEG;
+                // app.keys.rsk_deg = data.resultList[0].RSK_DEG;
+                // app.keys.cre_user_id = data.resultList[0].CRE_USER_ID;
+                // app.keys.acdn_nm = data.resultList[0].ACDN_NM;
+                // app.keys.acdn_sbc = data.resultList[0].ACDN_SBC;
+                // app.keys.crgr_nm = data.resultList[0].CRGR_NM;
+                // app.keys.pvnt_pln = data.resultList[0].PVNT_PLN;
+                // app.keys.pgs_situ = data.resultList[0].PGS_SITU;
+                // app.keys.trtm_mh = data.resultList[0].TRTM_MH;
+                // app.keys.dcrm_dt = data.resultList[0].DCRM_DT;
+                // app.keys.cre_dt = data.resultList[0].CRE_DT;
+                // app.keys.parr_dt = data.resultList[0].PARR_DT;
+                // app.keys.trtm_conf_dt = data.resultList[0].TRTM_CONF_DT;
 
                 roleChk(app.keys.cre_user_id);
             }else if(func == "maint"){        // 저장 콜백

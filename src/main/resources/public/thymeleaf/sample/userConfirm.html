@@ -66,7 +66,10 @@
     $(document.body).ready(function(){
 
         $("#goSelect").click(function(){
-        	search();
+            search();
+        });
+        $("#goSelect2").click(function(){
+            openOnMenuTab();
         });
 /*
         $(document.body).append(vue_confirm_temp);
@@ -95,7 +98,15 @@
     function search(){
         fn_update();
     }
+    function openOnMenuTab(){
 
+        var arg = {
+            map: {arg1:1,domn_nm:"링크드 파라레트다.",},
+            url : "/service/sample/innerPopup2/selectForm.do",
+            name : "화면 연결 테스트"
+        }
+        fn_openMenuTab(arg);
+    }
 
     function fn_callback(func,data,status){
         if(data.error){
@@ -146,6 +157,7 @@
 
     <div class="ar">
         <div id="goSelect" class="btn_typeA btn_search">확인</div>
+        <div id="goSelect2" class="btn_typeA btn_search">확인</div>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">

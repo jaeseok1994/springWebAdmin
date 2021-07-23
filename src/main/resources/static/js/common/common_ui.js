@@ -86,10 +86,8 @@ $(document.body).ready(function () {
                                 processResults: function (data, params) {
                                     params.page = params.page || 1;
                                     var results = data.resultList.map(function(obj){
-                                        //obj.id = obj.id||obj.value;
-                                        obj.id = obj.value;
-                                        //obj.text = obj.value + ' ' + obj.text;
-                                        obj.text = obj.text;
+                                        obj.id = obj.id||obj.value;
+                                        obj.text = obj.value + ' ' + obj.text;
                                         return obj;
                                     });
                                     return {
@@ -411,19 +409,9 @@ function fn_inner_popup_open(arg){
     //var container = document.getElementById("innerPopupContainerGrid");
     setTimeout(function(){dragElement();},200);
 }
-/*
-var arg = {
-    map:{key1:1},
-    height:600,
-    wight:800,
-    url:url,
-    isInner:true
-
-}*/
 
 // 새창팝업
 function fn_popup_open(arg){
-    if(!arg.map) return;
     var jsonData = {
         param:arg.map,
     }
@@ -440,13 +428,22 @@ function fn_downLoad(url, jsonData, option){
     var popTitle = option ||"popOpen";
         window.open(url +  "?param=" + param,popTitle,"toolbar=no, location=no, directories=no, status=no, menubar=no,scrollbar=no,resizable=no,width=1400,height=800,top=100,left=100");
 }
-//function fn_confirm(msg,callback){
-  //  return confirm(msg);
-    // app_alert.message=msg;
-    // app_alert.showModalConfirm=true;
-    // app_alert.showModal=true;
-    // app_alert.confirmCallBack = callback;
-//}
+
+//화면 연결
+// var arg = {
+//     map: {arg1:1,domn_nm:"링크드 파라레트다.",},
+//     url : "/service/sample/innerPopup2/selectForm.do",
+//     name : "화면 연결 테스트"
+// }
+// fn_openMenuTab(arg);
+function fn_openMenuTab(arg){
+    if(parent && parent.addLinkedTab){
+        parent.addLinkedTab(arg)
+    }else{
+        console.error("부모창을 찾을 수가 없습니다.");
+    }
+
+}
 
 
 //vue 사용없이 ex) fn_setSelect2("#dept",{regn:'2'},"selectDeptList"); param.dept = $('#dept').val();
