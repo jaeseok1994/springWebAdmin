@@ -25,7 +25,7 @@
     var columns = [
       {name: "proj_no", fieldName: "proj_no", type: "data", width: "90", header: "프로젝트번호",editable: false},
       {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "150", header: "프로젝트 명", editable: false},
-      {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column", editable: false},
+      {name: "title", fieldName: "title", maxLength: 200, type: "data", width: "300", header: "제목",styleName:"left-column rg_link", editable: false},
       {name: "dytm_strt_dt", fieldName: "dytm_strt_dt", maxLength: 8, width: "100", header: "주간시작날짜(월)",editable: false,
 
           datetimeFormat: "yyyy-MM-dd"
@@ -47,6 +47,13 @@
     var grid;
     var app;
     var setToday = getdate();
+    var date = new Date();
+
+    var strt_yyyy = setToday.substr(0,4);
+    var strt_mm = setToday.substr(5,2) -1 ;
+    var strt_dd = setToday.substr(8,2);
+
+    var st_dt = date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
 
     /****** 폼 로딩함수 ******/
     $(document.body).ready(function(){
@@ -57,12 +64,13 @@
                 keys:{
                 	proj_no:'',
                     title:'',
-                    strt_dt:'',
+                    strt_dt:st_dt,
                     fnh_dt:setToday,
                     pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
                     pagerows:50, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
                     pagecnt:10, 		// 표시할 페이지 번호 수 (★변수명 변경금지)
                     afno:'',
+                    proj_yn:'',
                 },
                 projUrl:'selectProjList',
                 methods:{
@@ -73,7 +81,7 @@
         /****** 주간업무보고  조회 버튼 이벤트 ******/
         $("#goSelect").click(function(){
         	if($('#proj_no').val() == null || $('#proj_no').val() == ''){
-        	    console.log("proj_nm:::"+app.keys.proj_nm);
+
         		fn_alert("프로젝트를 선택하세요.");
         		return;
         	}
@@ -85,7 +93,11 @@
 
         /****** 주간업무보고 추가 버튼 이벤트 ******/
         $("#goAdd").click(function(){
-        	popup_open(app.keys.proj_no,null);
+        	if(app.keys.proj_no != ''){
+        	    popup_open(app.keys.proj_no,app.keys.proj_nm,null);
+        	}else{
+        	    popup_open(null,null,null);
+        	}
         });
 
          /****** 주간업무보고 삭제 버튼 이벤트 ******/
@@ -130,10 +142,11 @@
         grid.gridView.refresh();
 
        /****** 그리드 더블클릭 이벤트 ******/
-        grid.gridView.onCellDblClicked = function (g, clickData) {
-
+        //grid.gridView.onCellDblClicked = function (g, clickData) {
+        grid.gridView.onCellClicked = function (g, clickData) {
              /****** 팝업창 열 때 파라미터 값 만들기 ******/
              var PROJ_NO = grid.gridView.getValue(clickData.itemIndex,"proj_no");
+             var PROJ_NM = grid.dataProvider.getValue(clickData.itemIndex,"proj_nm");
              var date = grid.dataProvider.getValue(clickData.itemIndex,"dytm_strt_dt");
 
              /****** 날짜형식으로 변경(그리드에서 값 추출 시 날짜형식(YYYY-MM-DD)으로 변경) ******/
@@ -153,16 +166,23 @@
 
             /****** 제목컬럼 더블클릭하면 팝업창 오픈 ******/
             if(clickData.column == 'title'){
-                popup_open(PROJ_NO,DY_STRT_DT);
+                popup_open(PROJ_NO,PROJ_NM,DY_STRT_DT);
             }
         };
+
     });
 
     /****** 팝업창 열기 기능(파라미터 : 프로젝트번호, 주간시작날짜) ******/
-    function popup_open(PROJ_NO,DY_STRT_DT){
+    function popup_open(PROJ_NO,PROJ_NM,DY_STRT_DT){
         app.keys.proj_no = PROJ_NO;
+        app.keys.proj_nm = PROJ_NM;
+        if(PROJ_NO != null){
+            app.keys.proj_yn = 'Y';
+        }else{
+            app.keys.proj_yn = 'N';
+        }
         app.keys.dy_strt_dt = DY_STRT_DT;
-        console.log(app.keys.dy_strt_dt);
+
         var jsonData = {
             url:'/service/pms/dytmAffrRptPopup/selectForm.do',
             name:'dytmAffrRptPopup',

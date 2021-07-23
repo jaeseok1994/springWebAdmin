@@ -107,6 +107,7 @@
         var para = getCommonPara();
         if(para.param.dy_strt_dt != null){ // 주간시작날짜값과 프로젝트번호로 조회 후 값 세팅
             app.keys.proj_no = para.param.proj_no;
+            app.keys.proj_nm = para.param.proj_nm;
             app.keys.dytm_strt_dt = para.param.dy_strt_dt;
             AFFR_search("select");
 
@@ -114,7 +115,16 @@
             var user = document.getElementById("user").textContent;
             app.keys.pprr_id = user;
             app.keys.proj_no = para.param.proj_no;
+            app.keys.proj_nm = para.param.proj_nm;
             app.keys.drft_dt = setToday;
+
+        }
+
+        if(para.param.proj_no != null){
+            console.log('proj_no is not null');
+
+        }else{
+            console.log('proj_no is null');
 
         }
 
@@ -383,8 +393,20 @@
             <tr>
                 <td class="ar">프로젝트 명</td>
                 <td>
-                    <input id="proj_no" type="text" class="input_A w100p" v-model="keys.proj_no">
-                   <!--<select2 id="proj_no2" class="form-control" v-model="keys.proj_no" :url="projUrl" :para="keys" style="width:200px"></select2>-->
+                    <!--<input id="proj_nm1" type="text" class="input_A w100p" v-model="keys.proj_nm">
+                   <select2 id="proj_nm2" class="form-control" v-model="keys.proj_nm" :url="projUrl" :para="keys" style="width:200px"></select2>-->
+                    <!--<template th:if="${param.proj_yn} == 'N'">
+                        <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px;"></select2>
+                    </template>
+                    <template th:if="${para.proj_yn} == 'Y'">
+                        <input id="proj_nm" type="text" class="input_Ac textBar" style="width:130px;" v-model="keys.proj_no" readonly>
+                    </template>-->
+                    <template th:if="${para.param.proj_yn} == 'Y'">
+                        <input id="proj_nm" type="text" class="input_A w100p" v-model="keys.proj_nm" readonly>
+                    </template>
+                    <template th:if="${para.param.proj_yn} == 'N'">
+                        <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min=0 style="width:330px;"></select2>
+                    </template>
                 </td>
                 <td class="ar">제목</td>
                 <td>
@@ -404,6 +426,7 @@
                 <td class="ar">월 선택</td>
                 <td>
                     <select name="month" id="month" class="ui_sel w50p" v-model="keys.month"> </select>
+<!--                    <monthpicker id="month" class="input_A w80p" v-model="keys.month"></monthpicker>-->
                 </td>
                 <td class="ar">주차선택(월요일)</td>
                 <td>

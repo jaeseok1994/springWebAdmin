@@ -430,7 +430,7 @@ function fn_popup_open(arg){
     var para = encodeURIComponent(JSON.stringify(jsonData));
     var url = arg.url+ "?param="+para;
     var option = "top=10, left=100, width=1500, height=800 location=no";
-     console.log(url);
+     //console.log(url);
      window.open(url,arg.name,option);
  }
 
