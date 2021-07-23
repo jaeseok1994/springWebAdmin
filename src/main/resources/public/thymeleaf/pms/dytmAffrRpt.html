@@ -182,10 +182,14 @@
             app.keys.proj_yn = 'N';
         }
         app.keys.dy_strt_dt = DY_STRT_DT;
-
+        /**** 팝업창 크기 및 위치를 사용자가 입력(입력안하면 기본크기)****/
         var jsonData = {
             url:'/service/pms/dytmAffrRptPopup/selectForm.do',
             name:'dytmAffrRptPopup',
+            width : '1500',
+            height : '800',
+            top : '10',
+            left : '100',
             map : app.keys,
         };
         fn_popup_open(jsonData);
