@@ -428,13 +428,22 @@ function fn_downLoad(url, jsonData, option){
     var popTitle = option ||"popOpen";
         window.open(url +  "?param=" + param,popTitle,"toolbar=no, location=no, directories=no, status=no, menubar=no,scrollbar=no,resizable=no,width=1400,height=800,top=100,left=100");
 }
-//function fn_confirm(msg,callback){
-  //  return confirm(msg);
-    // app_alert.message=msg;
-    // app_alert.showModalConfirm=true;
-    // app_alert.showModal=true;
-    // app_alert.confirmCallBack = callback;
-//}
+
+//화면 연결
+// var arg = {
+//     map: {arg1:1,domn_nm:"링크드 파라레트다.",},
+//     url : "/service/sample/innerPopup2/selectForm.do",
+//     name : "화면 연결 테스트"
+// }
+// fn_openMenuTab(arg);
+function fn_openMenuTab(arg){
+    if(parent && parent.addLinkedTab){
+        parent.addLinkedTab(arg)
+    }else{
+        console.error("부모창을 찾을 수가 없습니다.");
+    }
+
+}
 
 
 //vue 사용없이 ex) fn_setSelect2("#dept",{regn:'2'},"selectDeptList"); param.dept = $('#dept').val();
