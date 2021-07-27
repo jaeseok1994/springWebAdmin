@@ -25,6 +25,9 @@ function fn_transaction(func,url,data,define_callback){
         data : JSON.stringify(data),
         dataType : "json",
         success : function(data,status) {
+            try {
+                if(fn_message && data.message) fn_message(data.message);
+            }catch (e){}
             define_callback(func,data,status); 
         },
         error : function(e) {
