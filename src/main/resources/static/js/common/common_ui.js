@@ -32,6 +32,7 @@ function resizeHeight () {
 var app_alert ;
 var app_confirm;
 var app_innerpopup;
+var app_message;
 
 $(document.body).ready(function () {
     try{
@@ -232,7 +233,6 @@ $(document.body).ready(function () {
         </transition> '
     });
 
-
     $(document.body).append(vue_confirm_temp);
     app_confirm = new Vue({
         el: '#vuemodalconfirm',
@@ -247,6 +247,31 @@ $(document.body).ready(function () {
     })
 
 
+    var vue_message_temp = '    \
+        <div id="vuemessage" class="msgbox">\
+            <transition name="vuemessageslide" appear>\
+                <div class="msgtext" v-if="showMessage"><div>Msg : </div>{{text}}\
+                    <button class="message-close-button" @click="showMessage=false">X</button>\
+                </div>\
+            </transition>\
+        </div>\
+         ';
+
+    $(document.body).append(vue_message_temp);
+    app_message = new Vue({
+        el: '#vuemessage',
+        data: {
+            showMessage: false,
+            text: ""
+        },
+        methods: {
+            setMessage:function(msg){
+                this.text = msg;
+                this.showMessage = open;
+                setTimeout(function(){app_message.showMessage = false;},2000);
+            }
+        }
+    });
 
     var vue_innerpopup_temp = '    \
         <div class="container" id="vueinnerpopup"> \
@@ -361,6 +386,11 @@ function fn_alert(msg,time){
         app_alert.showModal=false;
     }
     setTimeout(reset,2000);
+}
+function fn_message(msg){
+    app_message.text = msg;
+    app_message.showMessage=!app_message.showMessage;
+    setTimeout(function () { app_message.showMessage = false; }, 5000);
 }
 
 

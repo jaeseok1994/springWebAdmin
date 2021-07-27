@@ -12,57 +12,11 @@
 </script>
 <script>
 
-    var vue_confirm_temp = '    \
-        <div class="container" id="vuemodalconfirm"> \
-            <modal-user-confirm v-if="showModal" @close="showModal = false">\
-                <h3 slot="header">{{headText}}</h3>\
-                <h4 slot="body">{{message}}</h4>\
-                <h5 slot="footer">\
-                    <button class="btn_typeA btn_search" @click="callBack(\'Y\')">\
-                        Yes\
-                    </button>\
-                    <button class="btn_typeA btn_search" @click="callBack(\'N\')">\
-                        No\
-                    </button>\
-                </h4>\
-            </modal-user-confirm>\
-        </div>';
-
-    Vue.component('modal-user-confirm', {
-        template: ' \
-        <transition name="modal">\
-            <div class="modal-mask">\
-                <div class="modal-wrapper">\
-                    <div class="modal-container"> \
-                        <div class="modal-header">\
-                            <slot name="header">\
-                                default header\
-                            </slot>\
-                        </div> \
-                        <div class="modal-body">\
-                            <slot name="body">\
-                                default body\
-                            </slot>\
-                        </div> \
-                        <div class="modal-footer">\
-                            <slot name="footer"> \
-                                <button class="modal-default-button" @click="$emit(\'close\')">\
-                                    Close\
-                                </button>\
-                            </slot>\
-                        </div>\
-                    </div>\
-                </div>\
-            </div>\
-        </transition> '
-    });
-
-
     var grid;
     var grid2;
     
     var app;
-    var app_confirm;
+    //var app_message;
     $(document.body).ready(function(){
 
         $("#goSelect").click(function(){
@@ -71,21 +25,30 @@
         $("#goSelect2").click(function(){
             openOnMenuTab();
         });
-/*
-        $(document.body).append(vue_confirm_temp);
+        $("#goSelect3").click(function(){
+            fn_message("메세지박스 테스트 !!");
+        });
 
-        app_confirm = new Vue({
-            el: '#vuemodalconfirm',
-            data: {
-                showModal: false,
-                headText: "확인",
-                message: "확인하시겠습니까?",
-                showModalConfirm:'',
-                rtnValue:'',
-                callBack:fn_confirm_close
-            }
-        })
-        */
+        // var vue_message_temp = '    \
+        // <div id="vuemessage" class="msgbox">\
+        //     <transition name="vuemessageslide" appear>\
+        //         <div class="msgtext" v-if="showMessage"><div>Msg : </div>{{text}}\
+        //             <button class="message-close-button" @click="showMessage=false">X</button>\
+        //         </div>\
+        //     </transition>\
+        // </div>\
+        //  ';
+
+
+
+        // $(document.body).append(vue_message_temp);
+        // app_message = new Vue({
+        //     el: '#vuemessage',
+        //     data: {
+        //         showMessage: true,
+        //         text: "Lorem ipsum dolor sit amet consectetur?"
+        //     }
+        // })
     });
 
     async function fn_update(){
@@ -106,6 +69,9 @@
             name : "화면 연결 테스트"
         }
         fn_openMenuTab(arg);
+    }
+    function setMessage(){
+        fn_message("메세지박스 테스트");
     }
 
     function fn_callback(func,data,status){
@@ -156,8 +122,9 @@
     <div class="gap5"></div>
 
     <div class="ar">
-        <div id="goSelect" class="btn_typeA btn_search">확인</div>
-        <div id="goSelect2" class="btn_typeA btn_search">확인</div>
+        <div id="goSelect" class="btn_typeA btn_search">확인(custom)</div>
+        <div id="goSelect2" class="btn_typeA btn_search">화면연결</div>
+        <div id="goSelect3" class="btn_typeA btn_search">메세지</div>
     </div>
     <div class="gap10"></div>
     <div style="width: 100%;height: auto;overflow: hidden;">
