@@ -26,13 +26,50 @@ function resizeHeight () {
         }
     }
 }
+/*console.log(new Date().format("YYYY-MM-DD HH:MI:SS"));*/
+Date.prototype.format = function(f) {
+	if (!this.valueOf()) return " ";
 
+	var weekName = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+	var d = this;
+
+	return f.replace(/(YYYY|yyyy|YY|yy|MM|DD|dd|E|hh|MI|mm|SS|ss|a\/p)/gi, function($1) {
+		switch ($1) {
+			case "yyyy":
+			case "YYYY": return d.getFullYear();
+			case "YY":
+			case "yy": return (d.getFullYear() % 1000).zf(2);
+			case "MM": return (d.getMonth() + 1).zf(2);
+			case "DD":
+			case "dd": return d.getDate().zf(2);
+			case "E": return weekName[d.getDay()];
+			case "HH": return d.getHours().zf(2);
+			case "hh": return ((h = d.getHours() % 12) ? h : 12).zf(2);
+			case "MI":
+			case "mm": return d.getMinutes().zf(2);
+			case "SS":
+			case "ss": return d.getSeconds().zf(2);
+			case "a/p": return d.getHours() < 12 ? "오전" : "오후";
+			default: return $1;
+		}
+	});
+};
+String.prototype.string = function(len){var s = '', i = 0; while (i++ < len) { s += this; } return s;};
+String.prototype.zf = function(len){return "0".string(len - this.length) + this;};
+Number.prototype.zf = function(len){return this.toString().zf(len);};
+//Date.prototype.toString = function(){return this.format("yyyy-MM-dd")+'';}
+
+/* var d = new Date('2021/12/07');d.addDays(-30) */
+Date.prototype.addDays = function(days) {
+	var date = new Date(this.valueOf());
+	date.setDate(date.getDate() + days);
+	return date;
+}
 
 //modal, vue alert, confirm ,select2 //vue 라이버러리 필요
 var app_alert ;
 var app_confirm;
 var app_innerpopup;
-var app_message;
 
 $(document.body).ready(function () {
     try{
@@ -41,7 +78,7 @@ $(document.body).ready(function () {
         return;
     }
     Vue.component('select2', {
-        props: ['options', 'value' ,'url','para','min'],
+        props: ['options', 'value' ,'url','para','min','text','readonly'],
         template: '<select>\
                      <slot></slot>\
                    </select>',
@@ -55,12 +92,21 @@ $(document.body).ready(function () {
             var _para = this.para;
             var _min = this.min;
             if(_min == undefined) _min = '1';
-            console.log("min:",this.min);
+            console.log("text:",this.text);
             console.log("_min:",_min);
             if(this.options){
                 $(this.$el).select2({ data: this.options, closeOnSelect: true, allowClear: true  })
                            .val(this.value);
             }else{
+                if(this.readonly){//
+                    $(this.$el).select2({ data: [{id:this.value,text:this.text}], closeOnSelect: true, allowClear: false ,readonly:true })
+                                               .val(this.value);
+                    return;
+                }
+                if(this.text){
+                    $(this.$el).append($('<option selected value="'+this.value+'" >'+this.text+'</option>'));
+                }
+                //return ;
                 $(this.$el)
                     // init select2
                     //.select2({ data: this.options, closeOnSelect: true, allowClear: true  })
@@ -98,7 +144,8 @@ $(document.body).ready(function () {
                                 cache: false
                             },
                     })
-                    .val('1234')
+                    //.append($('<option selected value="'+this.value+'" >'+this.text+'</option>'))
+                    //.val(this.value)
                     .trigger('change')
                     // emit event on change.
                     .on('change', function () {
@@ -110,9 +157,12 @@ $(document.body).ready(function () {
         watch: {
             value: function (value) {
                 // update value
-                $(this.$el)
-                    .val(value)
-                    .trigger('change')
+                $(this.$el).val(value).trigger('change');
+            },
+            text: function (text) {
+                 //$(this.$el).append($('<option selected value="'+this.value+'" >'+text+'</option>'));
+                // update value
+                //$(this.$el).trigger('change')
             },
             options: function (options) {
                 // update options
@@ -120,7 +170,7 @@ $(document.body).ready(function () {
             }
         },
         destroyed: function () {
-            $(this.$el).off().select2('destroy')
+            $(this.$el).off().select2('destroy');
         }
     });
 
@@ -233,6 +283,7 @@ $(document.body).ready(function () {
         </transition> '
     });
 
+
     $(document.body).append(vue_confirm_temp);
     app_confirm = new Vue({
         el: '#vuemodalconfirm',
@@ -247,31 +298,6 @@ $(document.body).ready(function () {
     })
 
 
-    var vue_message_temp = '    \
-        <div id="vuemessage" class="msgbox">\
-            <transition name="vuemessageslide" appear>\
-                <div class="msgtext" v-if="showMessage"><div>Msg : </div>{{text}}\
-                    <button class="message-close-button" @click="showMessage=false">X</button>\
-                </div>\
-            </transition>\
-        </div>\
-         ';
-
-    $(document.body).append(vue_message_temp);
-    app_message = new Vue({
-        el: '#vuemessage',
-        data: {
-            showMessage: false,
-            text: ""
-        },
-        methods: {
-            setMessage:function(msg){
-                this.text = msg;
-                this.showMessage = open;
-                setTimeout(function(){app_message.showMessage = false;},2000);
-            }
-        }
-    });
 
     var vue_innerpopup_temp = '    \
         <div class="container" id="vueinnerpopup"> \
@@ -312,56 +338,56 @@ $(document.body).ready(function () {
 
     /*달력*/
     Vue.component('datepicker', {
-    props: ['value'],
-    template: '<input  :value="value"  style="text-align: center;"/>',
-    mounted: function() {
-      var self = this;
-      $(this.$el).datepicker({
-        dateFormat: "yy-mm-dd",
-        prevText: '이전 달',
-        nextText: '다음 달',
-        monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-        monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
-        dayNames: ['일', '월', '화', '수', '목', '금', '토'],
-        dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
-        dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
-        showMonthAfterYear: true,
-        yearSuffix: '년',
-        changeMonth: true,
-        changeYear: true,
-        //buttonImage: "images/calendar.gif",
-        onSelect: function(d){
-          //self.$emit('update-date',d);
-          self.$emit('input',d);
-          //self.value = d;
-          //$(self.$el).value = d;
-         // $(self.$el).val(d);
-        }
-      });
-    },
-    beforeDestroy: function(){$(this.$el).datepicker('hide').datepicker('destroy')}
+        props: ['value'],
+        template: '<input  :value="value"  style="text-align: center;"/>',
+        mounted: function() {
+          var self = this;
+          $(this.$el).datepicker({
+            dateFormat: "yy-mm-dd",
+            prevText: '이전 달',
+            nextText: '다음 달',
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+            dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+            dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+            dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+            showMonthAfterYear: true,
+            yearSuffix: '년',
+            changeMonth: true,
+            changeYear: true,
+            //buttonImage: "images/calendar.gif",
+            onSelect: function(d){
+              //self.$emit('update-date',d);
+              self.$emit('input',d);
+              //self.value = d;
+              //$(self.$el).value = d;
+             // $(self.$el).val(d);
+            }
+          });
+        },
+        beforeDestroy: function(){$(this.$el).datepicker('hide').datepicker('destroy')}
     });
     /*달력(월)  <monthpicker v-model="date1" ></monthpicker>*/
     Vue.component('monthpicker', {
-    props: ['value' ],
-    template: '<input   :value="value" style="text-align: center;"/>',
-    mounted: function () {
-      var self = this;
-      $(this.$el).monthpicker({
-        pattern: 'yyyy-mm',// input태그에 표시될 형식
-        startYear: 2000, // 시작연도
-        finalYear: 2032, // 마지막연도 //
-        monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'], // 화면에 보여줄 월이름
-        openOnFocus: true, // focus시에 달력이 보일지 유무
-        disableMonths: [], // 월 비활성화
-      });
-      $(this.$el).monthpicker().bind('monthpicker-click-month',function(e,month,year){
-        var settings = $(self.$el).data('monthpicker').settings;
-        var val = settings.selectedYear + '-' + (settings.selectedMonth<10?'0':'') + settings.selectedMonth;
-        self.$emit('input', val);
-      });
-    },
-    beforeDestroy: function () { $(this.$el).monthpicker('hide').monthpicker('destroy') }
+        props: ['value' ],
+        template: '<input   :value="value" style="text-align: center;"/>',
+        mounted: function () {
+          var self = this;
+          $(this.$el).monthpicker({
+            pattern: 'yyyy-mm',// input태그에 표시될 형식
+            startYear: 2000, // 시작연도
+            finalYear: 2032, // 마지막연도 //
+            monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'], // 화면에 보여줄 월이름
+            openOnFocus: true, // focus시에 달력이 보일지 유무
+            disableMonths: [], // 월 비활성화
+          });
+          $(this.$el).monthpicker().bind('monthpicker-click-month',function(e,month,year){
+            var settings = $(self.$el).data('monthpicker').settings;
+            var val = settings.selectedYear + '-' + (settings.selectedMonth<10?'0':'') + settings.selectedMonth;
+            self.$emit('input', val);
+          });
+        },
+        beforeDestroy: function () { $(this.$el).monthpicker('hide').monthpicker('destroy') }
     });
 
     //enter auto select
@@ -386,11 +412,6 @@ function fn_alert(msg,time){
         app_alert.showModal=false;
     }
     setTimeout(reset,2000);
-}
-function fn_message(msg){
-    app_message.text = msg;
-    app_message.showMessage=!app_message.showMessage;
-    setTimeout(function () { app_message.showMessage = false; }, 5000);
 }
 
 

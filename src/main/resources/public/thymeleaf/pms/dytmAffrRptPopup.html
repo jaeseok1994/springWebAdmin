@@ -4,14 +4,20 @@
     <meta charset="utf-8">
     <title>주간업무보고 등록</title>
     <div th:replace="headerRGrid"></div>
+
+    <link rel="stylesheet" th:href="@{/daumeditor/css/editor.css}"/>
+    <script th:src="@{/daumeditor/js/editor_loader.js}"></script>
+    <script th:src="@{/js/common/common_editor.js}"></script>
 </head>
 <style>
 /* 테이블 셀 높이*/
-.ACell {width:40px;height:10px;background:#BDBDBD;}
-.BCell {width:100px;height:50px;font-size:15px;}
-.CCell {width:100px;height:10px;background:#BDBDBD;}
+.ACell {width:70px;height:50px;background:#BDBDBD;}
+.BCell {width:70px;height:50px;font-size:15px;}
+.CCell {height:50px;background:#BDBDBD;}
 .textarea { height:400px; width:98%; !important; }
 .parent { width: 100%;}
+.table_report { width: 100%;padding:2px;text-align:center;height:50px;font-weight:bold}
+.table_report td {padding:2px;}
 .first {float: left;width:30%;box-sizing: border-box;}
 .Sub_Title{ font-size:25px; color:#474e61; font-weight:500; letter-spacing:-0.5px;}
 </style>
@@ -67,23 +73,24 @@
                     filno:'',
                     fil_nm:'',
                     month:'',
-                    pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
-                    pagerows:5, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
-                    pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                    pagenum:1,        // 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:5,    // 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10        // 표시할 페이지 번호 수 (★변수명 변경금지)
                 },
                 keys2:{     // 위험 및 이슈사항 column
                    rkis_no: '',
                    scn: '',
                    acdn_title: '',
                    pgs_st: '',
-                   pagenum:1, 		// 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
-                   pagerows:5, 	// 페이지당 표시할 데이터 건수 (★변수명 변경금지)
-                   pagecnt:10 		// 표시할 페이지 번호 수 (★변수명 변경금지)
+                   pagenum:1,     // 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                   pagerows:5,     // 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                   pagecnt:10     // 표시할 페이지 번호 수 (★변수명 변경금지)
                 },
                 projUrl:'selectProjList',
                 methods:{
                 }
             },
+
         });
 
 
@@ -100,8 +107,6 @@
         grid.gridView.displayOptions.fitStyle = "even";
         grid.gridView.setCheckBar({ visible: true });
 
-        /**** 주차선택 콤보 ****/
-        GetWeekCombo();
 
         /**** 파라미터값 구분 기능 ****/
         var para = getCommonPara();
@@ -117,8 +122,10 @@
             app.keys.proj_no = para.param.proj_no;
             app.keys.proj_nm = para.param.proj_nm;
             app.keys.drft_dt = setToday;
-
         }
+
+        /**** 주차선택 콤보 ****/
+        GetWeekCombo();
 
         if(para.param.proj_no != null){
             console.log('proj_no is not null');
@@ -141,10 +148,10 @@
 
        /**** 전체조회 버튼 클릭 이벤트 ****/
         $("#goSelect").click(function(){
-             if($('#proj_no').val() == null || $('#proj_no').val() == ''){
-        		fn_alert("프로젝트를 선택해주세요.");
-        		return;
-        	}
+             if(app.keys.proj_no == ''){
+              fn_alert("프로젝트를 선택해주세요.");
+              return;
+           }
              IssueSearch();
         });
 
@@ -156,6 +163,15 @@
                 app.keys.get_week = ''
              }
         });
+
+
+        var editor_config = {
+            initializedId:"2",
+        }
+        var editor_config2 = {
+            initializedId:"3",
+        }
+        var editor = initEditor(editor_config,editor_config2);//new Editor(editor_config);
     });
 
     /**** 월 선택 콤보박스 조회 ****/
@@ -243,8 +259,12 @@
             for(var v in list){
                 rkis_no += list[v].rkis_no+",";
             }
-            console.log(rkis_no);
+            //console.log(rkis_no);
 
+            Editor.switchEditor("2");
+            app.keys.twk_arsl = Editor.getContent();
+            Editor.switchEditor("3");
+            app.keys.nxk_pln = Editor.getContent();
 
             var jsonData = {
                       map: app.keys,
@@ -256,26 +276,44 @@
 
     }
     /**** 콜백 ****/
-    function fn_callback(func,data,status){
+    async function fn_callback(func,data,status){
         if(data.error){
             alert(data.error);
         }else{
              if(func == "select"){
-                app.keys.proj_no = data.resultList[0].proj_no;
-                app.keys.proj_nm = data.resultList[0].proj_nm;
-                app.keys.title = data.resultList[0].title;
-                app.keys.drft_dt = data.resultList[0].drft_dt;
-                app.keys.pprr_id = data.resultList[0].pprr_id;
-                app.keys.pprr_nm = data.resultList[0].pprr_nm;
-                app.keys.nxk_pln = data.resultList[0].nxk_pln;
-                app.keys.twk_arsl = data.resultList[0].twk_arsl;
-                app.keys.twk_pln_rate = data.resultList[0].twk_pln_rate;
-                app.keys.twk_arsl_rate = data.resultList[0].twk_arsl_rate;
-                app.keys.acum_pln_rate = data.resultList[0].acum_pln_rate;
-                app.keys.acum_arsl_rate = data.resultList[0].acum_arsl_rate;
-                app.keys.filno = data.resultList[0].attc_filno;
-                app.keys.rem = data.resultList[0].rem;
-                app.keys.get_week = data.resultList[0].get_week;
+
+                Object.keys(data.resultList[0]).forEach( function(dataKey){
+                  if(app.keys[dataKey.toLowerCase()] != undefined){
+                    app.keys[dataKey.toLowerCase()] = data.resultList[0][dataKey];
+                  }
+                });
+<!--                app.keys.proj_no = data.resultList[0].proj_no;-->
+<!--                app.keys.proj_nm = data.resultList[0].proj_nm;-->
+<!--                app.keys.title = data.resultList[0].title;-->
+<!--                app.keys.drft_dt = data.resultList[0].drft_dt;-->
+<!--                app.keys.pprr_id = data.resultList[0].pprr_id;-->
+<!--                app.keys.pprr_nm = data.resultList[0].pprr_nm;-->
+<!--                app.keys.twk_pln_rate = data.resultList[0].twk_pln_rate;-->
+<!--                app.keys.twk_arsl_rate = data.resultList[0].twk_arsl_rate;-->
+<!--                app.keys.acum_pln_rate = data.resultList[0].acum_pln_rate;-->
+<!--                app.keys.acum_arsl_rate = data.resultList[0].acum_arsl_rate;-->
+<!--                app.keys.filno = data.resultList[0].attc_filno;-->
+<!--                app.keys.rem = data.resultList[0].rem;-->
+<!--                app.keys.get_week = data.resultList[0].get_week;-->
+
+                //app.keys.nxk_pln = data.resultList[0].nxk_pln;
+                //app.keys.twk_arsl = data.resultList[0].twk_arsl;
+                //Editor.switchEditor("2");
+            //Editor.modify({content: data.resultList[0].twk_arsl});
+
+                //Editor.getCanvas().pasteContent(data.resultList[0].twk_arsl);
+
+                //Editor.switchEditor("3");
+            //Editor.modify({ content: data.resultList[0].nxk_pln });
+
+                await fn_setEditorContent("2",data.resultList[0].twk_arsl);
+                await fn_setEditorContent("3",data.resultList[0].nxk_pln);
+
 
                 $('#file-upload-name').text(data.resultList[0].fil_nm);
 
@@ -293,17 +331,28 @@
                     }
                 }
                 grid.gridView.refresh();
-                 commonPaging(grid, data.resultList[0].tcnt, IssueSearch);
+
+                //commonPaging(grid, data.resultList[0].tcnt, IssueSearch);
 
             }else if(func == "IssueList"){
                grid.dataProvider.setRows(data.resultList);
               grid.gridView.refresh();
             }else if(func == "GetWeekCombo"){
+                var para = getCommonPara();
                 app.weekList = data.resultList;
+                if(para.param.dy_strt_dt == null){
+                    console.log(para.param.dy_strt_dt);
+                    for(var i=0 ; i < app.weekList.length - 1 ; i++){
+                        console.log(app.weekList[i].value);
+                        if(setToday >= app.weekList[i].value &&  setToday <  app.weekList[i+1].value){
 
+                            app.keys.dytm_strt_dt = app.weekList[i].value;
+                            break;
+                        }
+                    }
+                }
             }else if(func == "GetWeekSearch"){
                 app.keys.get_week = data.resultList[0].wk;
-
             }else{
                 fn_alert(data.message);
             }
@@ -311,9 +360,9 @@
     }
 
     /**** 기존에 있는 주간업무 팝업창을 열 때 주차선택 콤보박스에 값 세팅 ****/
-    function setCode(resultList) {
-        $('#dytm_strt_dt').val(resultList);
-
+    function setCode(val) {
+        app.keys.dytm_strt_dt = val;
+        $('#dytm_strt_dt').val(val);
     }
 
     function fn_filechange(f){
@@ -379,19 +428,19 @@
         <table class="tbl_base">
             <caption>주간업무보고 등록</caption>
             <colgroup>
-                <col style="width:100px;"/>
-                <col style="width:300px;"/>
-                <col style="width:130px;"/>
-                <col style="width:300px;"/>
-                <col style="width:70px;"/>
-                <col style="width:200px;"/>
+                <col style="width:110px;"/>
+                <col style="width:270px;"/>
+                <col style="width:150px;"/>
+                <col style="width:250px;"/>
+                <col style="width:80px;"/>
+                <col style="width:150px;"/>
                 <col style="width:80px;"/>
                 <col style="width:150px;"/>
                 <col style="width:*;"/>
             </colgroup>
             <tbody>
             <tr>
-                <td class="ar">프로젝트 명</td>
+                <td class="ar">*프로젝트 명</td>
                 <td>
                     <!--<input id="proj_nm1" type="text" class="input_A w100p" v-model="keys.proj_nm">
                    <select2 id="proj_nm2" class="form-control" v-model="keys.proj_nm" :url="projUrl" :para="keys" style="width:200px"></select2>-->
@@ -425,10 +474,10 @@
             <tr>
                 <td class="ar">월 선택</td>
                 <td>
-                    <select name="month" id="month" class="ui_sel w50p" v-model="keys.month"> </select>
-<!--                    <monthpicker id="month" class="input_A w80p" v-model="keys.month"></monthpicker>-->
+                    <!--                    <select name="month" id="month" class="ui_sel w50p" v-model="keys.month"> </select>-->
+                    <monthpicker id="month" class="input_A w80p" v-model="keys.month"></monthpicker>
                 </td>
-                <td class="ar">주차선택(월요일)</td>
+                <td class="ar">*주차선택(월요일)</td>
                 <td>
                     <select name="dytm_strt_dt" id="dytm_strt_dt" class="ui_sel w70p" v-model="keys.dytm_strt_dt">
                         <option value = "" selected>선택하세요.</option>
@@ -450,56 +499,83 @@
         <div id="goSave" class="btn_typeA  btn_save" style="float:right; margin-top: 5px; margin-right: 5px;">저장</div>
     </div>
     <div class="gap5"></div>
-    <div class="box_Atype">
-        <form id="fileuploadForm" name="fileuploadForm" method="POST">
-            <table class="tbl_base" border="1">
-                <tr>
-                    <th colspan="8" style="height:40px;background-color:#BDBDBD;">금주실적</th>
-                    <th colspan="2" style="height:40px;background-color:#BDBDBD;">차주계획</th>
-                </tr>
-                <tr>
-                    <td colspan="8" style="padding:5px;">
-                        <textarea id="twk_arsl" type="text" class="textarea" v-model.trim="keys.twk_arsl" style="resize: none;" ></textarea>
-                    </td>
+    <div class="">
+        <table class="table_report" border="1">
+            <colgroup style="width:30%"></colgroup>
+            <colgroup style="width:30%"></colgroup>
+            <tr>
+                <th style="height:40px;background-color:#BDBDBD;">금주실적</th>
+                <th style="height:40px;background-color:#BDBDBD;">차주계획</th>
+            </tr>
+            <tr>
+                <td style="padding:5px;">
+                    <div th:replace="editor_templet2.html"></div>
+                    <!--                        <textarea id="twk_arsl" type="text" class="textarea" v-model.trim="keys.twk_arsl" style="resize: none;" ></textarea>-->
+                </td>
 
-                    <td colspan="2" style="padding:5px;">
-                        <textarea id="nxk_pln" type="text" class="textarea" v-model.trim="keys.nxk_pln" style="resize: none;"></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="CCell" colspan="8">진척률</th>
-                    <th class="ACell" rowspan="3">비고</th>
-                    <td rowspan="3" width="800px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:110px;font-size:15px; resize: none;"></textarea></td>
-                </tr>
-                <tr>
-                    <th class="CCell">금주계획</th>
-                    <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
-                    <th class="CCell">금주실적</th>
-                    <td><input id="twk_arsl_rate" type="text" class="input_A BCell" v-model="keys.twk_arsl_rate"></td>
-                    <th class="CCell">누적계획</th>
-                    <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
-                    <th class="CCell">누적실적</th>
-                    <td><input id="acum_arsl_rate" type="text" class="input_A BCell" v-model="keys.acum_arsl_rate"></td>
-                </tr>
-                <tr>
-                    <th class="ACell">첨부파일</th>
-                    <td colspan="3">
-                        <span class="txt-file" id="file-upload-name"></span>
-                        <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
-                    </td>
-                    <td colspan="2">
-                            <span class="btn btn_primary btn-file">
-                                <input name="fileUpload" id="fileUpload" type="file" onchange="fn_filechange(this)">
-                            </span>
-                    </td>
-                    <td colspan="2">
-                            <span class="btn btn-primary btn-file">
-                                <div name="fileDown" class="btn_typeA btn_save" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
-                            </span>
-                    </td>
-                </tr>
-            </table>
-        </form>
+                <td style="padding:5px;">
+                    <div th:replace="editor_templet3.html"></div>
+                    <!--                        <textarea id="nxk_pln" type="text" class="textarea" v-model.trim="keys.nxk_pln" style="resize: none;"></textarea>-->
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:2px">
+                    <table class="table_report" border="1"  style="width: 100%;">
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <tr>
+                            <td class="CCell" colspan="8">진척률</td>
+                        </tr>
+                        <tr style="text-align:center">
+                            <td class="CCell">금주계획</td>
+                            <td><input id="twk_pln_rate" type="text" class="input_A BCell" v-model="keys.twk_pln_rate"></td>
+                            <td class="CCell">금주실적</td>
+                            <td><input id="twk_arsl_rate" type="text" class="input_A BCell" v-model="keys.twk_arsl_rate"></td>
+                            <td class="CCell">누적계획</td>
+                            <td><input id="acum_pln_rate" type="text" class="input_A BCell" v-model="keys.acum_pln_rate"></td>
+                            <td class="CCell">누적실적</td>
+                            <td><input id="acum_arsl_rate" type="text" class="input_A BCell" v-model="keys.acum_arsl_rate"></td>
+                        </tr>
+                        <tr>
+                            <td class="ACell">첨부파일</td>
+                            <td colspan="3">
+                                <span class="txt-file" id="file-upload-name"></span>
+                                <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
+                            </td>
+                            <td colspan="2">
+
+                                <form id="fileuploadForm" name="fileuploadForm" method="POST">
+                                <span class="btn btn_primary btn-file">
+                                    <input name="fileUpload" id="fileUpload" type="file" style="width:150px" onchange="fn_filechange(this)">
+                                </span>
+                                </form>
+                            </td>
+                            <td colspan="2">
+                                <span class="btn btn-primary btn-file">
+                                    <div name="fileDown" class="btn_typeA btn_save" id="fileDown" onclick="fn_filecheck('filecheck')"> 다운로드</div>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="padding:2px">
+                    <table class="table_report" border="1" style="height: 100%;">
+                        <colgroup style="width:65px"></colgroup>
+                        <colgroup style="width:*"></colgroup>
+                        <tr>
+                            <td class="CCell" >비고</td>
+                            <td class="" style="padding:2px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:140px;font-size:15px; resize: none;"></textarea></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
     </div>
     <div class="gap5"></div>
 

@@ -15,6 +15,7 @@
 <script th:src="@{/js/jquery/jquery-3.5.1.js}"></script>
 <script th:src="@{/js/jquery/jquery-ui.js}"></script>
 <script th:src="@{/js/jquery/select2.min.js}"></script>
+<script th:src="@{/js/jquery/jquery.mtz.monthpicker.js}"></script>
 <link rel="stylesheet" th:href="@{/css/jquery-ui.css}"/>
 <link rel="stylesheet" th:href="@{/css/select2.min.css}"/>
 
@@ -27,14 +28,14 @@
 <script th:src="@{/js/common/common_paging.js}"></script> <!-- 페이징 처리 -->
 <script th:src="@{/js/vue/vue.js}"></script>
 
-<script src="/js/jquery/jquery-3.5.1.js"></script>
-<script src="/js/jquery/jquery-ui.js"></script>
+<!--<script src="/js/jquery/jquery-3.5.1.js"></script>-->
+<!--<script src="/js/jquery/jquery-ui.js"></script>-->
 <script src="/js/jquery/select2.min.js"></script>
-<script src="/realgrid/realgrid.2.1.0/realgrid-lic.js"></script>
-<script src="/realgrid/realgrid.2.1.0/realgrid.2.1.0.js"></script>
-<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+<!--<script src="/realgrid/realgrid.2.1.0/realgrid-lic.js"></script>-->
+<!--<script src="/realgrid/realgrid.2.1.0/realgrid.2.1.0.js"></script>-->
+<!--<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>-->
 
-<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>
+<!--<script src="/realgrid/realgrid.2.1.0/libs/jszip.min.js"></script>-->
 
 
 <script>
@@ -49,39 +50,69 @@ function createRGrid(_grid) {
 
     _grid.gridView.displayOptions.emptyMessage = "표시할 데이타가 없습니다.";
     _grid.gridView.header.height = 40;
-    _grid.gridView.displayOptions.rowHeight = 26;
+    _grid.gridView.displayOptions.rowHeight = _grid.rowHeight||26;
     _grid.gridView.footer.height = 28;
     _grid.gridView.stateBar.width = 16;
     _grid.gridView.editOptions.insertable = true;
     _grid.gridView.editOptions.appendable = true;
-    
+
     _grid.gridView.onCellEdited = function (g, itemIndex, row, field) {
         console.log('Edit done! at ' + itemIndex + ', ' + field);
         _grid.gridView.checkItem(itemIndex, true);
     }
     //컨텍스트 메뉴단
     _grid.gridView.setContextMenu([
-        {
-            label:"행추가",
-            tag :"insert"
-        }
+        { label:"행복사",tag :"copy"},
+        { label:"행추가",tag :"insert"},
+        { label:"열 고정",tag :"fixedCol"},
+        { label:"행 고정",tag :"fixedRow"},
+        { label:"고정 취소",tag :"fixedCancel"},
+        { label:"엑셀 내보내기",tag :"excel"},
     ]);
     //컨텍스트 메뉴 클릭 이벤트
-    _grid.gridView.onContextMenuItemClicked = function(grid,label,index){
-        if(label.tag == "insert"){
-            if(index == 0){
-              // 그리드에 선택된 행이 없을경우 맨마지막에 행추가
-              // 아래 화살표 기능으로 행추가 가능
+    _grid.gridView.onContextMenuItemClicked = function(grid,item,cell){
+        if(item.tag == "insert"){
+            if(cell == undefined){
+              // 그리드에 선택된 행이 없을경우 맨마지막에 행추가 // 아래 화살표 기능으로 행추가 가능
                 grid.beginAppendRow();
                 grid.showEditor();
                 grid.setFocus();
             }else{
-              // 현재 선택된 그리드 상단에 행 삽입
-              // insert 키로 사용가능
-                grid.beginInsertRow(Math.max(0,index),true);
+              // 현재 선택된 그리드 상단에 행 삽입 // insert 키로 사용가능
+                grid.beginInsertRow(Math.max(0,cell.itemIndex),true);
                 grid.showEditor();
                 grid.setFocus();
             }
+        }else if(item.tag == "copy"){
+            if(cell == undefined || cell.itemIndex == undefined) return;
+            grid._dataProvider.insertRow(cell.itemIndex,grid._dataProvider.getRow(cell.itemIndex));
+        }else if(item.tag == "fixedCol"){
+            if(cell == undefined) return;
+            var count = grid.getColumnProperty(cell.column,'displayIndex') + 1;
+            grid.setFixedOptions({colCount:count});
+        }else if(item.tag == "fixedRow"){
+            if(cell == undefined) return;
+            var count = cell.itemIndex + 1;
+            grid.setFixedOptions({rowCount:count});
+        }else if(item.tag == "fixedCancel"){
+            grid.setFixedOptions({colCount:0, rowCount:0});
+        }else if(item.tag == "copy"){
+        }else if(item.tag == "excel"){
+            var fileName = $(".content_title").html()||'gridData';
+        	grid.exportGrid({
+			    type: "excel",
+			    target: "local",
+			    fileName: fileName,
+			    showProgress: true,
+			    progressMessage: "엑셀 Export중입니다.",
+			    indicator: 'visible',
+			    header: 'visible',
+			    footer: 'visible',
+			    compatibility: true,
+			    done: function () {  //내보내기 완료 후 실행되는 함수
+			        fn_alert("엑셀을 내보내었습니다.["+fileName+"]");
+			    }
+			});
         }
     };
 
@@ -99,8 +130,13 @@ function createRGrid(_grid) {
 function getCheckedRows(g){
     var rows = g.gridView.getCheckedRows(true);
     var list = [];
+    var opt = {
+        datetimeFormat:"yyyyMMdd",
+        nullText:''
+    }
     for(var i = 0;i<rows.length;i++){
-        list.push(g.dataProvider.getJsonRows(rows[i])[0]);
+        //list.push(g.dataProvider.getJsonRows(rows[i])[0]);
+        list.push(grid.dataProvider.getOutputRow(opt,rows[i]));
     }
     //alert(JSON.stringify(list));
     return list;
@@ -117,12 +153,16 @@ function getModelValue(arg){
 function getLoginId(arg){
     return getModelValue("loginId") ;
 }
+function getLoginName(arg){
+    return getModelValue("loginName") ;
+}
 function getRols(arg){
     return getModelValue("roles") ;
 }
 function getdate(arg){
     return getModelValue("currentdate") ;
 }
+
 </script>
 <!-- Bootstrap 3.3.6 -->
 <!--<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}"/>-->
@@ -146,5 +186,6 @@ function getdate(arg){
 <![endif]-->
 <div id=param th:text="${param.param}" style="display: none;"></div>
 <div id=loginId th:text="${loginId}" style="display: none;"></div>
+<div id=loginName th:text="${#authentication.name}" style="display: none;"></div>
 <div id=roles th:text="${roles}" style="display: none;"></div>
 <div id=currentdate th:text="${currentdate}" style="display: none;"></div>

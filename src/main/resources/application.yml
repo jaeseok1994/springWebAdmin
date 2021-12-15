@@ -41,3 +41,8 @@ spring:
       password: DEMOADMIN
   thymeleaf:
     prefix: classpath:/public/thymeleaf/
+
+#  servlet:
+#    multipart:
+#      enabled: true
+#      file-size-threshold: 100

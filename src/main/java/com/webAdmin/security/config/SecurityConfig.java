@@ -216,7 +216,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             //로그인 실패시 필요한 작업 추가
 
-            response.sendRedirect("/login?"+msg);
+            response.sendRedirect("/login?msg="+msg);
         }
     }
     @Autowired

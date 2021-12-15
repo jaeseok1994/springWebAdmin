@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import javax.sql.DataSource;
 
@@ -18,6 +20,10 @@ public class WebAdminApplication {
 //		SpringApplication app = new SpringApplication(BootAdminApplication.class);
 //		app.setAddCommandLineProperties(false);
 //		app.run(args);
+	}
+	@Bean
+	public MultipartResolver multipartResolver() {
+		return new CommonsMultipartResolver();
 	}
 	@Bean
 	public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
