@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>일일업무보고</title>
+    <div th:replace="headerRGrid"></div>
+</head>
+<script>
+    /****** 일일업무내역 그리드 필드 선언 ******/
+    var fields = [
+      {fieldName: "drft_id",dataType: "text"},
+      {fieldName: "drft_nm",dataType: "text"},
+      {fieldName: "drft_dt",dataType: "datetime",datetimeFormat: "yyyyMMdd"},
+      {fieldName: "affr_sbc",dataType: "text"},
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "proj_nm",dataType: "text"},
+      {fieldName: "fin_user_nm",dataType: "text"},
+      {fieldName: "fin_maint_info",dataType: "text"}
+    ];
+    /****** 일일업무내역 그리드 컬럼 선언 ******/
+    var columns = [
+      {name: "drft_nm", fieldName: "drft_nm", type: "data", width: "110", header: "기안자",editable: false},
+      {name: "drft_dt", fieldName: "drft_dt", maxLength: 10, width: "130", header: "기안일자",editable: false, datetimeFormat: "yyyy-MM-dd" },
+      {name: "affr_sbc", fieldName: "affr_sbc", type: "data", width: "490", header: "업무내용",editable: false, renderer:{type:"html"} ,styleName:"left-column rg_link"},
+      {name: "proj_nm", fieldName: "proj_nm", type: "data", width: "250", header: "주요프로젝트 명", editable: false},
+      {name: "fin_user_nm", fieldName: "fin_user_nm", type: "data", width: "150", header: "작성자", editable: false },
+      {name: "fin_maint_info", fieldName: "fin_maint_info", type: "data", width: "150", header: "작성일시", editable: false }
+    ];
+
+    /****** 전역변수 선언 ******/
+    var grid;
+    var app;
+    var setToday = getdate();
+
+    /****** 폼 로딩함수 ******/
+    $(document.body).ready(function(){
+        var st_dt = new Date(setToday.replaceAll('-','/'));
+        st_dt = st_dt.addDays(-30);
+
+        /****** Vue 선언 ******/
+        app = new Vue({
+            el:'#form',
+            data:{
+                keys:{
+                   drft_id:'',
+                    affr_sbc:'',
+                    strt_dt:st_dt.format("YYYY-MM-DD"),
+                    fnh_dt:setToday,
+                    pagenum:1,        // 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:100,  // 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10,       // 표시할 페이지 번호 수 (★변수명 변경금지)
+                    afno:'',
+                },
+                userUrl:'selectUserList',
+                methods:{
+                }
+            },
+        });
+
+        /****** 일일업무보고  조회 버튼 이벤트 ******/
+        $("#goSelect").click(function(){
+           app.keys.pagenum = 1; // 조회버튼 클릭시 현재페이지 1로 초기화
+           search();
+        });
+
+        /****** 일일업무보고 추가 버튼 이벤트 ******/
+        $("#goAdd").click(function(){
+           popup_open(null,null,null);        });
+
+         /****** 일일업무보고 삭제 버튼 이벤트 ******/
+        $("#goDelete").click(function(){
+            maintList('delete');
+        });
+
+        /****** 조회조건 프로젝트명 클릭 이벤트
+      $("#proj_nm").click(function(){
+          $("#modal_pop").show();
+          projSearch();
+          setResizeHeightObjs("realgrid2");
+          grid.gridView.refresh();
+        });******/
+
+        /****** 그리드 생성 ******/
+        grid = {
+            id:"realgrid",
+            fields:fields,
+            columns:columns,
+            rowHeight:100
+        }
+        createRGrid(grid);
+
+        setResizeHeightObjs("realgrid");
+        grid.gridView.refresh();
+
+        /****** 그리드 더블클릭 이벤트 ******/
+        grid.gridView.onCellClicked = function (g, cell) {
+            /****** 제목컬럼 더블클릭하면 팝업창 오픈 ******/
+            if(cell.column == 'affr_sbc'){
+                var drft_id = grid.gridView.getValue(cell.itemIndex,"drft_id");
+                var drft_dt = grid.dataProvider.getValue(cell.itemIndex,"drft_dt");
+                drft_dt = drft_dt.format("YYYY-MM-DD");
+
+                popup_open(drft_id,drft_dt);
+            }
+        };
+        search();
+    });
+
+    /****** 팝업창 열기 기능(파라미터 : 프로젝트번호, 주간시작날짜) ******/
+    function popup_open(drft_id,drft_dt){
+
+        var param = {drft_id:drft_id,drft_dt:drft_dt}
+        /**** 팝업창 크기 및 위치를 사용자가 입력(입력안하면 기본크기)****/
+        var jsonData = {
+            url:'/service/pms/dlyAffrRptPopup/selectForm.do',
+            name:'dlyAffrRptPopup',
+            width : '1500',
+            height : '800',
+            top : '10',
+            left : '100',
+            map : param,
+        };
+        fn_popup_open(jsonData);
+    }
+
+    /****** 일일업무내역 조회 기능******/
+    function search(){
+       grid.dataProvider.clearRows();
+
+        var jsonData = {
+                map: app.keys,
+        };
+
+        fn_transaction("select","/service/pms/dlyAffrRpt/selectList.do/selectList",jsonData,fn_callback);
+    }
+
+    /****** 삭제 및 저장 기능 ******/
+    async function maintList(func,key){
+
+        if(func=='delete' && await fn_confirm("삭제하시겠습니까?") == "N")  return;
+
+
+        grid.gridView.commit(true);
+
+        var searchParam = {};
+        searchParam.func = func;
+
+        var list = getCheckedRows(grid);
+
+        if(list.length < 1){
+          fn_alert("자료를 선택하세요.");
+          return;
+        }
+
+        if(list.length >0){
+            var listData = {
+                  list: list,
+            };
+            fn_transaction(func,"/service/pms/dlyAffrRpt/maintList.do/"+func+"List",listData,fn_callback);
+        }
+        return;
+    }
+
+    /****** callback 문 ******/
+    function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+               grid.dataProvider.setRows(data.resultList);
+                grid.gridView.refresh();
+                
+                commonPaging(app, (data.resultList.length ? data.resultList[0].tcnt : 0), search);
+            }else if(func == "maint"){
+                grid.gridView.refresh();
+                fn_alert('정상적으로 저장되었습니다.');
+            }else if(func == "delete"){
+                grid.gridView.refresh();
+                fn_alert('정상적으로 삭제되었습니다.');
+            }else{
+                grid.gridView.refresh();
+                fn_alert(data.message);
+            }
+        }
+    }
+
+
+
+    $(window).resize(function(){
+        //grid.gridView.refresh();
+    });
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">일일업무보고</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>일일업무보고</caption>
+            <colgroup>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:150px;"/>
+                <col style="width:300px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">기안자</td>
+                <td>
+                    <select2 id="drft_id" class="form-control" v-model="keys.drft_id" :url="userUrl" min=0 :para="keys" style="width:300px"></select2>
+                </td>
+                <td class="ar">업무내용</td>
+                <td>
+                    <input id="affr_sbc" type="text" class="input_A w90p"  v-model="keys.affr_sbc">
+                </td>
+                <td class="ar">기안날짜</td>
+                <td>
+                    <datepicker id="strt_dt" class="input_A w45p" v-model="keys.strt_dt" placeholder="____-__-__"></datepicker>
+                    ~
+                    <datepicker id="fnh_dt" class="input_A w45p" v-model="keys.fnh_dt"></datepicker>
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gap5"></div>
+
+    <div class="ar">
+        <div id="goSelect" class="btn_typeA btn_search">조회</div>
+        <div id="goAdd" class="btn_typeA btn_save">추가</div>
+        <div id="goDelete" class="btn_typeA btn_delete">삭제</div>
+        <!--        <div id="goExcel" class="btn_typeA btn_excel">Excel</div>-->
+        <!--<div id="goSave" class="btn_typeA btn_save">저장</div>-->
+    </div>
+    <div class="gap10"></div>
+    <div style="width: 100%;height: auto;overflow: hidden;">
+        <div id="realgrid"  ></div>
+        <div id="commonPaging" class="commonPaging" ></div>
+    </div>
+</div>
+</body>
+</html>
