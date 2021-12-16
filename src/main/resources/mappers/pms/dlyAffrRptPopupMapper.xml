@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="proj.pms.dlyAffrRptPopup">
+
+    <resultMap id="clobMap" type="cMap">
+        <!--   CLOB 만해도 됨 cMap은 자동소문자로-->
+        <result property="AFFR_SBC" column="AFFR_SBC"  javaType="java.lang.String" jdbcType="CLOB"/>
+        <result property="NXT_AFFR_SBC" column="NXT_AFFR_SBC"  javaType="java.lang.String" jdbcType="CLOB"/>
+        <result property="REM" column="REM"  javaType="java.lang.String" jdbcType="CLOB"/>
+    </resultMap>
+    <select id="selectOne" parameterType="map"  resultMap="clobMap">
+        <include refid="paging.head" /> <!-- 페이징 처리시 필수 -->
+
+        SELECT
+        DRFT_ID, F_CDATE(DRFT_DT) DRFT_DT ,PROJ_NO,
+        (SELECT PROJ_NM FROM PROJECT_MASTER WHERE PROJ_NO = A.PROJ_NO)PROJ_NM,
+        --DBMS_LOB.SUBSTR(AFFR_SBC) AFFR_SBC,
+        AFFR_SBC,
+        NXT_AFFR_SBC,
+        F_ATTC_FILNM(A.ATTC_FILNO) FIL_NM,
+        ATTC_FILNO,
+        REM,
+        F_USERNM (NVL(A.FIN_UPDR_ID,A.VBG_CRE_USER_ID)) FIN_USER_NM,
+        F_MAINT_DT_INFO(NVL(FIN_MDFY_DT,VBG_CRE_DT)) FIN_MAINT_INFO
+        FROM DLYAFFR_RPT A
+        WHERE DRFT_ID = #{drft_id}
+        AND DRFT_DT = replace(#{drft_dt},'-')
+
+        <include refid="paging.bottom" /> <!-- 페이징 처리시 필수 -->
+    </select>
+
+    <insert id="insertList" parameterType="map" >
+        <![CDATA[
+      DECLARE
+            USER_EXCEPTION EXCEPTION;
+            V_ERR_MSG VARCHAR(2000);
+         V_CNT NUMBER;
+         V_DRFT_DT VARCHAR2(20);
+        BEGIN
+
+      V_DRFT_DT := replace(#{drft_dt},'-');
+
+      UPDATE DLYAFFR_RPT SET
+           PROJ_NO = #{proj_no}
+         , AFFR_SBC = #{affr_sbc}
+         , NXT_AFFR_SBC = #{nxt_affr_sbc}
+         , ATTC_FILNO = #{filno }
+         , FIN_UPDR_ID = #{_loginId_}
+         , FIN_MDFY_DT = systimestamp
+      where DRFT_ID = #{drft_id}
+      AND DRFT_DT = V_DRFT_DT;
+
+      IF SQL%ROWCOUNT = 0 THEN
+         INSERT INTO DLYAFFR_RPT (
+            DRFT_ID,DRFT_DT,
+            PROJ_NO,AFFR_SBC,NXT_AFFR_SBC, ATTC_FILNO,
+            VBG_CRE_USER_ID,VBG_CRE_DT,FIN_UPDR_ID,FIN_MDFY_DT
+         )values(
+            #{drft_id},V_DRFT_DT,
+            #{proj_no}, #{affr_sbc}, #{nxt_affr_sbc}, #{attc_filno},
+            #{_loginid_},SYSDATE,#{_loginid_},SYSDATE
+         );
+      END IF;
+
+        EXCEPTION
+        WHEN USER_EXCEPTION THEN
+            RAISE_APPLICATION_ERROR(-20001,V_ERR_MSG);
+        END;
+     ]]>
+    </insert>
+
+    <update id="updateList" parameterType="map">
+    </update>
+</mapper>

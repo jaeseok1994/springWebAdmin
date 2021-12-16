@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>일일업무보고 등록</title>
+    <div th:replace="headerRGrid"></div>
+
+    <link rel="stylesheet" th:href="@{/daumeditor/css/editor.css}"/>
+    <script th:src="@{/daumeditor/js/editor_loader.js}"></script>
+    <script th:src="@{/js/common/common_editor.js}"></script>
+</head>
+<style>
+/* 테이블 셀 높이*/
+.ACell {width:70px;height:50px;background:#BDBDBD;}
+.BCell {width:70px;height:50px;font-size:15px;}
+.CCell {height:50px;background:#BDBDBD;}
+.textarea { height:300px; width:98%; !important; }
+.parent { width: 100%;}
+.table_report { width: 100%;padding:2px;text-align:center;height:50px;font-weight:bold}
+.table_report td {padding:2px;}
+.first {float: left;width:30%;box-sizing: border-box;}
+.Sub_Title{ font-size:25px; color:#474e61; font-weight:500; letter-spacing:-0.5px;}
+</style>
+<script th:inline="javascript">
+    // 위험,이슈 grid 정보
+
+    var fields = [
+      {fieldName: "rkis_no",dataType: "text"},
+      {fieldName: "scn",dataType: "text"},
+      {fieldName: "proj_no",dataType: "text"},
+      {fieldName: "acdn_nm",dataType: "text"},
+      {fieldName: "pgs_situ",dataType: "text"},
+      {fieldName: "chk",dataType: "text"},
+    ];
+
+    var columns = [
+      {name: "rkis_no", fieldName: "rkis_no", type: "data", width: "80", header: "관리대장번호", visible: false },
+      {name: "scn", fieldName: "scn", type: "data", width: "80", header: "구분", editable: false },
+      {name: "proj_no", fieldName: "proj_no", type: "data", width: "100", header: "프로젝트 번호", editable: false },
+      {name: "acdn_nm", fieldName: "acdn_nm", type: "data", width: "450", styleName:"left-column", header: "사건명", editable: false },
+      {name: "pgs_situ", fieldName: "pgs_situ", type: "data", width: "100", header: "진행상황", editable: false },
+      {name: "chk", fieldName: "chk", type: "data", width: "100", header: "chk", editable: false, visible: false },
+
+    ];
+     var grid;
+     var app;
+     var setToday = getdate();
+     var loginId = getLoginId();
+     var loginNm = getLoginName();
+
+    /****** 폼 로딩 시  ******/
+    $(document.body).ready(function(){
+
+        /**** 파라미터값 구분 기능 ****/
+        var para = getCommonPara();
+        if(para.param.drft_dt != null){ // 일일시작날짜값과 프로젝트번호로 조회 후 값 세팅
+            loginId = para.param.drft_id;
+            setToday = para.param.drft_dt;
+        }
+        app = new Vue({
+            el:'#form',
+            data:{
+                projList:[],
+                monthList:[],
+                weekList:[],
+                keys:{      // 일일업무column
+                    drft_id:loginId,
+                    drft_nm:loginNm,
+                    drft_dt: setToday,
+                    proj_no: '',
+                    proj_nm: '',
+                    affr_sbc:'',
+                    nxt_affr_sbc:'',
+                    filno:'',
+                    fil_nm:'',
+                    fin_user_nm:'',
+                    fin_maint_info:'',
+                    projList:[],
+                    pagenum:1,        // 현재 페이지 번호 (★변수명 변경금지, 최초 값 1로 세팅)
+                    pagerows:5,    // 페이지당 표시할 데이터 건수 (★변수명 변경금지)
+                    pagecnt:10        // 표시할 페이지 번호 수 (★변수명 변경금지)
+                },
+                projUrl:'selectProjList',
+                userUrl:'selectUserList',
+                methods:{
+                }
+            },
+
+        });
+
+
+        /**** 저장 버튼 클릭 이벤트 ****/
+       $("#goSave").click(function(){
+             maintOne('insert');
+       });
+
+        /**** 닫기 버튼 클릭 이벤트 ****/
+        $("#popClose").click(function(){
+             close();
+        });
+
+
+        var editor_config = {
+            initializedId:"2",
+            initHeight:350
+        }
+        var editor_config2 = {
+            initializedId:"3",
+            initHeight:350
+        }
+        var editor = initEditor(editor_config,editor_config2);//new Editor(editor_config);
+
+        fn_codeDataSync({},"selectProjList",function(list){
+            app.projList = list;
+        });
+
+        if(para.param.drft_dt != null){ // 일일시작날짜값과 프로젝트번호로 조회 후 값 세팅
+            AFFR_search("select");
+        }
+    });
+
+    /**** 일일업무일지를 수정 시 프로젝트번호, 일일시작날짜로 조회 ****/
+    function AFFR_search(func){
+        app.keys.pagenum = 0;
+        var jsonData = {
+                map: app.keys,
+
+        };
+        fn_transaction(func,"/service/pms/dlyAffrRptPopup/selectList.do/selectOne",jsonData,fn_callback);
+    }
+    /**** 저장 ****/
+    function maintOne(func,key){ //insert, update 문
+
+        var searchParam = {};
+        searchParam.func = func;
+        var projno = app.keys.proj_no;
+
+        if(app.keys.drft_id == '' ){
+          fn_alert('기안자를 선택해주세요.');
+        }else if(app.keys.drft_dt == '' ){
+          fn_alert('기안일을 선택해주세요.');
+        }else{
+
+            Editor.switchEditor("2");
+            app.keys.affr_sbc = Editor.getContent();
+            Editor.switchEditor("3");
+            app.keys.nxt_affr_sbc = Editor.getContent();
+
+            var jsonData = {
+                      map: app.keys,
+            };
+            fn_transaction(func,"/service/pms/dlyAffrRptPopup/maintOne.do/"+func+"List",jsonData,fn_callback);
+            return;
+        }
+
+    }
+    /**** 콜백 ****/
+    async function fn_callback(func,data,status){
+        if(data.error){
+            alert(data.error);
+        }else{
+             if(func == "select"){
+                 if(data.resultList.length<1) {
+                    fn_alert("자료가 없습니다."); return;
+                 }
+                 Object.keys(data.resultList[0]).forEach( function(dataKey){     //by named mapping
+                      if(app.keys[dataKey.toLowerCase()] != undefined){
+                        app.keys[dataKey.toLowerCase()] = data.resultList[0][dataKey];
+                      }
+                    });
+
+                //Editor.switchEditor("2");
+                //Editor.modify({ content: data.resultList[0].affr_sbc});      //Editor.getCanvas().pasteContent(data.resultList[0].twk_arsl); REVERSE BUG
+                await fn_setEditorContent("2",data.resultList[0].affr_sbc);
+                await fn_setEditorContent("3",data.resultList[0].nxt_affr_sbc);
+                //setTimeout(function (){setEditor3(data.resultList[0].nxt_affr_sbc)},500);
+
+
+                //$('#file-upload-name').text(data.resultList[0].fil_nm);
+            }else{
+                fn_alert(data.message);
+            }
+        }
+    }
+
+    function fn_filechange(f){
+        app.keys.file = $('#file-upload-name').text($('#fileUpload').val());
+        fileUpload("maint");
+    }
+
+    function fileUpload(func){
+        var param = app.keys;
+
+        var formData = new FormData($("#fileuploadForm")[0]);
+        formData.append("mapData",JSON.stringify(param));
+        console.log(formData);
+
+        $.ajax({
+            enctype: 'multipart/form-data',
+            type : 'POST',
+            url : '/service/commonFile/upload/maintfileUpload.do/' + func + 'List',
+            processData : false,
+            contentType  : false,
+            cache : false,
+            data : formData,
+            map : param,
+            success : function(data) {
+                console.log(data.FIL_SN0);
+                app.keys.filno = data.FIL_SN0;
+               // fn_alert(data.message);
+                if(data.error != null){
+                    fn_alert(data.error.message);
+                }
+            },
+            error: function(e){
+                console.log(e);
+                // var rtn = $.parseJSON(e.responseText);
+                //fn_alert(rtn.error.message);
+            }
+        });
+    }
+
+    function fn_filecheck(){
+        if(app.keys.filno !== null && app.keys.filno !== ""){
+            var param = {filNo:app.keys.filno} //app.keys;
+            var url = "/service/commonFile/upload/maintfileDownload.do/selectFile";
+            param.flid = $('#file-upload-name').text();
+            var jsonData = {
+                map:param,
+            };
+            fn_downLoad(url,jsonData,"_self");
+            //fn_popup_open
+        }else{
+            fn_alert("저장된 파일이 없습니다.");
+        }
+
+
+    }
+
+</script>
+<body>
+<div id="form" class="contentPgm">
+    <div class="content_title">일일업무보고 등록</div>
+    <div class="box_Atype">
+        <table class="tbl_base">
+            <caption>일일업무보고 등록</caption>
+            <colgroup>
+                <col style="width:110px;"/>
+                <col style="width:200px;"/>
+                <col style="width:80px;"/>
+                <col style="width:180px;"/>
+                <col style="width:80px;"/>
+                <col style="width:200px;"/>
+                <col style="width:80px;"/>
+                <col style="width:200px;"/>
+                <col style="width:*;"/>
+            </colgroup>
+            <tbody>
+            <tr>
+                <td class="ar">*기안자</td>
+                <td>
+                    <select2 id="drft_id" class="form-control" v-model="keys.drft_id" :url="userUrl" :para="keys" min="0" :text="keys.drft_nm" style="width:180px"></select2>
+                </td>
+                <td class="ar">*기안일</td>
+                <td>
+                    <datepicker id="drft_dt" class="input_A w80p" v-model="keys.drft_dt"></datepicker>
+                </td>
+                <td class="ar">작성자</td>
+                <td>
+                    <input id="fin_user_nm" type="text" class="input_A w80p ac" v-model="keys.fin_user_nm" readonly>
+                </td>
+                <td class="ar">작성일시</td>
+                <td>
+                    <input id="fin_maint_info" type="text" class="input_A w80p ac" v-model="keys.fin_maint_info" readonly>
+                </td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="parent Sub_Title">
+        <div class="first " >일일업무</div>
+        <div id="popClose" class="btn_typeA  btn_close" style="float:right;margin-top: 5px;">Close</div>
+        <div id="goSave" class="btn_typeA  btn_save" style="float:right; margin-top: 5px; margin-right: 5px;">저장</div>
+    </div>
+    <div class="gap5"></div>
+    <div class="">
+        <table class="table_report" border="1">
+            <colgroup style="width:30%"></colgroup>
+            <colgroup style="width:30%"></colgroup>
+            <tr>
+                <th style="height:40px;background-color:#BDBDBD;">실적</th>
+                <th style="height:40px;background-color:#BDBDBD;">계획</th>
+            </tr>
+            <tr>
+                <td style="padding:5px;">
+                    <div th:replace="editor_templet2.html"></div>
+                    <!--                        <textarea id="twk_arsl" type="text" class="textarea" v-model.trim="keys.twk_arsl" style="resize: none;" ></textarea>-->
+                </td>
+
+                <td style="padding:5px;">
+                    <div th:replace="editor_templet3.html"></div>
+                    <!--                        <textarea id="nxk_pln" type="text" class="textarea" v-model.trim="keys.nxk_pln" style="resize: none;"></textarea>-->
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:2px">
+                    <table class="table_report" border="1"  style="width: 100%;">
+                        <colgroup style="width:9%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:5%"></colgroup>
+                        <colgroup style="width:15%"></colgroup>
+                        <tr style="text-align:center">
+                            <td class="CCell">프로젝트</td>
+                            <td colspan="7"  style="text-align:left;padding-left:15px;">
+                                <select name="proj_no" id="proj_no" class="ui_sel w80p" v-model="keys.proj_no">
+                                    <option v-for="list in projList" :value="list.value">{{list.text}}</option>
+                                </select>
+                                <!--                                <template  >  조회용으로 사용하지마시오 -->
+                                <!--                                    <select2 id="proj_no" v-model="keys.proj_no" :url="projUrl" :para="keys" min="0" :text="keys.proj_nm" style="width:330px;"></select2>-->
+                                <!--                                </template>-->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="ACell">첨부파일</td>
+                            <td colspan="3">
+                                <span class="txt-file" id="file-upload-name"></span>
+                                <!--<input type="file" id="file_sn" name="file_sn" multiple v-model="keys.file_sn">-->
+                            </td>
+                            <td colspan="2">
+
+                                <form id="fileuploadForm" name="fileuploadForm" method="POST">
+                                <span class="btn btn_primary btn-file">
+                                    <input name="fileUpload" id="fileUpload" type="file" style="width:150px" onchange="fn_filechange(this)">
+                                </span>
+                                </form>
+                            </td>
+                            <td colspan="3">
+                                <span class="btn btn-primary btn-file">
+                                    <div name="fileDown" class="btn_typeA btn_save" id="fileDown" onclick="fn_filecheck('filecheck')">다운</div>
+                                    <div name="fileDown" class="btn_typeA btn_delete" id="fileDel" onclick="fn_fileDel('filecheck')">삭제</div>
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="padding:2px">
+                    <table class="table_report" border="1" style="height: 100%;">
+                        <colgroup style="width:65px"></colgroup>
+                        <colgroup style="width:*"></colgroup>
+                        <tr>
+                            <td class="CCell" >비고</td>
+                            <td class="" style="padding:2px"><textarea id="rem" type="text" v-model.trim="keys.rem" style="width:98%;height:90px;font-size:15px; resize: none;"></textarea></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="gap5"></div>
+</div>
+
+</body>
+</html>
